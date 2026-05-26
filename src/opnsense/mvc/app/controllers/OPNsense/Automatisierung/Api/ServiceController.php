@@ -16,10 +16,14 @@ class ServiceController extends ApiControllerBase
         curl_setopt($ch, CURLOPT_TIMEOUT, 20);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        if ($method === 'POST') { curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']); }
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $postData ? json_encode($postData) : '{}');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        } elseif ($method === 'PUT') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postData ? json_encode($postData) : '{}');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         }
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -27,6 +31,26 @@ class ServiceController extends ApiControllerBase
         curl_close($ch);
         if ($curlError) return ['error' => $curlError, 'http_code' => 0];
         return ['data' => json_decode($response, true) ?? [], 'http_code' => $httpCode];
+    }
+
+    /**
+     * Call zenarmor/status/service (PUT) to start/stop/restart a ZA service.
+     * Returns true on success.
+     */
+    private function zaServiceAction($url, $key, $secret, $sv, $service, $action)
+    {
+        $r = $this->remoteApiCall($url, $key, $secret, 'zenarmor/status/service', 'PUT',
+            ['service' => $service, 'action' => $action], $sv);
+        return $r['http_code'] === 200 && isset($r['data']['Status']) && (int)$r['data']['Status'] === 0;
+    }
+
+    /**
+     * Determine if the Zenarmor engine (eastpect) is running from status response data.
+     * eastpect.status is a boolean in the Zenarmor API.
+     */
+    private function zaIsEngineRunning(array $zd)
+    {
+        return (bool)($zd['eastpect']['status'] ?? false);
     }
 
     public function allStatusAction()
@@ -67,13 +91,11 @@ class ServiceController extends ApiControllerBase
             if ($za['http_code'] === 200 && !empty($za['data'])) {
                 $entry['za_installed'] = true;
                 $zd = $za['data'];
-                // Korrekte Felder aus zenarmor/status/index
                 $av = $zd['agent_version'] ?? '?';
-                $entry['za_version'] = is_array($av) ? ($av['version'] ?? '?') : (string)$av;
-                $entry['za_running'] = (bool)($zd['agent_status'] ?? false);
-                $agentStatus              = strtolower($zd['agent_status'] ?? '');
-                $entry['za_running']       = in_array($agentStatus, ['running','active','started','1','true']);
-                $entry['za_engine_status'] = $agentStatus ?: 'unknown';
+                $entry['za_version']       = is_array($av) ? ($av['version'] ?? '?') : (string)$av;
+                // eastpect.status is a boolean in the Zenarmor API
+                $entry['za_running']       = (bool)($zd['eastpect']['status'] ?? false);
+                $entry['za_engine_status'] = $entry['za_running'] ? 'running' : 'stopped';
                 $entry['za_needs_restart'] = !empty($zd['updateInProgress']);
             }
             $result[] = $entry;
@@ -107,12 +129,11 @@ class ServiceController extends ApiControllerBase
         $host = $this->getHostByUuid($this->request->getPost('uuid','string',''));
         if (!$host) return ['result'=>'failed','message'=>'Host nicht gefunden'];
         list($url,$key,$secret,$sv) = $host;
-        // Zenarmor restart via configd-style reconfigure
-        $r = $this->remoteApiCall($url,$key,$secret,'zenarmor/status/index','GET',null,$sv);
-        if ($r['http_code']===200) {
-            return ['result'=>'ok','message'=>'ZA Engine läuft. Direkter Neustart via API nicht verfügbar — bitte über Zenarmor-Interface.'];
+        $ok = $this->zaServiceAction($url, $key, $secret, $sv, 'eastpect', 'restart');
+        if ($ok) {
+            return ['result'=>'ok','message'=>'ZA Engine Neustart angestossen.'];
         }
-        return ['result'=>'failed','message'=>'ZA Status nicht abrufbar.'];
+        return ['result'=>'failed','message'=>'ZA Engine Neustart fehlgeschlagen. Prüfe ob Interfaces in Zenarmor konfiguriert sind.'];
     }
 
     public function zaWatchdogCheckAction()
@@ -121,21 +142,27 @@ class ServiceController extends ApiControllerBase
         $host = $this->getHostByUuid($this->request->getPost('uuid','string',''));
         if (!$host) return ['result'=>'failed','message'=>'Host nicht gefunden'];
         list($url,$key,$secret,$sv) = $host;
-        $za = $this->remoteApiCall($url,$key,$secret,'zenarmor/status/index','GET',null,$sv);
-        if ($za['http_code']!==200) return ['result'=>'ok','actions'=>['Status nicht abrufbar.']];
-        $running = in_array(strtolower($za['data']['status']??''),['running','active']);
-        $needsRestart = !empty($za['data']['needs_restart']);
+
+        $za = $this->remoteApiCall($url, $key, $secret, 'zenarmor/status/index', 'GET', null, $sv);
+        if ($za['http_code'] !== 200) {
+            return ['result'=>'ok','actions'=>['Status nicht abrufbar (HTTP ' . $za['http_code'] . ').']];
+        }
+
+        $zd = $za['data'];
+        $running       = $this->zaIsEngineRunning($zd);
+        $needsRestart  = !empty($zd['updateInProgress']);
         $actions = [];
+
         if (!$running) {
-            $actions[] = 'ZA nicht aktiv — starte...';
-            $s = $this->remoteApiCall($url,$key,$secret,'zenarmor/service/start','POST',[],$sv);
-            $actions[] = $s['http_code']===200 ? 'Gestartet.' : 'Start fehlgeschlagen.';
+            $actions[] = 'ZA Engine nicht aktiv — starte...';
+            $ok = $this->zaServiceAction($url, $key, $secret, $sv, 'eastpect', 'start');
+            $actions[] = $ok ? 'Engine gestartet.' : 'Start fehlgeschlagen — prüfe ob Interfaces in Zenarmor konfiguriert sind.';
         } elseif ($needsRestart) {
-            $actions[] = 'Neustart erforderlich...';
-            $r = $this->remoteApiCall($url,$key,$secret,'zenarmor/service/restart','POST',[],$sv);
-            $actions[] = $r['http_code']===200 ? 'Neugestartet.' : 'Fehlgeschlagen.';
+            $actions[] = 'Engine läuft, Update ausstehend — starte neu...';
+            $ok = $this->zaServiceAction($url, $key, $secret, $sv, 'eastpect', 'restart');
+            $actions[] = $ok ? 'Engine neugestartet.' : 'Neustart fehlgeschlagen.';
         } else {
-            $actions[] = 'ZA läuft — kein Eingriff nötig.';
+            $actions[] = 'ZA Engine läuft — kein Eingriff nötig.';
         }
         return ['result'=>'ok','actions'=>$actions];
     }
