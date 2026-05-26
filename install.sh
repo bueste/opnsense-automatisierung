@@ -52,8 +52,19 @@ cp "$SRC/views/OPNsense/Automatisierung/status.volt" \
 cp "$SRC/views/OPNsense/Automatisierung/backup.volt" \
    "$TARGET/views/OPNsense/Automatisierung/backup.volt"
 
+# ---- Scripts ----
+echo "[4/6] Kopiere Scripts..."
+mkdir -p /usr/local/opnsense/scripts/Automatisierung
+cp "$SCRIPT_DIR/src/opnsense/scripts/Automatisierung/za_watchdog.py" \
+   /usr/local/opnsense/scripts/Automatisierung/za_watchdog.py
+cp "$SCRIPT_DIR/src/opnsense/scripts/Automatisierung/auto_update.py" \
+   /usr/local/opnsense/scripts/Automatisierung/auto_update.py
+cp "$SCRIPT_DIR/src/opnsense/scripts/Automatisierung/backup_job.py" \
+   /usr/local/opnsense/scripts/Automatisierung/backup_job.py
+chmod +x /usr/local/opnsense/scripts/Automatisierung/*.py
+
 # ---- Cache leeren ----
-echo "[4/4] Phalcon View Cache leeren..."
+echo "[5/6] Phalcon View Cache leeren..."
 if ls /var/cache/opnsense/views/*.php 2>/dev/null | head -1 > /dev/null; then
     rm -f /var/cache/opnsense/views/*.php
     echo "     Cache geleert."
@@ -64,6 +75,19 @@ fi
 # ---- Backup-Verzeichnis erstellen ----
 mkdir -p /var/db/automatisierung/backups
 chmod 750 /var/db/automatisierung/backups
+
+# ---- Cron-Jobs einrichten ----
+echo "[6/6] Cron-Jobs einrichten..."
+WATCHDOG_CMD="*/5 * * * * /usr/local/bin/flock -n -E 0 -o /tmp/za_watchdog.lock /usr/local/bin/python3 /usr/local/opnsense/scripts/Automatisierung/za_watchdog.py >> /var/log/automatisierung_watchdog.log 2>&1"
+BACKUP_CMD="0 * * * * /usr/local/bin/flock -n -E 0 -o /tmp/automatisierung_backup.lock /usr/local/bin/python3 /usr/local/opnsense/scripts/Automatisierung/backup_job.py >> /var/log/automatisierung_backup.log 2>&1"
+AUTOUPDATE_CMD="30 3 * * * /usr/local/bin/flock -n -E 0 -o /tmp/automatisierung_update.lock /usr/local/bin/python3 /usr/local/opnsense/scripts/Automatisierung/auto_update.py >> /var/log/automatisierung_update.log 2>&1"
+
+( crontab -l 2>/dev/null | grep -v 'Automatisierung/za_watchdog\|Automatisierung/backup_job\|Automatisierung/auto_update'
+  echo "$WATCHDOG_CMD"
+  echo "$BACKUP_CMD"
+  echo "$AUTOUPDATE_CMD"
+) | crontab -
+echo "     Cron-Jobs gesetzt (ZA Watchdog: alle 5 Min, Backup: stündlich, Auto-Update: täglich 03:30)."
 
 echo ""
 echo "=== Installation abgeschlossen ==="
