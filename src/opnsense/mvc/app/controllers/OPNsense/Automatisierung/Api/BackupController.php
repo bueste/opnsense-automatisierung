@@ -259,6 +259,11 @@ class BackupController extends ApiControllerBase
      * Trigger immediate backup from a remote host (fetch + store locally)
      * POST /api/automatisierung/backup/triggerBackup  {uuid: ...}
      */
+    /**
+     * Trigger immediate backup from a remote host (fetch + store locally).
+     * Uses OPNsense 26.x API: GET core/backup/download/this
+     * POST /api/automatisierung/backup/triggerBackup  {uuid: ...}
+     */
     public function triggerBackupAction()
     {
         $result = ['result' => 'failed', 'message' => ''];
@@ -274,51 +279,7 @@ class BackupController extends ApiControllerBase
             return $result;
         }
 
-        // Fetch config backup list from remote host
-        list($code, $data) = $this->remoteCall(
-            $host['url'], $host['api_key'], $host['api_secret'],
-            'core/backup/list', 'GET', null, $host['skip_verify']
-        );
-
-        if ($code !== 200 || empty($data)) {
-            // Fallback: try to download current config directly
-            return $this->fetchCurrentConfig($uuid, $host);
-        }
-
-        // Get the most recent backup from remote and store it locally
-        // OPNsense backup list returns filenames, pick latest
-        $backupFile = null;
-        if (is_array($data)) {
-            // Could be array of filenames or keyed array
-            $files = isset($data[0]) ? $data : array_keys($data);
-            if (!empty($files)) {
-                sort($files);
-                $backupFile = end($files);
-            }
-        }
-
-        if ($backupFile) {
-            list($dlCode, , $rawXml) = $this->remoteCall(
-                $host['url'], $host['api_key'], $host['api_secret'],
-                'core/backup/download/' . rawurlencode($backupFile), 'GET', null, $host['skip_verify']
-            );
-            if ($dlCode === 200 && !empty($rawXml) && strpos($rawXml, '<?xml') !== false) {
-                return $this->storeBackup($uuid, $rawXml, $result);
-            }
-        }
-
-        // Final fallback: download current config
-        return $this->fetchCurrentConfig($uuid, $host);
-    }
-
-    /**
-     * Fetch the current running config from a remote host
-     */
-    private function fetchCurrentConfig($uuid, $host)
-    {
-        $result = ['result' => 'failed', 'message' => ''];
-
-        // Try the firmware backup endpoint
+        // OPNsense 26.x: core/backup/download/this → aktuellstes config.xml
         list($code, , $raw) = $this->remoteCall(
             $host['url'], $host['api_key'], $host['api_secret'],
             'core/backup/download/this', 'GET', null, $host['skip_verify']
@@ -327,12 +288,6 @@ class BackupController extends ApiControllerBase
         if ($code === 200 && strpos($raw, '<?xml') !== false) {
             return $this->storeBackup($uuid, $raw, $result);
         }
-
-        // Try fetching config via diagnostics if available
-        list($code2, , $raw2) = $this->remoteCall(
-            $host['url'], $host['api_key'], $host['api_secret'],
-            'core/backup/list', 'GET', null, $host['skip_verify']
-        );
 
         $result['message'] = 'Backup konnte nicht abgerufen werden (HTTP ' . $code . '). '
             . 'Stelle sicher dass der API-Benutzer Backup-Rechte hat.';
