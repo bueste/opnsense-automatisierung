@@ -53,10 +53,10 @@ class BackupController extends ApiControllerBase
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$skipVerify);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $skipVerify ? 0 : 2);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $postData ? json_encode($postData) : '{}');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         }
         $body     = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
