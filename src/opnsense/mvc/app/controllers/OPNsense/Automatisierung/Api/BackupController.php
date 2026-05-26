@@ -526,6 +526,176 @@ class BackupController extends ApiControllerBase
     }
 
     /**
+     * Trigger ZA (Zenarmor) backup on a remote host: create + fetch + store locally
+     * POST /api/automatisierung/backup/triggerZaBackup  {uuid: ...}
+     */
+    public function triggerZaBackupAction()
+    {
+        $result = ['result' => 'failed', 'message' => ''];
+        if (!$this->request->isPost()) {
+            $result['message'] = 'POST required';
+            return $result;
+        }
+
+        $uuid = $this->request->getPost('uuid', 'string', '');
+        $host = $this->getHostByUuid($uuid);
+        if (!$host) {
+            $result['message'] = 'Host nicht gefunden oder deaktiviert';
+            return $result;
+        }
+
+        // Step 1: Trigger backup creation on remote host
+        list($code, $data,) = $this->remoteCall(
+            $host['url'], $host['api_key'], $host['api_secret'],
+            'zenarmor/backup/index', 'POST', [], $host['skip_verify']
+        );
+
+        if ($code !== 200 || !empty($data['error'])) {
+            $msg = isset($data['message']) ? $data['message'] : 'HTTP ' . $code;
+            $result['message'] = 'ZA-Backup konnte nicht erstellt werden: ' . $msg;
+            return $result;
+        }
+
+        // Step 2: List backups to find the latest file
+        list($listCode, $listData,) = $this->remoteCall(
+            $host['url'], $host['api_key'], $host['api_secret'],
+            'zenarmor/backup/index', 'GET', null, $host['skip_verify']
+        );
+
+        if ($listCode !== 200 || empty($listData['backupList'])) {
+            $result['message'] = 'ZA-Backupliste konnte nicht abgerufen werden (HTTP ' . $listCode . ')';
+            return $result;
+        }
+
+        $files = $listData['backupList'];
+        usort($files, function($a, $b) { return strcmp($b['filename'], $a['filename']); });
+        $latest = $files[0]['filename'];
+
+        // Step 3: Download the backup file (binary .gz)
+        list($dlCode, , $rawGz) = $this->remoteCall(
+            $host['url'], $host['api_key'], $host['api_secret'],
+            'zenarmor/backup/download?filename=' . rawurlencode($latest), 'GET', null, $host['skip_verify']
+        );
+
+        if ($dlCode !== 200 || empty($rawGz)) {
+            $result['message'] = 'ZA-Backup-Download fehlgeschlagen (HTTP ' . $dlCode . ')';
+            return $result;
+        }
+
+        // Step 4: Store locally under {uuid}/za/
+        $zaDir = $this->ensureDir($uuid) . '/za';
+        if (!is_dir($zaDir)) {
+            mkdir($zaDir, 0750, true);
+        }
+        $localFile = date('Y-m-d_His') . '_' . preg_replace('/[^a-zA-Z0-9_.\-]/', '', $latest);
+        if (file_put_contents($zaDir . '/' . $localFile, $rawGz) !== false) {
+            $result['result']   = 'ok';
+            $result['message']  = 'ZA-Backup erstellt: ' . $localFile;
+            $result['filename'] = $localFile;
+        } else {
+            $result['message'] = 'Fehler beim Speichern der ZA-Backup-Datei';
+        }
+        return $result;
+    }
+
+    /**
+     * List local ZA backups for a host
+     * GET /api/automatisierung/backup/listZaBackups?uuid=...
+     */
+    public function listZaBackupsAction()
+    {
+        $uuid = $this->request->get('uuid', 'string', '');
+        if (empty($uuid)) {
+            return ['result' => 'failed', 'message' => 'uuid fehlt'];
+        }
+
+        $dir = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid) . '/za';
+        if (!is_dir($dir)) {
+            return ['backups' => []];
+        }
+
+        $files = glob($dir . '/*') ?: [];
+        $backups = [];
+        foreach ($files as $f) {
+            $fname = basename($f);
+            $mtime = filemtime($f);
+            $backups[] = [
+                'filename'      => $fname,
+                'timestamp'     => date('c', $mtime),
+                'timestamp_fmt' => date('d.m.Y H:i:s', $mtime),
+                'size'          => $this->humanSize(filesize($f)),
+                'size_bytes'    => filesize($f),
+            ];
+        }
+
+        usort($backups, function($a, $b) { return strcmp($b['filename'], $a['filename']); });
+        return ['backups' => $backups];
+    }
+
+    /**
+     * Serve a local ZA backup file for browser download
+     * GET /api/automatisierung/backup/downloadZaFile?uuid=...&filename=...
+     */
+    public function downloadZaFileAction()
+    {
+        $uuid     = $this->request->get('uuid', 'string', '');
+        $filename = basename($this->request->get('filename', 'string', ''));
+
+        if (empty($uuid) || empty($filename) || !preg_match('/^[\w\-\.]+$/', $filename)) {
+            $this->response->setStatusCode(400);
+            return;
+        }
+
+        $path = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid) . '/za/' . $filename;
+        if (!file_exists($path)) {
+            $this->response->setStatusCode(404);
+            return;
+        }
+
+        $this->response->setContentType('application/octet-stream');
+        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        $this->response->setHeader('Content-Length', (string)filesize($path));
+        $this->response->setContent(file_get_contents($path));
+        return $this->response;
+    }
+
+    /**
+     * Delete a local ZA backup file
+     * POST /api/automatisierung/backup/deleteZaBackup  {uuid: ..., filename: ...}
+     */
+    public function deleteZaBackupAction()
+    {
+        $result = ['result' => 'failed', 'message' => ''];
+        if (!$this->request->isPost()) {
+            $result['message'] = 'POST required';
+            return $result;
+        }
+
+        $uuid     = $this->request->getPost('uuid', 'string', '');
+        $filename = basename($this->request->getPost('filename', 'string', ''));
+
+        if (!preg_match('/^[\w\-\.]+$/', $filename)) {
+            $result['message'] = 'Ungültiger Dateiname';
+            return $result;
+        }
+
+        $path = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid) . '/za/' . $filename;
+        if (!file_exists($path)) {
+            $result['message'] = 'Datei nicht gefunden';
+            return $result;
+        }
+
+        if (unlink($path)) {
+            $result['result']  = 'ok';
+            $result['message'] = 'ZA-Backup gelöscht.';
+        } else {
+            $result['message'] = 'Löschen fehlgeschlagen.';
+        }
+
+        return $result;
+    }
+
+    /**
      * Run retention cleanup for a host (delete files older than N days)
      * POST /api/automatisierung/backup/runRetention  {uuid: ...}
      */

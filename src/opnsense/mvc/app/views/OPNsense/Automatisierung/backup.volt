@@ -10,6 +10,7 @@
         <ul class="nav nav-tabs" id="backupMainTabs" role="tablist">
             <li class="active"><a href="#tab-compare" data-toggle="tab"><i class="fa fa-code-fork"></i> {{ lang._('Sicherungen vergleichen') }}</a></li>
             <li><a href="#tab-list" data-toggle="tab"><i class="fa fa-list"></i> {{ lang._('Alle Sicherungen') }}</a></li>
+            <li><a href="#tab-za" data-toggle="tab"><i class="fa fa-shield"></i> {{ lang._('Zenarmor Backup') }}</a></li>
             <li><a href="#tab-settings" data-toggle="tab"><i class="fa fa-cog"></i> {{ lang._('Einstellungen') }}</a></li>
         </ul>
     </div>
@@ -167,7 +168,61 @@
 
 
     <!-- ===================================================================
-         TAB 3: EINSTELLUNGEN
+         TAB 3: ZENARMOR BACKUP
+         =================================================================== -->
+    <div id="tab-za" class="tab-pane fade">
+
+        <div class="row" style="margin-bottom:1em;">
+            <div class="col-xs-12 col-sm-5">
+                <label>{{ lang._('Host') }}</label>
+                <select id="za_host_select" class="form-control selectpicker" data-live-search="true">
+                    <option value="">— Host wählen —</option>
+                </select>
+            </div>
+            <div class="col-xs-12 col-sm-7" style="padding-top:1.6em;">
+                <button id="btn_za_backup_now" class="btn btn-primary btn-sm" disabled>
+                    <i class="fa fa-shield"></i> {{ lang._('ZA-Backup jetzt erstellen') }}
+                </button>
+                <button id="btn_za_refresh" class="btn btn-default btn-sm" disabled>
+                    <i class="fa fa-refresh"></i> {{ lang._('Aktualisieren') }}
+                </button>
+            </div>
+        </div>
+
+        <div class="alert alert-info" style="max-width:720px;">
+            <i class="fa fa-info-circle"></i>
+            {{ lang._('Zenarmor-Backups werden als .gz-Datei auf dem Remote-Host erstellt und dann lokal gespeichert. Der API-Benutzer benötigt Zenarmor-Backup-Rechte.') }}
+        </div>
+
+        <div id="za_msg" class="alert" style="display:none;max-width:720px;"></div>
+
+        <div id="za_table_wrap" style="display:none;">
+            <table class="table table-condensed table-hover table-striped" style="max-width:900px;">
+                <thead>
+                <tr>
+                    <th>{{ lang._('Zeitstempel') }}</th>
+                    <th>{{ lang._('Dateiname') }}</th>
+                    <th style="width:5em;">{{ lang._('Grösse') }}</th>
+                    <th style="width:7em;">{{ lang._('Aktionen') }}</th>
+                </tr>
+                </thead>
+                <tbody id="za_list_tbody"></tbody>
+            </table>
+        </div>
+
+        <div id="za_empty" class="text-muted" style="display:none;padding:2em 0;">
+            <i class="fa fa-info-circle"></i> {{ lang._('Keine ZA-Backups vorhanden. Erstelle jetzt eines.') }}
+        </div>
+
+        <div id="za_host_hint" class="text-muted" style="padding:2em 0;">
+            <i class="fa fa-arrow-up"></i> {{ lang._('Bitte oben einen Host auswählen.') }}
+        </div>
+
+    </div><!-- /#tab-za -->
+
+
+    <!-- ===================================================================
+         TAB 4: EINSTELLUNGEN
          =================================================================== -->
     <div id="tab-settings" class="tab-pane fade">
 
@@ -335,12 +390,14 @@ function loadHosts(cb) {
         var hosts = resp.hosts;
         var $c = $('#cmp_host_select').find('option:not(:first)').remove().end();
         var $l = $('#list_host_select').find('option:not(:first)').remove().end();
+        var $z = $('#za_host_select').find('option:not(:first)').remove().end();
         var $t = $('#bk_host_tbody').empty();
 
         $.each(hosts, function(i, h) {
             var label = esc(h.name) + ' (' + esc(h.url) + ')';
             $c.append('<option value="' + esc(h.uuid) + '">' + label + '</option>');
             $l.append('<option value="' + esc(h.uuid) + '">' + label + '</option>');
+            $z.append('<option value="' + esc(h.uuid) + '">' + label + '</option>');
 
             var cnt = h.backup_count ? '<span class="badge">' + h.backup_count + '</span>' : '—';
             $t.append(
@@ -355,6 +412,7 @@ function loadHosts(cb) {
         });
         $c.selectpicker('refresh');
         $l.selectpicker('refresh');
+        $z.selectpicker('refresh');
         if (cb) cb(hosts);
     });
 }
@@ -816,6 +874,79 @@ $('#btn_save_bk_settings').on('click', function() {
             showAlert($('#bk_settings_msg'), ok ? 'success' : 'danger',
                 '<i class="fa fa-' + (ok ? 'check' : 'times') + '-circle"></i> ' +
                 esc(resp.message || JSON.stringify(resp.validations || {})));
+        }
+    });
+});
+
+/* =========================================================
+   Zenarmor (ZA) Backup Tab
+   ========================================================= */
+var zaUuid = '';
+
+$('#za_host_select').on('change', function() {
+    zaUuid = $(this).val();
+    var has = !!zaUuid;
+    $('#btn_za_backup_now, #btn_za_refresh').prop('disabled', !has);
+    $('#za_host_hint').toggle(!has);
+    if (has) loadZaList();
+    else { $('#za_table_wrap, #za_empty').hide(); }
+});
+
+function loadZaList() {
+    if (!zaUuid) return;
+    $('#za_table_wrap, #za_empty').hide();
+    $.get('/api/automatisierung/backup/listZaBackups', {uuid: zaUuid}, function(resp) {
+        var backups = resp.backups || [];
+        var $tbody = $('#za_list_tbody').empty();
+        if (!backups.length) { $('#za_empty').show(); return; }
+        backups.forEach(function(bk) {
+            var dlUrl = '/api/automatisierung/backup/downloadZaFile?uuid=' +
+                        encodeURIComponent(zaUuid) + '&filename=' + encodeURIComponent(bk.filename);
+            $tbody.append(
+                '<tr>' +
+                '<td style="font-family:monospace;font-size:0.87em;white-space:nowrap;">' + esc(bk.timestamp_fmt) + '</td>' +
+                '<td style="font-size:0.82em;word-break:break-all;">' + esc(bk.filename) + '</td>' +
+                '<td><small>' + esc(bk.size) + '</small></td>' +
+                '<td style="white-space:nowrap;">' +
+                  '<a href="' + dlUrl + '" class="btn btn-xs btn-default bk-inline-btn" title="Herunterladen" download><i class="fa fa-download"></i></a>' +
+                  '<button class="btn btn-xs btn-danger bk-inline-btn btn-za-del" data-fn="' + esc(bk.filename) + '" title="Löschen"><i class="fa fa-trash-o"></i></button>' +
+                '</td></tr>'
+            );
+        });
+        $('#za_table_wrap').show();
+    });
+}
+
+$('#btn_za_refresh').on('click', loadZaList);
+
+$('#btn_za_backup_now').on('click', function() {
+    if (!zaUuid) return;
+    var $btn = $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> ...');
+    $('#za_msg').hide();
+    $.ajax({
+        url: '/api/automatisierung/backup/triggerZaBackup', method: 'POST', data: {uuid: zaUuid},
+        success: function(resp) {
+            showAlert($('#za_msg'), resp.result === 'ok' ? 'success' : 'danger',
+                '<i class="fa fa-' + (resp.result === 'ok' ? 'check' : 'times') + '-circle"></i> ' + esc(resp.message));
+            if (resp.result === 'ok') loadZaList();
+        },
+        error: function() {
+            showAlert($('#za_msg'), 'danger', '<i class="fa fa-times-circle"></i> Verbindungsfehler');
+        },
+        complete: function() { $btn.prop('disabled', false).html('<i class="fa fa-shield"></i> ZA-Backup jetzt erstellen'); }
+    });
+});
+
+$(document).on('click', '.btn-za-del', function() {
+    var fn = $(this).data('fn');
+    if (!confirm('ZA-Backup "' + fn + '" wirklich löschen?')) return;
+    $.ajax({
+        url: '/api/automatisierung/backup/deleteZaBackup', method: 'POST',
+        data: {uuid: zaUuid, filename: fn},
+        success: function(resp) {
+            showAlert($('#za_msg'), resp.result === 'ok' ? 'success' : 'danger',
+                '<i class="fa fa-' + (resp.result === 'ok' ? 'check' : 'times') + '-circle"></i> ' + esc(resp.message));
+            if (resp.result === 'ok') loadZaList();
         }
     });
 });
