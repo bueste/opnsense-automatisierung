@@ -1,0 +1,13 @@
+# Shell scripts must stay LF (run on FreeBSD)
+*.sh text eol=lf
+install.sh text eol=lf
+deploy.sh text eol=lf
+
+# PHP/XML/Volt — LF
+*.php text eol=lf
+*.xml text eol=lf
+*.volt text eol=lf
+
+# Other
+*.md text eol=lf
+.gitignore text eol=lf

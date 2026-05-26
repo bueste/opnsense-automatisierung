@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<model>
+    <mount>//automatisierung</mount>
+    <description>Automatisierung - Multi-OPNsense Management Plugin</description>
+    <version>1.0.0</version>
+    <items>
+        <hosts>
+            <host type="ArrayField">
+                <enabled type="BooleanField">
+                    <Default>1</Default>
+                    <Required>Y</Required>
+                </enabled>
+                <name type="TextField">
+                    <Required>Y</Required>
+                    <mask>/^.{1,64}$/</mask>
+                    <ValidationMessage>Name darf maximal 64 Zeichen enthalten.</ValidationMessage>
+                </name>
+                <url type="TextField">
+                    <Required>Y</Required>
+                    <mask>/^https?:\/\/.+/</mask>
+                    <ValidationMessage>Bitte eine gültige URL eingeben (http:// oder https://).</ValidationMessage>
+                </url>
+                <api_key type="TextField">
+                    <Required>Y</Required>
+                    <mask>/^[^\s]{1,512}$/</mask>
+                    <ValidationMessage>API Key darf keine Leerzeichen enthalten.</ValidationMessage>
+                </api_key>
+                <api_secret type="TextField">
+                    <Required>Y</Required>
+                    <mask>/^[^\s]{1,512}$/</mask>
+                    <ValidationMessage>API Secret darf keine Leerzeichen enthalten.</ValidationMessage>
+                </api_secret>
+                <auto_update_opnsense type="BooleanField">
+                    <Default>0</Default>
+                </auto_update_opnsense>
+                <auto_update_za type="BooleanField">
+                    <Default>0</Default>
+                </auto_update_za>
+                <za_watchdog type="BooleanField">
+                    <Default>0</Default>
+                </za_watchdog>
+                <skip_verify_tls type="BooleanField">
+                    <Default>0</Default>
+                </skip_verify_tls>
+            </host>
+        </hosts>
+        <general>
+            <update_hour type="IntegerField">
+                <Default>3</Default>
+                <MinimumValue>0</MinimumValue>
+                <MaximumValue>23</MaximumValue>
+            </update_hour>
+            <update_minute type="IntegerField">
+                <Default>0</Default>
+                <MinimumValue>0</MinimumValue>
+                <MaximumValue>59</MaximumValue>
+            </update_minute>
+            <update_days type="TextField">
+                <Default>*</Default>
+            </update_days>
+            <za_check_interval type="OptionField">
+                <Default>15</Default>
+                <OptionValues>
+                    <opt5>5</opt5>
+                    <opt10>10</opt10>
+                    <opt15>15</opt15>
+                    <opt30>30</opt30>
+                    <opt60>60</opt60>
+                </OptionValues>
+            </za_check_interval>
+            <auto_update_enabled type="BooleanField">
+                <Default>0</Default>
+            </auto_update_enabled>
+            <za_watchdog_enabled type="BooleanField">
+                <Default>0</Default>
+            </za_watchdog_enabled>
+        </general>
+    </items>
+</model>

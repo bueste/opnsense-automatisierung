@@ -1,0 +1,9 @@
+<menu>
+    <Services>
+        <Automatisierung VisibleName="Automatisierung" cssClass="fa fa-cogs fa-fw">
+            <Status order="0" url="/ui/automatisierung/index/status" VisibleName="Status" cssClass="fa fa-dashboard fa-fw"/>
+            <Konfiguration order="1" url="/ui/automatisierung/index/index" VisibleName="Konfiguration" cssClass="fa fa-cog fa-fw"/>
+            <Backup order="2" url="/ui/automatisierung/index/backup" VisibleName="Konfigurationsbackup" cssClass="fa fa-archive fa-fw"/>
+        </Automatisierung>
+    </Services>
+</menu>

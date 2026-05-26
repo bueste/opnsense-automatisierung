@@ -1,0 +1,9 @@
+<acl>
+    <page-services-automatisierung>
+        <name>Dienste: Automatisierung</name>
+        <patterns>
+            <pattern>ui/automatisierung/*</pattern>
+            <pattern>api/automatisierung/*</pattern>
+        </patterns>
+    </page-services-automatisierung>
+</acl>

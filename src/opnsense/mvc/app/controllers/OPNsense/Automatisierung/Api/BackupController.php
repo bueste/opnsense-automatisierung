@@ -1,0 +1,612 @@
+<?php
+
+/**
+ * Automatisierung Backup API Controller
+ *
+ * Handles all config backup operations:
+ *  - Listing local backups per host
+ *  - Downloading backup XML content (for diff / browser download)
+ *  - Comparing two backups (returns both raw XMLs for client-side diff)
+ *  - Deploying (restoring) a backup to a remote host
+ *  - Deleting local backups
+ *  - Triggering immediate backup
+ */
+
+namespace OPNsense\Automatisierung\Api;
+
+use OPNsense\Base\ApiControllerBase;
+use OPNsense\Automatisierung\Automatisierung;
+
+class BackupController extends ApiControllerBase
+{
+    /** Local storage root for collected backups */
+    const BACKUP_ROOT = '/var/db/automatisierung/backups';
+
+    private function getModel()
+    {
+        return new Automatisierung();
+    }
+
+    /**
+     * Ensure backup directory for a host UUID exists
+     */
+    private function ensureDir($uuid)
+    {
+        $dir = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0750, true);
+        }
+        return $dir;
+    }
+
+    /**
+     * Perform a curl request to a remote OPNsense API
+     * Returns [http_code, data_array, raw_body]
+     */
+    private function remoteCall($url, $key, $secret, $endpoint,
+                                $method = 'GET', $postData = null, $skipVerify = false)
+    {
+        $fullUrl = rtrim($url, '/') . '/api/' . ltrim($endpoint, '/');
+        $ch = curl_init($fullUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERPWD, $key . ':' . $secret);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$skipVerify);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $skipVerify ? 0 : 2);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        if ($method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postData ? json_encode($postData) : '{}');
+        }
+        $body     = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error    = curl_error($ch);
+        curl_close($ch);
+
+        if ($error) {
+            return [0, ['error' => $error], ''];
+        }
+        $decoded = json_decode($body, true);
+        return [$httpCode, $decoded ?? [], $body];
+    }
+
+    /**
+     * Get host credentials by UUID (only enabled hosts)
+     */
+    private function getHostByUuid($uuid)
+    {
+        $mdl = $this->getModel();
+        foreach ($mdl->hosts->host->iterateItems() as $huuid => $host) {
+            if ($huuid === $uuid && (string)$host->enabled === '1') {
+                return [
+                    'url'         => (string)$host->url,
+                    'api_key'     => (string)$host->api_key,
+                    'api_secret'  => (string)$host->api_secret,
+                    'skip_verify' => (string)$host->skip_verify_tls === '1',
+                    'name'        => (string)$host->name,
+                ];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * List all local backups for a given host UUID
+     * GET /api/automatisierung/backup/listBackups?uuid=...
+     */
+    public function listBackupsAction()
+    {
+        $uuid = $this->request->get('uuid', 'string', '');
+        if (empty($uuid)) {
+            return ['result' => 'failed', 'message' => 'uuid fehlt'];
+        }
+
+        $dir = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid);
+        if (!is_dir($dir)) {
+            return ['backups' => []];
+        }
+
+        $files = glob($dir . '/*.xml');
+        if (!$files) {
+            return ['backups' => []];
+        }
+
+        $backups = [];
+        foreach ($files as $f) {
+            $fname    = basename($f);
+            $mtime    = filemtime($f);
+            $size     = filesize($f);
+            // Extract metadata from first lines of XML
+            $meta     = $this->extractBackupMeta($f);
+            $backups[] = [
+                'filename'    => $fname,
+                'timestamp'   => date('c', $mtime),
+                'timestamp_fmt' => date('d.m.Y H:i:s', $mtime),
+                'size'        => $this->humanSize($size),
+                'size_bytes'  => $size,
+                'description' => $meta['description'] ?? '',
+                'revision_user' => $meta['username'] ?? '',
+                'revision_time' => $meta['time'] ?? '',
+            ];
+        }
+
+        // Sort newest first
+        usort($backups, function($a, $b) {
+            return strcmp($b['filename'], $a['filename']);
+        });
+
+        return ['backups' => $backups];
+    }
+
+    /**
+     * Extract revision metadata from a backup XML file
+     */
+    private function extractBackupMeta($filepath)
+    {
+        $meta = [];
+        try {
+            $content = file_get_contents($filepath, false, null, 0, 4096);
+            if (preg_match('/<description>(.*?)<\/description>/s', $content, $m)) {
+                $meta['description'] = html_entity_decode(trim($m[1]));
+            }
+            if (preg_match('/<username>(.*?)<\/username>/s', $content, $m)) {
+                $meta['username'] = html_entity_decode(trim($m[1]));
+            }
+            if (preg_match('/<time>(\d+)<\/time>/s', $content, $m)) {
+                $meta['time'] = date('d.m.Y H:i:s', (int)$m[1]);
+            }
+        } catch (\Exception $e) {}
+        return $meta;
+    }
+
+    private function humanSize($bytes)
+    {
+        if ($bytes > 1048576) return round($bytes / 1048576, 1) . ' MB';
+        if ($bytes > 1024)    return round($bytes / 1024, 1) . ' KB';
+        return $bytes . ' B';
+    }
+
+    /**
+     * Get raw content of a single backup
+     * GET /api/automatisierung/backup/getContent?uuid=...&filename=...
+     */
+    public function getContentAction()
+    {
+        $uuid     = $this->request->get('uuid', 'string', '');
+        $filename = basename($this->request->get('filename', 'string', ''));
+
+        if (empty($uuid) || empty($filename) || !preg_match('/^[\w\-\.]+\.xml$/', $filename)) {
+            return ['result' => 'failed', 'message' => 'Ungültige Parameter'];
+        }
+
+        $path = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid) . '/' . $filename;
+        if (!file_exists($path)) {
+            return ['result' => 'failed', 'message' => 'Datei nicht gefunden'];
+        }
+
+        return [
+            'result'   => 'ok',
+            'filename' => $filename,
+            'content'  => file_get_contents($path),
+        ];
+    }
+
+    /**
+     * Get content of two backups for client-side diff
+     * GET /api/automatisierung/backup/compareBackups?uuid=...&file_a=...&file_b=...
+     */
+    public function compareBackupsAction()
+    {
+        $uuid   = $this->request->get('uuid', 'string', '');
+        $file_a = basename($this->request->get('file_a', 'string', ''));
+        $file_b = basename($this->request->get('file_b', 'string', ''));
+
+        if (empty($uuid) || empty($file_a) || empty($file_b)) {
+            return ['result' => 'failed', 'message' => 'Parameter fehlen'];
+        }
+
+        $dir    = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid) . '/';
+        $path_a = $dir . $file_a;
+        $path_b = $dir . $file_b;
+
+        if (!file_exists($path_a) || !file_exists($path_b)) {
+            return ['result' => 'failed', 'message' => 'Eine oder beide Dateien nicht gefunden'];
+        }
+
+        return [
+            'result'     => 'ok',
+            'file_a'     => $file_a,
+            'file_b'     => $file_b,
+            'content_a'  => file_get_contents($path_a),
+            'content_b'  => file_get_contents($path_b),
+            'mtime_a'    => date('c', filemtime($path_a)),
+            'mtime_b'    => date('c', filemtime($path_b)),
+        ];
+    }
+
+    /**
+     * Download a backup file directly to browser
+     * GET /api/automatisierung/backup/downloadFile?uuid=...&filename=...
+     */
+    public function downloadFileAction()
+    {
+        $uuid     = $this->request->get('uuid', 'string', '');
+        $filename = basename($this->request->get('filename', 'string', ''));
+
+        if (empty($uuid) || !preg_match('/^[\w\-\.]+\.xml$/', $filename)) {
+            $this->response->setStatusCode(400);
+            return;
+        }
+
+        $path = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid) . '/' . $filename;
+        if (!file_exists($path)) {
+            $this->response->setStatusCode(404);
+            return;
+        }
+
+        $host = $this->getHostByUuid($uuid);
+        $hostName = $host ? preg_replace('/[^a-zA-Z0-9_\-]/', '_', $host['name']) : $uuid;
+        $dlName = 'config_' . $hostName . '_' . $filename;
+
+        $this->response->setContentType('application/xml');
+        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $dlName . '"');
+        $this->response->setHeader('Content-Length', (string)filesize($path));
+        $this->response->setContent(file_get_contents($path));
+        return $this->response;
+    }
+
+    /**
+     * Trigger immediate backup from a remote host (fetch + store locally)
+     * POST /api/automatisierung/backup/triggerBackup  {uuid: ...}
+     */
+    public function triggerBackupAction()
+    {
+        $result = ['result' => 'failed', 'message' => ''];
+        if (!$this->request->isPost()) {
+            $result['message'] = 'POST required';
+            return $result;
+        }
+
+        $uuid = $this->request->getPost('uuid', 'string', '');
+        $host = $this->getHostByUuid($uuid);
+        if (!$host) {
+            $result['message'] = 'Host nicht gefunden oder deaktiviert';
+            return $result;
+        }
+
+        // Fetch config backup list from remote host
+        list($code, $data) = $this->remoteCall(
+            $host['url'], $host['api_key'], $host['api_secret'],
+            'core/backup/list', 'GET', null, $host['skip_verify']
+        );
+
+        if ($code !== 200 || empty($data)) {
+            // Fallback: try to download current config directly
+            return $this->fetchCurrentConfig($uuid, $host);
+        }
+
+        // Get the most recent backup from remote and store it locally
+        // OPNsense backup list returns filenames, pick latest
+        $backupFile = null;
+        if (is_array($data)) {
+            // Could be array of filenames or keyed array
+            $files = isset($data[0]) ? $data : array_keys($data);
+            if (!empty($files)) {
+                sort($files);
+                $backupFile = end($files);
+            }
+        }
+
+        if ($backupFile) {
+            list($dlCode, , $rawXml) = $this->remoteCall(
+                $host['url'], $host['api_key'], $host['api_secret'],
+                'core/backup/download/' . rawurlencode($backupFile), 'GET', null, $host['skip_verify']
+            );
+            if ($dlCode === 200 && !empty($rawXml) && strpos($rawXml, '<?xml') !== false) {
+                return $this->storeBackup($uuid, $rawXml, $result);
+            }
+        }
+
+        // Final fallback: download current config
+        return $this->fetchCurrentConfig($uuid, $host);
+    }
+
+    /**
+     * Fetch the current running config from a remote host
+     */
+    private function fetchCurrentConfig($uuid, $host)
+    {
+        $result = ['result' => 'failed', 'message' => ''];
+
+        // Try the firmware backup endpoint
+        list($code, , $raw) = $this->remoteCall(
+            $host['url'], $host['api_key'], $host['api_secret'],
+            'core/backup/download/this', 'GET', null, $host['skip_verify']
+        );
+
+        if ($code === 200 && strpos($raw, '<?xml') !== false) {
+            return $this->storeBackup($uuid, $raw, $result);
+        }
+
+        // Try fetching config via diagnostics if available
+        list($code2, , $raw2) = $this->remoteCall(
+            $host['url'], $host['api_key'], $host['api_secret'],
+            'core/backup/list', 'GET', null, $host['skip_verify']
+        );
+
+        $result['message'] = 'Backup konnte nicht abgerufen werden (HTTP ' . $code . '). '
+            . 'Stelle sicher dass der API-Benutzer Backup-Rechte hat.';
+        return $result;
+    }
+
+    /**
+     * Store raw XML backup content locally
+     */
+    private function storeBackup($uuid, $rawXml, &$result)
+    {
+        $dir      = $this->ensureDir($uuid);
+        $filename = date('Y-m-d_His') . '.xml';
+        $path     = $dir . '/' . $filename;
+
+        if (file_put_contents($path, $rawXml) !== false) {
+            $result['result']   = 'ok';
+            $result['message']  = 'Backup erstellt: ' . $filename;
+            $result['filename'] = $filename;
+        } else {
+            $result['message'] = 'Fehler beim Schreiben der Backup-Datei.';
+        }
+        return $result;
+    }
+
+    /**
+     * Deploy (restore) a backup to a remote host
+     * POST /api/automatisierung/backup/deployBackup  {uuid: ..., filename: ...}
+     */
+    public function deployBackupAction()
+    {
+        $result = ['result' => 'failed', 'message' => ''];
+        if (!$this->request->isPost()) {
+            $result['message'] = 'POST required';
+            return $result;
+        }
+
+        $uuid     = $this->request->getPost('uuid', 'string', '');
+        $filename = basename($this->request->getPost('filename', 'string', ''));
+
+        if (!preg_match('/^[\w\-\.]+\.xml$/', $filename)) {
+            $result['message'] = 'Ungültiger Dateiname';
+            return $result;
+        }
+
+        $host = $this->getHostByUuid($uuid);
+        if (!$host) {
+            $result['message'] = 'Host nicht gefunden';
+            return $result;
+        }
+
+        $path = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid) . '/' . $filename;
+        if (!file_exists($path)) {
+            $result['message'] = 'Backup-Datei nicht gefunden';
+            return $result;
+        }
+
+        $xmlContent = file_get_contents($path);
+
+        // Upload via multipart POST to OPNsense restore endpoint
+        $boundary = '----AutomatisierungBoundary' . md5(uniqid());
+        $body = "--{$boundary}\r\n"
+              . "Content-Disposition: form-data; name=\"conffile\"; filename=\"config.xml\"\r\n"
+              . "Content-Type: application/xml\r\n\r\n"
+              . $xmlContent . "\r\n"
+              . "--{$boundary}--\r\n";
+
+        $fullUrl = rtrim($host['url'], '/') . '/api/core/backup/restore';
+        $ch = curl_init($fullUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERPWD, $host['api_key'] . ':' . $host['api_secret']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$host['skip_verify']);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $host['skip_verify'] ? 0 : 2);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: multipart/form-data; boundary=' . $boundary,
+            'Content-Length: ' . strlen($body),
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr  = curl_error($ch);
+        curl_close($ch);
+
+        if ($curlErr) {
+            $result['message'] = 'Verbindungsfehler: ' . $curlErr;
+            return $result;
+        }
+
+        if ($httpCode === 200) {
+            $resp = json_decode($response, true);
+            if (isset($resp['result']) && $resp['result'] === 'ok') {
+                $result['result']  = 'ok';
+                $result['message'] = 'Backup wurde erfolgreich auf ' . $host['name'] . ' eingespielt. Die Firewall startet neu.';
+            } else {
+                $result['result']  = 'ok';
+                $result['message'] = 'Restore-Befehl abgesendet. Bitte Firewall-Zustand prüfen.';
+            }
+        } else {
+            $result['message'] = 'Restore fehlgeschlagen (HTTP ' . $httpCode . '). Prüfe ob der API-Benutzer die nötigen Rechte hat.';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Delete a local backup file
+     * POST /api/automatisierung/backup/deleteBackup  {uuid: ..., filename: ...}
+     */
+    public function deleteBackupAction()
+    {
+        $result = ['result' => 'failed', 'message' => ''];
+        if (!$this->request->isPost()) {
+            $result['message'] = 'POST required';
+            return $result;
+        }
+
+        $uuid     = $this->request->getPost('uuid', 'string', '');
+        $filename = basename($this->request->getPost('filename', 'string', ''));
+
+        if (!preg_match('/^[\w\-\.]+\.xml$/', $filename)) {
+            $result['message'] = 'Ungültiger Dateiname';
+            return $result;
+        }
+
+        $path = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid) . '/' . $filename;
+        if (!file_exists($path)) {
+            $result['message'] = 'Datei nicht gefunden';
+            return $result;
+        }
+
+        if (unlink($path)) {
+            $result['result']  = 'ok';
+            $result['message'] = 'Backup gelöscht.';
+        } else {
+            $result['message'] = 'Löschen fehlgeschlagen.';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get backup general settings
+     */
+    public function getSettingsAction()
+    {
+        $mdl = $this->getModel();
+        return [
+            'backup' => [
+                'enabled'         => (string)$mdl->general->backup_enabled,
+                'hour'            => (string)$mdl->general->backup_hour,
+                'minute'          => (string)$mdl->general->backup_minute,
+                'days'            => (string)$mdl->general->backup_days,
+                'retention_days'  => (string)$mdl->general->backup_retention_days,
+            ]
+        ];
+    }
+
+    /**
+     * Save backup settings + update host backup_enabled flags
+     */
+    public function setSettingsAction()
+    {
+        $result = ['result' => 'failed', 'message' => ''];
+        if (!$this->request->isPost()) {
+            $result['message'] = 'POST required';
+            return $result;
+        }
+
+        $mdl  = $this->getModel();
+        $data = $this->request->getPost('backup');
+        if (!is_array($data)) {
+            $result['message'] = 'Keine Daten übermittelt';
+            return $result;
+        }
+
+        $gen = $mdl->general;
+        if ($gen !== null) {
+            if ($gen->backup_enabled        !== null) $gen->backup_enabled->setValue(isset($data['enabled'])        ? $data['enabled']        : '0');
+            if ($gen->backup_hour           !== null) $gen->backup_hour->setValue(isset($data['hour'])           ? $data['hour']           : '2');
+            if ($gen->backup_minute         !== null) $gen->backup_minute->setValue(isset($data['minute'])         ? $data['minute']         : '0');
+            if ($gen->backup_days           !== null) $gen->backup_days->setValue(isset($data['days'])           ? $data['days']           : '*');
+            if ($gen->backup_retention_days !== null) $gen->backup_retention_days->setValue(isset($data['retention_days']) ? $data['retention_days'] : '30');
+        }
+
+        // Per-host backup_enabled
+        if (!empty($data['hosts']) && is_array($data['hosts'])) {
+            foreach ($mdl->hosts->host->iterateItems() as $uuid => $host) {
+                if ($host->backup_enabled !== null) {
+                    $host->backup_enabled->setValue(
+                        isset($data['hosts'][$uuid]) && $data['hosts'][$uuid] === '1' ? '1' : '0'
+                    );
+                }
+            }
+        }
+
+        $validation = $mdl->performValidation();
+        if ($validation->count() === 0) {
+            $mdl->serializeToConfig();
+            \OPNsense\Core\Config::getInstance()->save();
+            $result['result']  = 'saved';
+            $result['message'] = 'Einstellungen gespeichert.';
+        } else {
+            $result['validations'] = [];
+            foreach ($validation as $msg) {
+                $result['validations'][$msg->getField()] = $msg->getMessage();
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get all hosts with their backup status (for the backup tab host selector)
+     */
+    public function getHostsAction()
+    {
+        $mdl   = $this->getModel();
+        $hosts = [];
+        foreach ($mdl->hosts->host->iterateItems() as $uuid => $host) {
+            if ((string)$host->enabled !== '1') {
+                continue;
+            }
+            $dir   = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid);
+            $count = is_dir($dir) ? count(glob($dir . '/*.xml') ?: []) : 0;
+            $hosts[] = [
+                'uuid'           => $uuid,
+                'name'           => (string)$host->name,
+                'url'            => (string)$host->url,
+                'backup_enabled' => (string)$host->backup_enabled,
+                'backup_count'   => $count,
+            ];
+        }
+        return ['hosts' => $hosts];
+    }
+
+    /**
+     * Run retention cleanup for a host (delete files older than N days)
+     * POST /api/automatisierung/backup/runRetention  {uuid: ...}
+     */
+    public function runRetentionAction()
+    {
+        $result = ['result' => 'ok', 'deleted' => 0];
+        if (!$this->request->isPost()) {
+            $result['result'] = 'failed';
+            return $result;
+        }
+
+        $uuid = $this->request->getPost('uuid', 'string', '');
+        $mdl  = $this->getModel();
+        $days = (int)(string)$mdl->general->backup_retention_days ?: 30;
+
+        $uuids = $uuid ? [$uuid] : [];
+        if (empty($uuids)) {
+            // All hosts
+            foreach ($mdl->hosts->host->iterateItems() as $huuid => $host) {
+                $uuids[] = $huuid;
+            }
+        }
+
+        $cutoff = time() - ($days * 86400);
+        foreach ($uuids as $huuid) {
+            $dir = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $huuid);
+            if (!is_dir($dir)) continue;
+            foreach (glob($dir . '/*.xml') ?: [] as $f) {
+                if (filemtime($f) < $cutoff) {
+                    unlink($f);
+                    $result['deleted']++;
+                }
+            }
+        }
+
+        $result['message'] = $result['deleted'] . ' alte Backup(s) gelöscht (Retention: ' . $days . ' Tage).';
+        return $result;
+    }
+}
