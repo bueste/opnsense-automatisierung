@@ -295,11 +295,33 @@ class BackupController extends ApiControllerBase
     }
 
     /**
+     * Return true if $newContent differs from the most recent file in $dir matching $pattern.
+     * Always returns true when no previous backup exists.
+     */
+    private function hasChanges($dir, $newContent, $pattern = '*.xml')
+    {
+        $files = glob($dir . '/' . $pattern) ?: [];
+        if (empty($files)) {
+            return true;
+        }
+        usort($files, function($a, $b) { return strcmp($b, $a); });
+        $latestHash = md5_file($files[0]);
+        return $latestHash !== md5($newContent);
+    }
+
+    /**
      * Store raw XML backup content locally
      */
     private function storeBackup($uuid, $rawXml, &$result)
     {
-        $dir      = $this->ensureDir($uuid);
+        $dir = $this->ensureDir($uuid);
+
+        if (!$this->hasChanges($dir, $rawXml, '*.xml')) {
+            $result['result']  = 'ok';
+            $result['message'] = 'Keine Änderungen seit letztem Backup – nichts gespeichert.';
+            return $result;
+        }
+
         $filename = date('Y-m-d_His') . '.xml';
         $path     = $dir . '/' . $filename;
 
@@ -587,6 +609,13 @@ class BackupController extends ApiControllerBase
         if (!is_dir($zaDir)) {
             mkdir($zaDir, 0750, true);
         }
+
+        if (!$this->hasChanges($zaDir, $rawGz, '*')) {
+            $result['result']  = 'ok';
+            $result['message'] = 'Keine Änderungen seit letztem ZA-Backup – nichts gespeichert.';
+            return $result;
+        }
+
         $localFile = date('Y-m-d_His') . '_' . preg_replace('/[^a-zA-Z0-9_.\-]/', '', $latest);
         if (file_put_contents($zaDir . '/' . $localFile, $rawGz) !== false) {
             $result['result']   = 'ok';

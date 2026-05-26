@@ -534,9 +534,10 @@ $('#btn_cmp_backup_now').on('click', function() {
     $.ajax({
         url: '/api/automatisierung/backup/triggerBackup', method: 'POST', data: {uuid: cmpUuid},
         success: function(resp) {
-            showAlert($('#cmp_action_msg'), resp.result === 'ok' ? 'success' : 'danger',
-                '<i class="fa fa-' + (resp.result === 'ok' ? 'check' : 'times') + '-circle"></i> ' + esc(resp.message));
-            if (resp.result === 'ok') fetchBackupsForCompare();
+            var type = resp.result === 'ok' ? (resp.filename ? 'success' : 'info') : 'danger';
+            var icon = resp.result === 'ok' ? (resp.filename ? 'check' : 'info') : 'times';
+            showAlert($('#cmp_action_msg'), type, '<i class="fa fa-' + icon + '-circle"></i> ' + esc(resp.message));
+            if (resp.result === 'ok' && resp.filename) fetchBackupsForCompare();
         },
         complete: function() { $btn.prop('disabled', false).html('<i class="fa fa-camera"></i> Backup jetzt erstellen'); }
     });
@@ -768,9 +769,10 @@ $('#btn_list_backup_now').on('click', function() {
     $.ajax({
         url: '/api/automatisierung/backup/triggerBackup', method: 'POST', data: {uuid: listUuid},
         success: function(resp) {
-            showAlert($('#list_msg'), resp.result === 'ok' ? 'success' : 'danger',
-                '<i class="fa fa-' + (resp.result === 'ok' ? 'check' : 'times') + '-circle"></i> ' + esc(resp.message));
-            if (resp.result === 'ok') loadBackupList();
+            var type = resp.result === 'ok' ? (resp.filename ? 'success' : 'info') : 'danger';
+            var icon = resp.result === 'ok' ? (resp.filename ? 'check' : 'info') : 'times';
+            showAlert($('#list_msg'), type, '<i class="fa fa-' + icon + '-circle"></i> ' + esc(resp.message));
+            if (resp.result === 'ok' && resp.filename) loadBackupList();
         },
         complete: function() { $btn.prop('disabled', false).html('<i class="fa fa-camera"></i> Backup erstellen'); }
     });
@@ -926,9 +928,10 @@ $('#btn_za_backup_now').on('click', function() {
     $.ajax({
         url: '/api/automatisierung/backup/triggerZaBackup', method: 'POST', data: {uuid: zaUuid},
         success: function(resp) {
-            showAlert($('#za_msg'), resp.result === 'ok' ? 'success' : 'danger',
-                '<i class="fa fa-' + (resp.result === 'ok' ? 'check' : 'times') + '-circle"></i> ' + esc(resp.message));
-            if (resp.result === 'ok') loadZaList();
+            var type = resp.result === 'ok' ? (resp.filename ? 'success' : 'info') : 'danger';
+            var icon = resp.result === 'ok' ? (resp.filename ? 'check' : 'info') : 'times';
+            showAlert($('#za_msg'), type, '<i class="fa fa-' + icon + '-circle"></i> ' + esc(resp.message));
+            if (resp.result === 'ok' && resp.filename) loadZaList();
         },
         error: function() {
             showAlert($('#za_msg'), 'danger', '<i class="fa fa-times-circle"></i> Verbindungsfehler');
