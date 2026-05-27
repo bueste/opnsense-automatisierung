@@ -58,15 +58,10 @@
             <update_days type="TextField">
                 <Default>*</Default>
             </update_days>
-            <za_check_interval type="OptionField">
+            <za_check_interval type="TextField">
                 <Default>15</Default>
-                <OptionValues>
-                    <opt5>5</opt5>
-                    <opt10>10</opt10>
-                    <opt15>15</opt15>
-                    <opt30>30</opt30>
-                    <opt60>60</opt60>
-                </OptionValues>
+                <mask>/^(5|10|15|30|60)$/</mask>
+                <ValidationMessage>Ungültiges Intervall. Erlaubt: 5, 10, 15, 30, 60.</ValidationMessage>
             </za_check_interval>
             <auto_update_enabled type="BooleanField">
                 <Default>0</Default>
