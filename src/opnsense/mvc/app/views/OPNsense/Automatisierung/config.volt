@@ -319,7 +319,7 @@
             $('#update_hour').val(g.update_hour || 3);
             $('#update_minute').val(g.update_minute || 0);
             $('#update_days').val(g.update_days || '*');
-            $('#za_check_interval').val(g.za_check_interval || 15).selectpicker('refresh');
+            $('#za_check_interval').selectpicker('val', g.za_check_interval || '15');
             $('#auto_update_enabled').prop('checked', g.auto_update_enabled == '1');
             $('#za_watchdog_enabled').prop('checked', g.za_watchdog_enabled == '1');
         }});
@@ -335,7 +335,7 @@
                 update_hour:         $('#update_hour').val(),
                 update_minute:       $('#update_minute').val(),
                 update_days:         $('#update_days').val(),
-                za_check_interval:   $('#za_check_interval').val(),
+                za_check_interval:   $('#za_check_interval').val() || $('#za_check_interval option:selected').val() || '15',
                 auto_update_enabled: $('#auto_update_enabled').is(':checked') ? '1' : '0',
                 za_watchdog_enabled: $('#za_watchdog_enabled').is(':checked') ? '1' : '0',
             }},

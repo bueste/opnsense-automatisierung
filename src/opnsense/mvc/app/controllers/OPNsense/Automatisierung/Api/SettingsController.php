@@ -95,7 +95,7 @@ class SettingsController extends ApiMutableModelControllerBase
                 $mdl->general->update_hour->setValue(isset($data['update_hour']) ? $data['update_hour'] : '3');
                 $mdl->general->update_minute->setValue(isset($data['update_minute']) ? $data['update_minute'] : '0');
                 $mdl->general->update_days->setValue(isset($data['update_days']) ? $data['update_days'] : '*');
-                $mdl->general->za_check_interval->setValue(isset($data['za_check_interval']) ? $data['za_check_interval'] : '15');
+                $mdl->general->za_check_interval->setValue(!empty($data['za_check_interval']) ? $data['za_check_interval'] : '15');
                 $mdl->general->auto_update_enabled->setValue(isset($data['auto_update_enabled']) ? $data['auto_update_enabled'] : '0');
                 $mdl->general->za_watchdog_enabled->setValue(isset($data['za_watchdog_enabled']) ? $data['za_watchdog_enabled'] : '0');
                 $validation = $mdl->performValidation();
