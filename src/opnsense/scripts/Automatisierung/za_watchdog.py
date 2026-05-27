@@ -9,7 +9,8 @@ Greift nur ein wenn nötig.
 import sys, json, ssl, urllib.request, urllib.error, base64, logging, time
 import xml.etree.ElementTree as ET
 
-LOG_FILE = '/var/log/automatisierung_watchdog.log'
+LOG_FILE   = '/var/log/automatisierung_watchdog.log'
+STATE_FILE = '/tmp/za_watchdog_last_run'
 _handlers = [logging.FileHandler(LOG_FILE)]
 if sys.stdout.isatty():
     _handlers.append(logging.StreamHandler(sys.stdout))
@@ -121,6 +122,21 @@ def check_host(name, url, key, secret, skip_verify):
         log.info("  Engine läuft einwandfrei – kein Eingriff nötig.")
 
 
+def interval_elapsed(interval_minutes):
+    """Return True if configured interval has passed since last successful run."""
+    now = time.time()
+    try:
+        with open(STATE_FILE) as f:
+            last = float(f.read().strip())
+        if now - last < interval_minutes * 60 - 15:
+            return False
+    except Exception:
+        pass
+    with open(STATE_FILE, 'w') as f:
+        f.write(str(now))
+    return True
+
+
 def main():
     log.info("=== ZA Watchdog Start ===")
     try:
@@ -132,6 +148,11 @@ def main():
     general = root.find('.//automatisierung/general')
     if general is None or general.findtext('za_watchdog_enabled', '0').strip() != '1':
         log.info("ZA Watchdog global deaktiviert – Ende.")
+        sys.exit(0)
+
+    interval = int(general.findtext('za_check_interval', '5').strip() or '5')
+    if not interval_elapsed(interval):
+        log.info("Intervall (%d Min) noch nicht erreicht – Ende.", interval)
         sys.exit(0)
 
     processed = 0
