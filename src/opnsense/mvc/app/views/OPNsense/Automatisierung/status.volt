@@ -9,19 +9,22 @@
 
     <!-- ====== Aktions-Toolbar ====== -->
     <div class="col-xs-12" style="margin-bottom:1em;">
-        <button id="btn_refresh_all" class="btn btn-default">
-            <i class="fa fa-refresh"></i> {{ lang._('Alle Status aktualisieren') }}
-        </button>
-        <select id="refresh_interval" class="form-control input-sm" style="width:auto;display:inline-block;margin-left:0.5em;">
-            <option value="0">{{ lang._('Manuell') }}</option>
-            <option value="30000">30 Sek.</option>
-            <option value="60000" selected>1 Min.</option>
-            <option value="300000">5 Min.</option>
-        </select>
-        <button id="btn_update_all" class="btn btn-warning" style="display:none;margin-left:1em;">
-            <i class="fa fa-download"></i> <span id="update_all_label">{{ lang._('Alle aktualisieren') }}</span>
-        </button>
-        <span id="last_refresh" class="text-muted" style="margin-left:1em;font-size:0.9em;"></span>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button id="btn_refresh_all" class="btn btn-default">
+                <i class="fa fa-refresh"></i> {{ lang._('Alle Status aktualisieren') }}
+            </button>
+            <select id="refresh_interval" class="form-control" style="width:auto;height:34px;">
+                <option value="0">{{ lang._('Manuell') }}</option>
+                <option value="30000">30 Sek.</option>
+                <option value="60000">1 Min.</option>
+                <option value="180000" selected>3 Min.</option>
+                <option value="300000">5 Min.</option>
+            </select>
+            <button id="btn_update_selected" class="btn btn-warning" style="display:none;">
+                <i class="fa fa-download"></i> <span id="update_selected_label">{{ lang._('Ausgewählte aktualisieren') }}</span>
+            </button>
+            <span id="last_refresh" class="text-muted" style="font-size:0.9em;"></span>
+        </div>
         <div id="global_message" class="alert" style="display:none;margin-top:0.5em;"></div>
     </div>
 
@@ -100,6 +103,7 @@
 var pendingAction = null;
 var isLoading = false;
 var refreshTimer = null;
+var allHostsData = {};
 
 // ====== Host-Status laden ======
 function loadAllStatus() {
@@ -126,28 +130,16 @@ function loadAllStatus() {
                 return;
             }
 
-            var hostsOpnUpdate = [], hostsZaUpdate = [];
+            allHostsData = {};
             $.each(resp.hosts, function(i, host) {
                 $('#hosts_container').append(buildHostCard(host));
                 if (host.status === 'online') {
-                    if (host.opnsense_update === 'update' || host.opnsense_update_count > 0) hostsOpnUpdate.push(host);
-                    if (host.za_update === true) hostsZaUpdate.push(host);
+                    allHostsData[host.uuid] = host;
                 }
             });
 
-            // "Alle aktualisieren" Toolbar-Button
-            var totalUpdates = hostsOpnUpdate.length + hostsZaUpdate.length;
-            if (totalUpdates > 1) {
-                var parts = [];
-                if (hostsOpnUpdate.length) parts.push(hostsOpnUpdate.length + '× OPNsense');
-                if (hostsZaUpdate.length)  parts.push(hostsZaUpdate.length + '× ZA');
-                $('#update_all_label').text('Alle aktualisieren (' + parts.join(', ') + ')');
-                $('#btn_update_all').show().data('opn', hostsOpnUpdate).data('za', hostsZaUpdate);
-            } else {
-                $('#btn_update_all').hide();
-            }
-
             bindActionButtons();
+            updateSelectedButton();
             $('#last_refresh').text('Letzte Aktualisierung: ' + new Date().toLocaleTimeString('de-CH'));
         },
         error: function() {
@@ -167,7 +159,11 @@ function buildHostCard(host) {
 
     var html = '<div class="host-card" data-uuid="' + escHtml(host.uuid) + '">';
     html += '<div class="host-header ' + statusClass + '">';
-    html += '<div><span class="host-name">' + statusIcon + ' ' + escHtml(host.name) + '</span> ';
+    html += '<div style="display:flex;align-items:center;gap:8px;">';
+    if (host.status === 'online') {
+        html += '<input type="checkbox" class="host-select-cb" data-uuid="' + escHtml(host.uuid) + '" style="margin:0;cursor:pointer;" title="Host für Sammelupdate auswählen">';
+    }
+    html += '<span class="host-name">' + statusIcon + ' ' + escHtml(host.name) + '</span> ';
     html += '<span class="host-url">' + escHtml(host.url) + '</span></div>';
     html += '<div>';
     if (host.status === 'online') {
@@ -317,6 +313,9 @@ function bindActionButtons() {
         var name = $(this).data('name');
         triggerAction('/api/automatisierung/service/zaWatchdogCheck', {uuid: uuid}, 'ZA Watchdog auf ' + name);
     });
+
+    // Host-Auswahl Checkbox
+    $(document).off('change', '.host-select-cb').on('change', '.host-select-cb', updateSelectedButton);
 }
 
 // ====== Generischer API-Aufruf mit Feedback ======
@@ -362,13 +361,49 @@ function startAutoRefresh() {
     }
 }
 
-// ====== Alle aktualisieren ======
-$('#btn_update_all').on('click', function() {
-    var hostsOpn = $(this).data('opn') || [];
-    var hostsZa  = $(this).data('za')  || [];
+// ====== Ausgewählte aktualisieren ======
+function updateSelectedButton() {
+    var selected = [];
+    $('.host-select-cb:checked').each(function() {
+        var uuid = $(this).data('uuid');
+        if (allHostsData[uuid]) selected.push(allHostsData[uuid]);
+    });
+
+    if (selected.length === 0) {
+        $('#btn_update_selected').hide();
+        return;
+    }
+
+    var opnUpdates = selected.filter(function(h) { return h.opnsense_update === 'update' || h.opnsense_update_count > 0; });
+    var zaUpdates  = selected.filter(function(h) { return h.za_update === true; });
+
+    if (opnUpdates.length === 0 && zaUpdates.length === 0) {
+        $('#btn_update_selected').hide();
+        return;
+    }
+
+    var parts = [];
+    if (opnUpdates.length) parts.push(opnUpdates.length + '× OPNsense');
+    if (zaUpdates.length)  parts.push(zaUpdates.length  + '× ZA');
+    $('#update_selected_label').text('Ausgewählte aktualisieren (' + parts.join(', ') + ')');
+    $('#btn_update_selected').show();
+}
+
+$('#btn_update_selected').on('click', function() {
+    var selected = [];
+    $('.host-select-cb:checked').each(function() {
+        var uuid = $(this).data('uuid');
+        if (allHostsData[uuid]) selected.push(allHostsData[uuid]);
+    });
+
+    var hostsOpn = selected.filter(function(h) { return h.opnsense_update === 'update' || h.opnsense_update_count > 0; });
+    var hostsZa  = selected.filter(function(h) { return h.za_update === true; });
+
     var names = [];
     hostsOpn.forEach(function(h) { names.push(h.name + ' (OPNsense)'); });
     hostsZa.forEach(function(h)  { names.push(h.name + ' (ZA)'); });
+
+    if (names.length === 0) return;
     if (!confirm('Updates starten auf:\n• ' + names.join('\n• ') + '\n\nFortfahren?')) return;
 
     var queue = [];
