@@ -30,6 +30,9 @@
                 </select>
             </div>
             <div class="col-xs-12 col-sm-5" style="padding-top:5px;">
+                <input type="text" id="cmp_comment" class="form-control input-sm"
+                       placeholder="{{ lang._('Kommentar (optional)') }}" maxlength="120"
+                       style="max-width:240px;margin-bottom:4px;"/>
                 <button id="btn_cmp_backup_now" class="btn btn-primary btn-sm" disabled>
                     <i class="fa fa-camera"></i> {{ lang._('Backup jetzt erstellen') }}
                 </button>
@@ -121,6 +124,9 @@
                 </select>
             </div>
             <div class="col-xs-12 col-sm-7" style="padding-top:1.6em;">
+                <input type="text" id="list_comment" class="form-control input-sm"
+                       placeholder="{{ lang._('Kommentar (optional)') }}" maxlength="120"
+                       style="max-width:240px;margin-bottom:4px;"/>
                 <button id="btn_list_backup_now" class="btn btn-primary btn-sm" disabled>
                     <i class="fa fa-camera"></i> {{ lang._('Backup erstellen') }}
                 </button>
@@ -532,7 +538,7 @@ $('#btn_cmp_backup_now').on('click', function() {
     if (!cmpUuid) return;
     var $btn = $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> ...');
     $.ajax({
-        url: '/api/automatisierung/backup/triggerBackup', method: 'POST', data: {uuid: cmpUuid},
+        url: '/api/automatisierung/backup/triggerBackup', method: 'POST', data: {uuid: cmpUuid, comment: $('#cmp_comment').val()},
         success: function(resp) {
             var type = resp.result === 'ok' ? (resp.filename ? 'success' : 'info') : 'danger';
             var icon = resp.result === 'ok' ? (resp.filename ? 'check' : 'info') : 'times';
@@ -726,7 +732,7 @@ function loadBackupList() {
                         encodeURIComponent(listUuid) + '&filename=' + encodeURIComponent(bk.filename);
             $tbody.append(
                 '<tr><td><input type="checkbox" class="row_chk" data-fn="' + esc(bk.filename) + '"/></td>' +
-                '<td style="font-family:monospace;font-size:0.87em;white-space:nowrap;">' + esc(ts) + '</td>' +
+                '<td style="white-space:nowrap;">' + esc(ts) + '</td>' +
                 '<td style="font-size:0.88em;">' + esc(desc) + '</td>' +
                 '<td><small>' + esc(user) + '</small></td>' +
                 '<td><small>' + esc(bk.size) + '</small></td>' +
@@ -767,7 +773,7 @@ $('#btn_list_backup_now').on('click', function() {
     if (!listUuid) return;
     var $btn = $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
     $.ajax({
-        url: '/api/automatisierung/backup/triggerBackup', method: 'POST', data: {uuid: listUuid},
+        url: '/api/automatisierung/backup/triggerBackup', method: 'POST', data: {uuid: listUuid, comment: $('#list_comment').val()},
         success: function(resp) {
             var type = resp.result === 'ok' ? (resp.filename ? 'success' : 'info') : 'danger';
             var icon = resp.result === 'ok' ? (resp.filename ? 'check' : 'info') : 'times';

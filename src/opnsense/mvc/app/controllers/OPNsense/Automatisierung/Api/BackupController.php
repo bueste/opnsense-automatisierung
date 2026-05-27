@@ -116,15 +116,26 @@ class BackupController extends ApiControllerBase
             $fname    = basename($f);
             $mtime    = filemtime($f);
             $size     = filesize($f);
-            // Extract metadata from first lines of XML
+            // Extract metadata from XML revision section
             $meta     = $this->extractBackupMeta($f);
+            // Read sidecar comment (our own metadata, takes priority)
+            $sidecar  = [];
+            $sidecarPath = $f . '.meta.json';
+            if (file_exists($sidecarPath)) {
+                $sidecar = json_decode(file_get_contents($sidecarPath), true) ?: [];
+            }
+            $comment  = isset($sidecar['comment']) && $sidecar['comment'] !== ''
+                        ? $sidecar['comment']
+                        : ($meta['description'] ?? '');
+            $source   = $sidecar['source'] ?? 'auto';
             $backups[] = [
-                'filename'    => $fname,
-                'timestamp'   => date('c', $mtime),
+                'filename'      => $fname,
+                'timestamp'     => date('c', $mtime),
                 'timestamp_fmt' => date('d.m.Y H:i:s', $mtime),
-                'size'        => $this->humanSize($size),
-                'size_bytes'  => $size,
-                'description' => $meta['description'] ?? '',
+                'size'          => $this->humanSize($size),
+                'size_bytes'    => $size,
+                'description'   => $comment,
+                'source'        => $source,
                 'revision_user' => $meta['username'] ?? '',
                 'revision_time' => $meta['time'] ?? '',
             ];
@@ -272,8 +283,9 @@ class BackupController extends ApiControllerBase
             return $result;
         }
 
-        $uuid = $this->request->getPost('uuid', 'string', '');
-        $host = $this->getHostByUuid($uuid);
+        $uuid    = $this->request->getPost('uuid', 'string', '');
+        $comment = trim($this->request->getPost('comment', 'string', ''));
+        $host    = $this->getHostByUuid($uuid);
         if (!$host) {
             $result['message'] = 'Host nicht gefunden oder deaktiviert';
             return $result;
@@ -286,7 +298,7 @@ class BackupController extends ApiControllerBase
         );
 
         if ($code === 200 && strpos($raw, '<?xml') !== false) {
-            return $this->storeBackup($uuid, $raw, $result);
+            return $this->storeBackup($uuid, $raw, $result, $comment);
         }
 
         $result['message'] = 'Backup konnte nicht abgerufen werden (HTTP ' . $code . '). '
@@ -312,7 +324,7 @@ class BackupController extends ApiControllerBase
     /**
      * Store raw XML backup content locally
      */
-    private function storeBackup($uuid, $rawXml, &$result)
+    private function storeBackup($uuid, $rawXml, &$result, $comment = '')
     {
         $dir = $this->ensureDir($uuid);
 
@@ -326,6 +338,10 @@ class BackupController extends ApiControllerBase
         $path     = $dir . '/' . $filename;
 
         if (file_put_contents($path, $rawXml) !== false) {
+            // Write sidecar metadata
+            $meta = ['comment' => $comment, 'source' => $comment !== '' ? 'manual' : 'auto', 'created' => date('c')];
+            file_put_contents($path . '.meta.json', json_encode($meta));
+
             $result['result']   = 'ok';
             $result['message']  = 'Backup erstellt: ' . $filename;
             $result['filename'] = $filename;
