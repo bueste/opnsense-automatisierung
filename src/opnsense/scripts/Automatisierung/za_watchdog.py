@@ -10,10 +10,13 @@ import sys, json, ssl, urllib.request, urllib.error, base64, logging, time
 import xml.etree.ElementTree as ET
 
 LOG_FILE = '/var/log/automatisierung_watchdog.log'
+_handlers = [logging.FileHandler(LOG_FILE)]
+if sys.stdout.isatty():
+    _handlers.append(logging.StreamHandler(sys.stdout))
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler(sys.stdout)],
+    handlers=_handlers,
 )
 log = logging.getLogger('za-watchdog')
 

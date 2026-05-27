@@ -103,9 +103,6 @@ class SettingsController extends ApiMutableModelControllerBase
                     $mdl->serializeToConfig();
                     Config::getInstance()->save();
                     $result['result'] = 'saved';
-                    // Regenerate cron
-                    $this->backend()->configdRun('template reload OPNsense/Automatisierung');
-                    $this->backend()->configdRun('cron reload');
                 } else {
                     $result['validations'] = [];
                     foreach ($validation as $msg) {
