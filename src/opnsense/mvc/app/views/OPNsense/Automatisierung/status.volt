@@ -430,20 +430,22 @@ function updateSelectedButton() {
     $('#bottom_sel_count').text(checkedCnt + ' Host' + (checkedCnt !== 1 ? 's' : '') + ' ausgewählt');
     $('#bottom_action_bar').show();
 
-    // OPNsense-Button
+    // OPNsense-Button — immer sichtbar, nur disabled wenn kein Update ausstehend
     if (opnUpdates.length > 0) {
         $('#bulk_opnsense_label').text('OPNsense aktualisieren (' + opnUpdates.length + '×)');
-        $('#btn_bulk_opnsense').show();
+        $('#btn_bulk_opnsense').prop('disabled', false).removeClass('btn-default').addClass('btn-warning').show();
     } else {
-        $('#btn_bulk_opnsense').hide();
+        $('#bulk_opnsense_label').text('OPNsense (alle aktuell)');
+        $('#btn_bulk_opnsense').prop('disabled', true).removeClass('btn-warning').addClass('btn-default').show();
     }
 
-    // ZA-Button
+    // ZA-Button — immer sichtbar, nur disabled wenn kein Update ausstehend
     if (zaUpdates.length > 0) {
         $('#bulk_za_label').text('ZA aktualisieren (' + zaUpdates.length + '×)');
-        $('#btn_bulk_za').show();
+        $('#btn_bulk_za').prop('disabled', false).removeClass('btn-default').addClass('btn-warning').show();
     } else {
-        $('#btn_bulk_za').hide();
+        $('#bulk_za_label').text('ZA (alle aktuell)');
+        $('#btn_bulk_za').prop('disabled', true).removeClass('btn-warning').addClass('btn-default').show();
     }
 }
 

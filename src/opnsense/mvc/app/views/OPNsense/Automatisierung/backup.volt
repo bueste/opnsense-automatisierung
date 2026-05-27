@@ -590,116 +590,77 @@ function runCompare() {
             showAlert($('#cmp_action_msg'), 'danger', 'Fehler: ' + esc(resp.message || 'Unbekannt'));
             return;
         }
-        var linesA = resp.content_a.split('\n');
-        var linesB = resp.content_b.split('\n');
-        var patch  = computeDiff(linesA, linesB);
-
-        if (!patch.hunks.length) { $('#diff_identical').show(); return; }
-        renderDiff(patch, linesA, linesB, resp);
+        if (resp.identical) { $('#diff_identical').show(); return; }
+        renderUnifiedDiff(resp);
     });
 }
 
-function renderDiff(patch, linesA, linesB, resp) {
-    var added = 0, removed = 0;
-    var html = '<table class="diff-tbl"><colgroup><col class="ln-col"/><col class="ln-col"/><col class="code-col"/></colgroup><tbody>';
+/**
+ * Parse and render the server-side unified diff (diff -u output).
+ * This handles XML correctly because the server's diff utility uses
+ * a proper LCS that understands duplicate lines.
+ */
+function renderUnifiedDiff(resp) {
+    var rawLines = (resp.unified_diff || '').split('\n');
+    var added = 0, removed = 0, hunks = 0;
+    var ol = 1, nl = 1;
+
+    var html = '<table class="diff-tbl">' +
+               '<colgroup><col class="ln-col"/><col class="ln-col"/><col class="code-col"/></colgroup>' +
+               '<tbody>';
 
     html += '<tr class="d-hdr-del"><td class="ln"></td><td class="ln"></td>' +
             '<td class="code">--- ' + esc(resp.file_a) + (resp.mtime_a ? '   ' + esc(resp.mtime_a) : '') + '</td></tr>';
     html += '<tr class="d-hdr-add"><td class="ln"></td><td class="ln"></td>' +
             '<td class="code">+++ ' + esc(resp.file_b) + (resp.mtime_b ? '   ' + esc(resp.mtime_b) : '') + '</td></tr>';
 
-    for (var h = 0; h < patch.hunks.length; h++) {
-        var hunk = patch.hunks[h];
-        html += '<tr class="d-hunk"><td class="ln">...</td><td class="ln">...</td>' +
-                '<td class="code">@@ -' + hunk.oldStart + ',' + hunk.oldLines +
-                ' +' + hunk.newStart + ',' + hunk.newLines + ' @@</td></tr>';
+    for (var i = 0; i < rawLines.length; i++) {
+        var line = rawLines[i];
+        if (!line.length) continue;
 
-        var ol = hunk.oldStart, nl = hunk.newStart;
-        for (var l = 0; l < hunk.lines.length; l++) {
-            var line = hunk.lines[l];
-            var type = line[0], text = line.slice(1);
-            var cls = type === '-' ? 'd-del' : type === '+' ? 'd-add' : 'd-ctx';
-            var lnA = type !== '+' ? ol++ : '';
-            var lnB = type !== '-' ? nl++ : '';
-            if (type === '-') removed++;
-            if (type === '+') added++;
-            html += '<tr class="' + cls + '"><td class="ln">' + lnA + '</td><td class="ln">' + lnB + '</td>' +
-                    '<td class="code">' + esc(text) + '</td></tr>';
+        var ch = line.charAt(0);
+
+        // Skip the --- / +++ header lines from diff output (we draw our own above)
+        if ((ch === '-' && line.indexOf('--- ') === 0) ||
+            (ch === '+' && line.indexOf('+++ ') === 0)) {
+            continue;
+        }
+
+        if (ch === '@') {
+            // Hunk header: @@ -oldStart[,oldCount] +newStart[,newCount] @@
+            var m = line.match(/@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+            if (m) { ol = parseInt(m[1], 10); nl = parseInt(m[2], 10); }
+            hunks++;
+            html += '<tr class="d-hunk"><td class="ln">···</td><td class="ln">···</td>' +
+                    '<td class="code">' + esc(line) + '</td></tr>';
+        } else if (ch === '-') {
+            removed++;
+            html += '<tr class="d-del"><td class="ln">' + ol++ + '</td><td class="ln"></td>' +
+                    '<td class="code">' + esc(line.slice(1)) + '</td></tr>';
+        } else if (ch === '+') {
+            added++;
+            html += '<tr class="d-add"><td class="ln"></td><td class="ln">' + nl++ + '</td>' +
+                    '<td class="code">' + esc(line.slice(1)) + '</td></tr>';
+        } else if (ch === ' ') {
+            html += '<tr class="d-ctx"><td class="ln">' + ol++ + '</td><td class="ln">' + nl++ + '</td>' +
+                    '<td class="code">' + esc(line.slice(1)) + '</td></tr>';
+        } else if (ch === '\\') {
+            // "\ No newline at end of file"
+            html += '<tr class="d-ctx"><td class="ln"></td><td class="ln"></td>' +
+                    '<td class="code text-muted" style="font-style:italic;">' + esc(line) + '</td></tr>';
         }
     }
     html += '</tbody></table>';
 
+    if (added === 0 && removed === 0) { $('#diff_identical').show(); return; }
+
     $('#diff_stats').html(
         '<span style="color:#22863a;font-weight:600;">+' + added + '</span>&nbsp;' +
         '<span style="color:#b31d28;font-weight:600;">−' + removed + '</span>&nbsp;' +
-        '<span class="text-muted">' + patch.hunks.length + ' Block' + (patch.hunks.length !== 1 ? 'e' : '') + '</span>'
+        '<span class="text-muted">' + hunks + ' Block' + (hunks !== 1 ? 'e' : '') + '</span>'
     );
     $('#diff_output').html(html);
     $('#diff_wrap').show();
-}
-
-function computeDiff(oldL, newL) {
-    var lcs = buildLCS(oldL, newL);
-    return {hunks: buildHunks(oldL, newL, lcs, 3)};
-}
-
-function buildLCS(a, b) {
-    if (a.length > 3000 || b.length > 3000) return buildGreedyLCS(a, b);
-    var n = a.length, m = b.length;
-    var dp = [];
-    for (var i = 0; i <= n; i++) dp[i] = new Int32Array(m + 1);
-    for (var i = 1; i <= n; i++)
-        for (var j = 1; j <= m; j++)
-            dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
-    var res = [], i = n, j = m;
-    while (i > 0 && j > 0) {
-        if (a[i-1] === b[j-1]) { res.unshift([i-1, j-1]); i--; j--; }
-        else if (dp[i-1][j] >= dp[i][j-1]) i--;
-        else j--;
-    }
-    return res;
-}
-
-function buildGreedyLCS(a, b) {
-    var bMap = {}, res = [], jLast = 0;
-    for (var j = 0; j < b.length; j++) if (!bMap[b[j]]) bMap[b[j]] = j;
-    for (var i = 0; i < a.length; i++)
-        if (bMap[a[i]] !== undefined && bMap[a[i]] >= jLast) { res.push([i, bMap[a[i]]]); jLast = bMap[a[i]] + 1; }
-    return res;
-}
-
-function buildHunks(oldL, newL, lcs, ctx) {
-    var edits = [], pi = 0, pj = 0;
-    for (var k = 0; k < lcs.length; k++) {
-        while (pi < lcs[k][0]) edits.push({t: '-', oi: pi++, nj: -1});
-        while (pj < lcs[k][1]) edits.push({t: '+', oi: -1, nj: pj++});
-        edits.push({t: '=', oi: pi++, nj: pj++});
-    }
-    while (pi < oldL.length) edits.push({t: '-', oi: pi++, nj: -1});
-    while (pj < newL.length) edits.push({t: '+', oi: -1, nj: pj++});
-
-    var groups = [], grp = null, lastC = -9999;
-    for (var i = 0; i < edits.length; i++) {
-        var chg = edits[i].t !== '=';
-        if (chg || i - lastC <= ctx) {
-            if (grp === null || i - lastC > ctx * 2 + 2) { grp = []; groups.push(grp); }
-            if (chg) lastC = i;
-        }
-        if (grp !== null && (chg || Math.abs(i - lastC) <= ctx)) grp.push(edits[i]);
-    }
-
-    return groups.map(function(g) {
-        var lines = [], oc = 0, nc = 0, firstOi = -1, firstNj = -1;
-        g.forEach(function(e) {
-            if (e.oi >= 0 && firstOi < 0) firstOi = e.oi;
-            if (e.nj >= 0 && firstNj < 0) firstNj = e.nj;
-            if (e.t === '-') { lines.push('-' + oldL[e.oi]); oc++; }
-            else if (e.t === '+') { lines.push('+' + newL[e.nj]); nc++; }
-            else { lines.push(' ' + oldL[e.oi]); oc++; nc++; }
-        });
-        return {oldStart: firstOi >= 0 ? firstOi + 1 : 1, oldLines: oc,
-                newStart: firstNj >= 0 ? firstNj + 1 : 1, newLines: nc, lines: lines};
-    }).filter(function(h) { return h.lines.some(function(l) { return l[0] !== '' && l[0] !== ' '; }); });
 }
 
 /* =========================================================

@@ -203,7 +203,7 @@ class BackupController extends ApiControllerBase
     }
 
     /**
-     * Get content of two backups for client-side diff
+     * Compare two backups using server-side diff -u (handles duplicate XML lines correctly).
      * GET /api/automatisierung/backup/compareBackups?uuid=...&file_a=...&file_b=...
      */
     public function compareBackupsAction()
@@ -224,14 +224,29 @@ class BackupController extends ApiControllerBase
             return ['result' => 'failed', 'message' => 'Eine oder beide Dateien nicht gefunden'];
         }
 
+        // Normalize line endings into temp files so diff works correctly
+        $tmpA = tempnam(sys_get_temp_dir(), 'bkA_');
+        $tmpB = tempnam(sys_get_temp_dir(), 'bkB_');
+        file_put_contents($tmpA, str_replace("\r\n", "\n", file_get_contents($path_a)));
+        file_put_contents($tmpB, str_replace("\r\n", "\n", file_get_contents($path_b)));
+
+        // Run server-side diff; rc=0 identical, rc=1 differences, rc>1 error
+        exec('diff -u ' . escapeshellarg($tmpA) . ' ' . escapeshellarg($tmpB) . ' 2>/dev/null', $diffLines, $rc);
+        @unlink($tmpA);
+        @unlink($tmpB);
+
+        if ($rc > 1) {
+            return ['result' => 'failed', 'message' => 'Diff-Fehler (rc=' . $rc . ')'];
+        }
+
         return [
-            'result'     => 'ok',
-            'file_a'     => $file_a,
-            'file_b'     => $file_b,
-            'content_a'  => file_get_contents($path_a),
-            'content_b'  => file_get_contents($path_b),
-            'mtime_a'    => date('c', filemtime($path_a)),
-            'mtime_b'    => date('c', filemtime($path_b)),
+            'result'       => 'ok',
+            'file_a'       => $file_a,
+            'file_b'       => $file_b,
+            'mtime_a'      => date('d.m.Y H:i:s', filemtime($path_a)),
+            'mtime_b'      => date('d.m.Y H:i:s', filemtime($path_b)),
+            'unified_diff' => implode("\n", $diffLines),
+            'identical'    => ($rc === 0),
         ];
     }
 
@@ -322,7 +337,7 @@ class BackupController extends ApiControllerBase
     }
 
     /**
-     * Store raw XML backup content locally
+     * Store raw XML backup content locally, then auto-apply retention.
      */
     private function storeBackup($uuid, $rawXml, &$result, $comment = '')
     {
@@ -342,13 +357,43 @@ class BackupController extends ApiControllerBase
             $meta = ['comment' => $comment, 'source' => $comment !== '' ? 'manual' : 'auto', 'created' => date('c')];
             file_put_contents($path . '.meta.json', json_encode($meta));
 
+            // Auto-apply retention (delete files older than configured days)
+            $deleted = $this->applyRetentionToDir($dir);
+
             $result['result']   = 'ok';
             $result['message']  = 'Backup erstellt: ' . $filename;
             $result['filename'] = $filename;
+            if ($deleted > 0) {
+                $result['message'] .= ' (' . $deleted . ' alte Backups gemäss Retention entfernt)';
+            }
         } else {
             $result['message'] = 'Fehler beim Schreiben der Backup-Datei.';
         }
         return $result;
+    }
+
+    /**
+     * Delete XML backups in $dir older than $days days.
+     * Also removes accompanying .meta.json sidecar files.
+     * Returns number of deleted backup files.
+     */
+    private function applyRetentionToDir($dir, $days = null)
+    {
+        if ($days === null) {
+            $mdl  = $this->getModel();
+            $days = (int)(string)$mdl->general->backup_retention_days;
+            if ($days < 1) $days = 30;
+        }
+        $cutoff  = time() - ($days * 86400);
+        $deleted = 0;
+        foreach (glob($dir . '/*.xml') ?: [] as $f) {
+            if (filemtime($f) < $cutoff) {
+                @unlink($f);
+                @unlink($f . '.meta.json');
+                $deleted++;
+            }
+        }
+        return $deleted;
     }
 
     /**
@@ -741,7 +786,7 @@ class BackupController extends ApiControllerBase
     }
 
     /**
-     * Run retention cleanup for a host (delete files older than N days)
+     * Run retention cleanup for a host (or all hosts if uuid empty).
      * POST /api/automatisierung/backup/runRetention  {uuid: ...}
      */
     public function runRetentionAction()
@@ -754,26 +799,20 @@ class BackupController extends ApiControllerBase
 
         $uuid = $this->request->getPost('uuid', 'string', '');
         $mdl  = $this->getModel();
-        $days = (int)(string)$mdl->general->backup_retention_days ?: 30;
+        $days = (int)(string)$mdl->general->backup_retention_days;
+        if ($days < 1) $days = 30;
 
         $uuids = $uuid ? [$uuid] : [];
         if (empty($uuids)) {
-            // All hosts
             foreach ($mdl->hosts->host->iterateItems() as $huuid => $host) {
                 $uuids[] = $huuid;
             }
         }
 
-        $cutoff = time() - ($days * 86400);
         foreach ($uuids as $huuid) {
             $dir = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $huuid);
             if (!is_dir($dir)) continue;
-            foreach (glob($dir . '/*.xml') ?: [] as $f) {
-                if (filemtime($f) < $cutoff) {
-                    unlink($f);
-                    $result['deleted']++;
-                }
-            }
+            $result['deleted'] += $this->applyRetentionToDir($dir, $days);
         }
 
         $result['message'] = $result['deleted'] . ' alte Backup(s) gelöscht (Retention: ' . $days . ' Tage).';
