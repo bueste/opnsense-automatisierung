@@ -84,7 +84,15 @@ class ServiceController extends ApiControllerBase
             $fwSt = $this->remoteApiCall($url, $key, $secret, 'core/firmware/status', 'POST', [], $skipVerify);
             if ($fwSt['http_code'] === 200) {
                 $entry['opnsense_update'] = $fwSt['data']['status'] ?? 'none';
-                if (!empty($fwSt['data']['updates'])) $entry['opnsense_update_count'] = count($fwSt['data']['updates']);
+                if (!empty($fwSt['data']['updates'])) {
+                    $entry['opnsense_update_count'] = count($fwSt['data']['updates']);
+                    foreach ($fwSt['data']['updates'] as $pkg) {
+                        if (strpos($pkg['name'] ?? '', 'os-zenarmor') !== false) {
+                            $entry['za_update']  = true;
+                            $entry['za_new_ver'] = $pkg['version'] ?? '?';
+                        }
+                    }
+                }
             }
             // Zenarmor via zenarmor/status/index (OPNsense 26.x)
             $za = $this->remoteApiCall($url, $key, $secret, 'zenarmor/status/index', 'GET', null, $skipVerify);

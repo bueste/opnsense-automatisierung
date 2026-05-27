@@ -18,6 +18,9 @@
             <option value="60000" selected>1 Min.</option>
             <option value="300000">5 Min.</option>
         </select>
+        <button id="btn_update_all" class="btn btn-warning" style="display:none;margin-left:1em;">
+            <i class="fa fa-download"></i> <span id="update_all_label">{{ lang._('Alle aktualisieren') }}</span>
+        </button>
         <span id="last_refresh" class="text-muted" style="margin-left:1em;font-size:0.9em;"></span>
         <div id="global_message" class="alert" style="display:none;margin-top:0.5em;"></div>
     </div>
@@ -123,9 +126,26 @@ function loadAllStatus() {
                 return;
             }
 
+            var hostsOpnUpdate = [], hostsZaUpdate = [];
             $.each(resp.hosts, function(i, host) {
                 $('#hosts_container').append(buildHostCard(host));
+                if (host.status === 'online') {
+                    if (host.opnsense_update === 'update' || host.opnsense_update_count > 0) hostsOpnUpdate.push(host);
+                    if (host.za_update === true) hostsZaUpdate.push(host);
+                }
             });
+
+            // "Alle aktualisieren" Toolbar-Button
+            var totalUpdates = hostsOpnUpdate.length + hostsZaUpdate.length;
+            if (totalUpdates > 1) {
+                var parts = [];
+                if (hostsOpnUpdate.length) parts.push(hostsOpnUpdate.length + '× OPNsense');
+                if (hostsZaUpdate.length)  parts.push(hostsZaUpdate.length + '× ZA');
+                $('#update_all_label').text('Alle aktualisieren (' + parts.join(', ') + ')');
+                $('#btn_update_all').show().data('opn', hostsOpnUpdate).data('za', hostsZaUpdate);
+            } else {
+                $('#btn_update_all').hide();
+            }
 
             bindActionButtons();
             $('#last_refresh').text('Letzte Aktualisierung: ' + new Date().toLocaleTimeString('de-CH'));
@@ -178,13 +198,25 @@ function buildHostCard(host) {
         }
         html += '</div>';
 
-        // ---- OPNsense Update Button — nur anzeigen wenn Update verfügbar ----
-        if (updStatus !== 'none') {
-            html += '<div style="margin-bottom:10px;">';
-            html += '<button class="btn btn-sm btn-danger btn-action btn-update-opnsense" data-uuid="' + escHtml(host.uuid) + '" data-name="' + escHtml(host.name) + '">';
-            html += '<i class="fa fa-download"></i> OPNsense Update starten</button>';
-            html += '</div>';
+        // ---- Update Buttons (immer sichtbar, ausgegraut wenn kein Update) ----
+        var opnHasUpdate = (updStatus === 'update' || (host.opnsense_update_count > 0));
+        var zaHasUpdate  = (host.za_update === true);
+        html += '<div style="margin-bottom:10px;">';
+        html += '<button class="btn btn-sm btn-action btn-update-opnsense ' + (opnHasUpdate ? 'btn-warning' : 'btn-default') + '" ' +
+                'data-uuid="' + escHtml(host.uuid) + '" data-name="' + escHtml(host.name) + '"' +
+                (opnHasUpdate ? '' : ' disabled') + '>';
+        html += '<i class="fa fa-download"></i> OPNsense' +
+                (opnHasUpdate ? ' aktualisieren (' + (host.opnsense_update_count || '?') + ' Paket' + (host.opnsense_update_count !== 1 ? 'e' : '') + ')' : ' (aktuell)') +
+                '</button> ';
+        if (host.za_installed) {
+            html += '<button class="btn btn-sm btn-action btn-update-za ' + (zaHasUpdate ? 'btn-warning' : 'btn-default') + '" ' +
+                    'data-uuid="' + escHtml(host.uuid) + '" data-name="' + escHtml(host.name) + '"' +
+                    (zaHasUpdate ? '' : ' disabled') + '>';
+            html += '<i class="fa fa-shield"></i> ZA' +
+                    (zaHasUpdate ? ' aktualisieren' + (host.za_new_ver ? ' → ' + escHtml(host.za_new_ver) : '') : ' (aktuell)') +
+                    '</button>';
         }
+        html += '</div>';
 
         // ---- Zenarmor Sektion ----
         html += '<div class="za-section">';
@@ -192,7 +224,7 @@ function buildHostCard(host) {
             html += '<div class="info-row">';
             html += '<span class="info-label"><i class="fa fa-shield"></i> Zenarmor Version:</span>';
             html += '<span class="badge-version">' + escHtml(host.za_version || '?') + '</span>';
-            if (host.za_update === true && host.za_new_ver) {
+            if (zaHasUpdate && host.za_new_ver) {
                 html += ' <span class="badge-update"><i class="fa fa-arrow-up"></i> Update auf ' + escHtml(host.za_new_ver) + '</span>';
             } else {
                 html += ' <span class="badge-ok"><i class="fa fa-check"></i> Aktuell</span>';
@@ -215,10 +247,6 @@ function buildHostCard(host) {
             html += '</div>';
 
             html += '<div style="margin-top:8px;">';
-            if (host.za_update === true) {
-                html += '<button class="btn btn-sm btn-warning btn-action btn-update-za" data-uuid="' + escHtml(host.uuid) + '" data-name="' + escHtml(host.name) + '">';
-                html += '<i class="fa fa-download"></i> Zenarmor updaten</button>';
-            }
             html += '<button class="btn btn-sm btn-default btn-action btn-restart-za" data-uuid="' + escHtml(host.uuid) + '" data-name="' + escHtml(host.name) + '">';
             html += '<i class="fa fa-refresh"></i> ZA Engine neu starten</button>';
             html += '<button class="btn btn-sm btn-info btn-action btn-watchdog-check" data-uuid="' + escHtml(host.uuid) + '" data-name="' + escHtml(host.name) + '">';
@@ -333,6 +361,26 @@ function startAutoRefresh() {
         refreshTimer = setInterval(loadAllStatus, interval);
     }
 }
+
+// ====== Alle aktualisieren ======
+$('#btn_update_all').on('click', function() {
+    var hostsOpn = $(this).data('opn') || [];
+    var hostsZa  = $(this).data('za')  || [];
+    var names = [];
+    hostsOpn.forEach(function(h) { names.push(h.name + ' (OPNsense)'); });
+    hostsZa.forEach(function(h)  { names.push(h.name + ' (ZA)'); });
+    if (!confirm('Updates starten auf:\n• ' + names.join('\n• ') + '\n\nFortfahren?')) return;
+
+    var queue = [];
+    hostsOpn.forEach(function(h) { queue.push({url: '/api/automatisierung/service/updateOpnsense', data: {uuid: h.uuid}, label: 'OPNsense Update auf ' + h.name}); });
+    hostsZa.forEach(function(h)  { queue.push({url: '/api/automatisierung/service/updateZa',       data: {uuid: h.uuid}, label: 'ZA Update auf '       + h.name}); });
+
+    (function runNext(i) {
+        if (i >= queue.length) { setTimeout(loadAllStatus, 3000); return; }
+        triggerAction(queue[i].url, queue[i].data, queue[i].label);
+        setTimeout(function() { runNext(i + 1); }, 2000);
+    })(0);
+});
 
 // ====== Init ======
 $('#btn_refresh_all').on('click', loadAllStatus);
