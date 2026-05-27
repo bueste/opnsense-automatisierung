@@ -95,13 +95,13 @@
                     <tr>
                         <td><strong>{{ lang._('ZA Check-Intervall') }}</strong></td>
                         <td>
-                            <select class="form-control" id="za_check_interval" name="general[za_check_interval]" style="width:auto">
-                                <option value="5">{{ lang._('Alle 5 Minuten') }}</option>
-                                <option value="10">{{ lang._('Alle 10 Minuten') }}</option>
-                                <option value="15">{{ lang._('Alle 15 Minuten') }}</option>
-                                <option value="30">{{ lang._('Alle 30 Minuten') }}</option>
-                                <option value="60">{{ lang._('Jede Stunde') }}</option>
-                            </select>
+                            <div id="za_check_interval_radios">
+                                <label style="margin-right:12px;font-weight:normal"><input type="radio" name="za_iv" value="5"> {{ lang._('5 Min') }}</label>
+                                <label style="margin-right:12px;font-weight:normal"><input type="radio" name="za_iv" value="10"> {{ lang._('10 Min') }}</label>
+                                <label style="margin-right:12px;font-weight:normal"><input type="radio" name="za_iv" value="15"> {{ lang._('15 Min') }}</label>
+                                <label style="margin-right:12px;font-weight:normal"><input type="radio" name="za_iv" value="30"> {{ lang._('30 Min') }}</label>
+                                <label style="font-weight:normal"><input type="radio" name="za_iv" value="60"> {{ lang._('60 Min') }}</label>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
@@ -319,7 +319,8 @@
             $('#update_hour').val(g.update_hour || 3);
             $('#update_minute').val(g.update_minute || 0);
             $('#update_days').val(g.update_days || '*');
-            $('#za_check_interval').val(g.za_check_interval || '15');
+            var iv = g.za_check_interval || '15';
+            $('input[name="za_iv"][value="' + iv + '"]').prop('checked', true);
             $('#auto_update_enabled').prop('checked', g.auto_update_enabled == '1');
             $('#za_watchdog_enabled').prop('checked', g.za_watchdog_enabled == '1');
         }});
@@ -335,7 +336,7 @@
                 update_hour:         $('#update_hour').val(),
                 update_minute:       $('#update_minute').val(),
                 update_days:         $('#update_days').val(),
-                za_check_interval:   $('#za_check_interval').val() || '15',
+                za_check_interval:   $('input[name="za_iv"]:checked').val() || '15',
                 auto_update_enabled: $('#auto_update_enabled').is(':checked') ? '1' : '0',
                 za_watchdog_enabled: $('#za_watchdog_enabled').is(':checked') ? '1' : '0',
             }},
