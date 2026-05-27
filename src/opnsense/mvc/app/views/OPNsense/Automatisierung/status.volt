@@ -20,9 +20,10 @@
                 <option value="180000" selected>3 Min.</option>
                 <option value="300000">5 Min.</option>
             </select>
-            <button id="btn_update_selected" class="btn btn-warning" style="display:none;">
-                <i class="fa fa-download"></i> <span id="update_selected_label">{{ lang._('Ausgewählte aktualisieren') }}</span>
-            </button>
+            <label id="lbl_select_all" style="display:none;margin:0;font-weight:normal;cursor:pointer;white-space:nowrap;">
+                <input type="checkbox" id="chk_select_all" style="margin-right:4px;">
+                {{ lang._('Alle auswählen') }}
+            </label>
             <span id="last_refresh" class="text-muted" style="font-size:0.9em;"></span>
         </div>
         <div id="global_message" class="alert" style="display:none;margin-top:0.5em;"></div>
@@ -33,6 +34,19 @@
         <div id="loading_indicator" class="text-center" style="padding:3em;">
             <i class="fa fa-spinner fa-spin fa-3x"></i>
             <p style="margin-top:1em;">{{ lang._('Lade Statusinformationen...') }}</p>
+        </div>
+    </div>
+
+    <!-- ====== Bottom Action Bar ====== -->
+    <div class="col-xs-12" id="bottom_action_bar" style="display:none;margin-top:0.5em;padding:12px 0;border-top:2px solid #e0e0e0;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <strong class="text-muted" style="margin-right:4px;"><i class="fa fa-check-square-o"></i> <span id="bottom_sel_count"></span></strong>
+            <button id="btn_bulk_opnsense" class="btn btn-warning" style="display:none;">
+                <i class="fa fa-download"></i> <span id="bulk_opnsense_label">{{ lang._('OPNsense aktualisieren') }}</span>
+            </button>
+            <button id="btn_bulk_za" class="btn btn-warning" style="display:none;">
+                <i class="fa fa-shield"></i> <span id="bulk_za_label">{{ lang._('ZA aktualisieren') }}</span>
+            </button>
         </div>
     </div>
 
@@ -361,55 +375,95 @@ function startAutoRefresh() {
     }
 }
 
-// ====== Ausgewählte aktualisieren ======
-function updateSelectedButton() {
+// ====== Ausgewählte Hosts ermitteln ======
+function getSelectedHosts() {
     var selected = [];
     $('.host-select-cb:checked').each(function() {
         var uuid = $(this).data('uuid');
         if (allHostsData[uuid]) selected.push(allHostsData[uuid]);
     });
-
-    if (selected.length === 0) {
-        $('#btn_update_selected').hide();
-        return;
-    }
-
-    var opnUpdates = selected.filter(function(h) { return h.opnsense_update === 'update' || h.opnsense_update_count > 0; });
-    var zaUpdates  = selected.filter(function(h) { return h.za_update === true; });
-
-    if (opnUpdates.length === 0 && zaUpdates.length === 0) {
-        $('#btn_update_selected').hide();
-        return;
-    }
-
-    var parts = [];
-    if (opnUpdates.length) parts.push(opnUpdates.length + '× OPNsense');
-    if (zaUpdates.length)  parts.push(zaUpdates.length  + '× ZA');
-    $('#update_selected_label').text('Ausgewählte aktualisieren (' + parts.join(', ') + ')');
-    $('#btn_update_selected').show();
+    return selected;
 }
 
-$('#btn_update_selected').on('click', function() {
-    var selected = [];
-    $('.host-select-cb:checked').each(function() {
-        var uuid = $(this).data('uuid');
-        if (allHostsData[uuid]) selected.push(allHostsData[uuid]);
+// ====== Toolbar + Bottom-Bar aktualisieren ======
+function updateSelectedButton() {
+    var selected    = getSelectedHosts();
+    var total       = $('.host-select-cb').length;
+    var checkedCnt  = selected.length;
+    var opnUpdates  = selected.filter(function(h) { return h.opnsense_update === 'update' || h.opnsense_update_count > 0; });
+    var zaUpdates   = selected.filter(function(h) { return h.za_update === true; });
+
+    // Select-all checkbox sichtbar machen wenn Hosts da sind
+    if (total > 0) {
+        $('#lbl_select_all').show();
+        // Indeterminate-Zustand
+        var allChecked = ($('.host-select-cb:checked').length === total);
+        $('#chk_select_all').prop('checked', allChecked)
+                            .prop('indeterminate', checkedCnt > 0 && !allChecked);
+    } else {
+        $('#lbl_select_all').hide();
+    }
+
+    // Bottom-Bar
+    if (checkedCnt === 0) {
+        $('#bottom_action_bar').hide();
+        return;
+    }
+    $('#bottom_sel_count').text(checkedCnt + ' Host' + (checkedCnt !== 1 ? 's' : '') + ' ausgewählt');
+    $('#bottom_action_bar').show();
+
+    // OPNsense-Button
+    if (opnUpdates.length > 0) {
+        $('#bulk_opnsense_label').text('OPNsense aktualisieren (' + opnUpdates.length + '×)');
+        $('#btn_bulk_opnsense').show();
+    } else {
+        $('#btn_bulk_opnsense').hide();
+    }
+
+    // ZA-Button
+    if (zaUpdates.length > 0) {
+        $('#bulk_za_label').text('ZA aktualisieren (' + zaUpdates.length + '×)');
+        $('#btn_bulk_za').show();
+    } else {
+        $('#btn_bulk_za').hide();
+    }
+}
+
+// ====== Select-All Handler ======
+$('#chk_select_all').on('change', function() {
+    var checked = $(this).is(':checked');
+    $('.host-select-cb').prop('checked', checked);
+    updateSelectedButton();
+});
+
+// ====== Bulk OPNsense Update ======
+$('#btn_bulk_opnsense').on('click', function() {
+    var hostsOpn = getSelectedHosts().filter(function(h) {
+        return h.opnsense_update === 'update' || h.opnsense_update_count > 0;
     });
+    if (!hostsOpn.length) return;
+    var names = hostsOpn.map(function(h) { return h.name; });
+    if (!confirm('OPNsense-Update starten auf:\n• ' + names.join('\n• ') +
+                 '\n\nDie Firewalls werden danach neu gestartet. Fortfahren?')) return;
+    var queue = hostsOpn.map(function(h) {
+        return {url: '/api/automatisierung/service/updateOpnsense', data: {uuid: h.uuid}, label: 'OPNsense Update auf ' + h.name};
+    });
+    (function runNext(i) {
+        if (i >= queue.length) { setTimeout(loadAllStatus, 3000); return; }
+        triggerAction(queue[i].url, queue[i].data, queue[i].label);
+        setTimeout(function() { runNext(i + 1); }, 2000);
+    })(0);
+});
 
-    var hostsOpn = selected.filter(function(h) { return h.opnsense_update === 'update' || h.opnsense_update_count > 0; });
-    var hostsZa  = selected.filter(function(h) { return h.za_update === true; });
-
-    var names = [];
-    hostsOpn.forEach(function(h) { names.push(h.name + ' (OPNsense)'); });
-    hostsZa.forEach(function(h)  { names.push(h.name + ' (ZA)'); });
-
-    if (names.length === 0) return;
-    if (!confirm('Updates starten auf:\n• ' + names.join('\n• ') + '\n\nFortfahren?')) return;
-
-    var queue = [];
-    hostsOpn.forEach(function(h) { queue.push({url: '/api/automatisierung/service/updateOpnsense', data: {uuid: h.uuid}, label: 'OPNsense Update auf ' + h.name}); });
-    hostsZa.forEach(function(h)  { queue.push({url: '/api/automatisierung/service/updateZa',       data: {uuid: h.uuid}, label: 'ZA Update auf '       + h.name}); });
-
+// ====== Bulk ZA Update ======
+$('#btn_bulk_za').on('click', function() {
+    var hostsZa = getSelectedHosts().filter(function(h) { return h.za_update === true; });
+    if (!hostsZa.length) return;
+    var names = hostsZa.map(function(h) { return h.name; });
+    if (!confirm('ZA-Update starten auf:\n• ' + names.join('\n• ') + '\n\nFortfahren?')) return;
+    var queue = hostsZa.map(function(h) {
+        return {url: '/api/automatisierung/service/updateZa', data: {uuid: h.uuid}, label: 'ZA Update auf ' + h.name};
+    });
     (function runNext(i) {
         if (i >= queue.length) { setTimeout(loadAllStatus, 3000); return; }
         triggerAction(queue[i].url, queue[i].data, queue[i].label);

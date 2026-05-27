@@ -1,0 +1,332 @@
+# OPNsense Automatisierung Plugin – Turkish Translation
+# Copyright (C) 2024 Automatisierung Plugin Authors
+# This file is distributed under the same license as the Automatisierung package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OPNsense Automatisierung 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: Auto-generated\n"
+"Language-Team: Turkish\n"
+"Language: tr_TR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "* = jeden Tag, 1 = Montag, 7 = Sonntag (Beispiel: 1,3,5 = Mo,Mi,Fr)"
+msgstr ""
+
+msgid "* = täglich | 1=Mo … 7=So | Bsp: 1,4 = Mo+Do"
+msgstr ""
+
+msgid "10 Min"
+msgstr ""
+
+msgid "15 Min"
+msgstr ""
+
+msgid "30 Min"
+msgstr ""
+
+msgid "5 Min"
+msgstr ""
+
+msgid "60 Min"
+msgstr ""
+
+msgid "API Key"
+msgstr ""
+
+msgid "API Secret"
+msgstr ""
+
+msgid "Abbrechen"
+msgstr "İptal"
+
+msgid "Aktionen"
+msgstr "Eylemler"
+
+msgid "Aktiv"
+msgstr "Etkin"
+
+msgid "Aktualisieren"
+msgstr "Yenile"
+
+msgid "Aktualisiert Zenarmor-Pakete automatisch"
+msgstr ""
+
+msgid "Alle Sicherungen"
+msgstr "Tüm yedekler"
+
+msgid "Alle Status aktualisieren"
+msgstr "Tüm durumları yenile"
+
+msgid "Alle auswählen"
+msgstr "Tümünü seç"
+
+msgid "Allgemeine Einstellungen"
+msgstr ""
+
+msgid "Alte Backups gemäss Retention-Einstellung entfernen"
+msgstr ""
+
+msgid "Aufbewahrungsdauer (Retention)"
+msgstr ""
+
+msgid "Ausgewählte vergleichen (2 wählen)"
+msgstr ""
+
+msgid "Auswahl löschen"
+msgstr ""
+
+msgid "Auto OPNsense"
+msgstr ""
+
+msgid "Auto ZA"
+msgstr ""
+
+msgid "Auto-Backup"
+msgstr ""
+
+msgid "Automatische Backups aktivieren"
+msgstr ""
+
+msgid "Automatische Sicherung"
+msgstr "Otomatik yedek"
+
+msgid "Automatische Updates aktivieren"
+msgstr ""
+
+msgid "Automatisierung"
+msgstr "Otomasyon"
+
+msgid "Automatisierung – Konfiguration"
+msgstr ""
+
+msgid "Automatisierung – Konfigurationsbackup"
+msgstr ""
+
+msgid "Automatisierung – Status & Updates"
+msgstr ""
+
+msgid "Backup auf Firewall einspielen"
+msgstr ""
+
+msgid "Backup erstellen"
+msgstr "Yedek oluştur"
+
+msgid "Backup jetzt erstellen"
+msgstr ""
+
+msgid "Backup pro Host"
+msgstr ""
+
+msgid "Backup-Zeitplan"
+msgstr ""
+
+msgid "Backups"
+msgstr "Yedekler"
+
+msgid "Backups werden zum konfigurierten Zeitplan erstellt"
+msgstr ""
+
+msgid "Backups älter als dieser Wert werden automatisch gelöscht"
+msgstr ""
+
+msgid "Basis-URL der OPNsense (ohne /api)"
+msgstr ""
+
+msgid "Benutzer"
+msgstr "Kullanıcı"
+
+msgid "Beschreibung / Revision"
+msgstr ""
+
+msgid "Bitte oben einen Host auswählen."
+msgstr ""
+
+msgid "Dateiname"
+msgstr "Dosya adı"
+
+msgid "Die beiden Konfigurationen sind identisch – keine Unterschiede gefunden."
+msgstr ""
+
+msgid "Diese Konfiguration auf die Firewall einspielen"
+msgstr ""
+
+msgid "Dieses Backup löschen"
+msgstr ""
+
+msgid "Einstellungen"
+msgstr "Ayarlar"
+
+msgid "Einstellungen speichern"
+msgstr "Ayarları kaydet"
+
+msgid "Grösse"
+msgstr "Boyut"
+
+msgid "Herunterladen"
+msgstr "İndir"
+
+msgid "Hinweis: Änderungen werden sofort gespeichert. Für Automatisierungen ggf. unter „Allgemein“ die Zeitplanung anpassen."
+msgstr ""
+
+msgid "Host"
+msgstr "Ana bilgisayar"
+
+msgid "Jetzt einspielen"
+msgstr ""
+
+msgid "Keine Backups vorhanden. Erstelle jetzt eines oder aktiviere die automatische Sicherung."
+msgstr ""
+
+msgid "Keine ZA-Backups vorhanden. Erstelle jetzt eines."
+msgstr ""
+
+msgid "Kommentar (optional)"
+msgstr "Yorum (isteğe bağlı)"
+
+msgid "Konfigurationen werden lokal auf dieser OPNsense gespeichert unter:"
+msgstr ""
+
+msgid "Lade Statusinformationen..."
+msgstr ""
+
+msgid "Lade und vergleiche Konfigurationen..."
+msgstr ""
+
+msgid "Lege fest, für welche Hosts automatisch Konfigurationsbackups erstellt werden:"
+msgstr ""
+
+msgid "Manuell"
+msgstr "Manuel"
+
+msgid "Minute (0-59)"
+msgstr ""
+
+msgid "Minute (0–59)"
+msgstr ""
+
+msgid "Name"
+msgstr "Ad"
+
+msgid "Name / Beschreibung"
+msgstr ""
+
+msgid "Nur für Self-Signed Zertifikate – unsicher!"
+msgstr ""
+
+msgid "OPNsense Instanz konfigurieren"
+msgstr ""
+
+msgid "OPNsense Instanzen"
+msgstr ""
+
+msgid "OPNsense aktualisieren"
+msgstr "OPNsense güncelle"
+
+msgid "OPNsense automatisch updaten"
+msgstr ""
+
+msgid "Retention anwenden"
+msgstr ""
+
+msgid "Sicherungen (vergleichen)"
+msgstr ""
+
+msgid "Sicherungen vergleichen"
+msgstr ""
+
+msgid "Speichern"
+msgstr "Kaydet"
+
+msgid "Stunde (0-23)"
+msgstr ""
+
+msgid "Stunde (0–23)"
+msgstr ""
+
+msgid "TLS-Zertifikat nicht prüfen"
+msgstr ""
+
+msgid "Tage"
+msgstr "Gün"
+
+msgid "URL"
+msgstr ""
+
+msgid "Update-Zeitplan"
+msgstr ""
+
+msgid "Updates werden zur konfigurierten Zeit automatisch eingespielt"
+msgstr ""
+
+msgid "Verbindung"
+msgstr "Bağlantı"
+
+msgid "Verbindung testen"
+msgstr ""
+
+msgid "Versionen vergleichen"
+msgstr ""
+
+msgid "Verwalte die Verbindungsdaten zu allen OPNsense Instanzen. Die API Credentials findest du unter System → Benutzerverwaltung → API-Keys."
+msgstr ""
+
+msgid "Wendet Firmware-Updates automatisch zum konfigurierten Zeitplan an"
+msgstr ""
+
+msgid "Wochentage"
+msgstr "Haftanın günleri"
+
+msgid "Wochentage (*, 1-7)"
+msgstr ""
+
+msgid "ZA Check-Intervall"
+msgstr ""
+
+msgid "ZA Watchdog"
+msgstr ""
+
+msgid "ZA Watchdog aktivieren"
+msgstr ""
+
+msgid "ZA aktualisieren"
+msgstr "ZA güncelle"
+
+msgid "ZA-Backup jetzt erstellen"
+msgstr ""
+
+msgid "Zeitstempel"
+msgstr "Zaman damgası"
+
+msgid "Zenarmor Backup"
+msgstr ""
+
+msgid "Zenarmor Watchdog"
+msgstr ""
+
+msgid "Zenarmor automatisch updaten"
+msgstr ""
+
+msgid "Zenarmor-Backups werden als .gz-Datei auf dem Remote-Host erstellt und dann lokal gespeichert. Der API-Benutzer benötigt Zenarmor-Backup-Rechte."
+msgstr ""
+
+msgid "z.B. Hauptstandort Firewall"
+msgstr ""
+
+msgid "Änderungen zwischen ausgewählten Versionen"
+msgstr ""
+
+msgid "Überprüft periodisch ob Zenarmor läuft und startet ggf. neu"
+msgstr ""
+
+msgid "Übersicht aller konfigurierten OPNsense Instanzen mit aktuellen Versionsinformationen und Update-Optionen."
+msgstr ""
+
+msgid "Überwacht ob Zenarmor läuft und startet den Engine ggf. neu"
+msgstr ""

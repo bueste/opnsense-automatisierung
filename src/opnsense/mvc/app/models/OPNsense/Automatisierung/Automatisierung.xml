@@ -42,6 +42,9 @@
                 <skip_verify_tls type="BooleanField">
                     <Default>0</Default>
                 </skip_verify_tls>
+                <backup_enabled type="BooleanField">
+                    <Default>0</Default>
+                </backup_enabled>
             </host>
         </hosts>
         <general>
@@ -69,6 +72,29 @@
             <za_watchdog_enabled type="BooleanField">
                 <Default>0</Default>
             </za_watchdog_enabled>
+            <backup_enabled type="BooleanField">
+                <Default>0</Default>
+            </backup_enabled>
+            <backup_hour type="IntegerField">
+                <Default>2</Default>
+                <MinimumValue>0</MinimumValue>
+                <MaximumValue>23</MaximumValue>
+            </backup_hour>
+            <backup_minute type="IntegerField">
+                <Default>0</Default>
+                <MinimumValue>0</MinimumValue>
+                <MaximumValue>59</MaximumValue>
+            </backup_minute>
+            <backup_days type="TextField">
+                <Default>*</Default>
+                <mask>/^[\d,\*\-\/]+$/</mask>
+                <ValidationMessage>Ungültiger Cron-Ausdruck für Wochentage.</ValidationMessage>
+            </backup_days>
+            <backup_retention_days type="IntegerField">
+                <Default>30</Default>
+                <MinimumValue>1</MinimumValue>
+                <MaximumValue>365</MaximumValue>
+            </backup_retention_days>
         </general>
     </items>
 </model>
