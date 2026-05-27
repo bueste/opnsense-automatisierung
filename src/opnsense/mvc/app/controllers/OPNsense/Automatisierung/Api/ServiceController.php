@@ -2,6 +2,7 @@
 namespace OPNsense\Automatisierung\Api;
 use OPNsense\Base\ApiControllerBase;
 use OPNsense\Automatisierung\Automatisierung;
+use OPNsense\Core\Backend;
 
 class ServiceController extends ApiControllerBase
 {
@@ -53,9 +54,106 @@ class ServiceController extends ApiControllerBase
         return (bool)($zd['eastpect']['status'] ?? false);
     }
 
+    /**
+     * Read the local OPNsense version string.
+     */
+    private function localOpnVersion()
+    {
+        // opnsense-version -v returns e.g. "26.1.8_5"
+        exec('/usr/local/sbin/opnsense-version -v 2>/dev/null', $out, $rc);
+        if ($rc === 0 && !empty($out)) {
+            return trim($out[0]);
+        }
+        // Fallback: read version file
+        foreach (['/usr/local/opnsense/version/core', '/usr/local/etc/version'] as $f) {
+            if (file_exists($f)) {
+                $lines = file($f, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                if (!empty($lines)) return trim($lines[0]);
+            }
+        }
+        return '?';
+    }
+
+    /**
+     * Build the status entry for the local firewall (no remote API call needed).
+     */
+    private function getLocalStatus()
+    {
+        $mdl = $this->getModel();
+        $entry = [
+            'uuid'                 => '__local__',
+            'name'                 => gethostname() ?: 'Diese Firewall',
+            'url'                  => 'localhost',
+            'auto_update_opnsense' => (string)$mdl->general->auto_update_enabled,
+            'auto_update_za'       => (string)$mdl->general->auto_update_enabled,
+            'za_watchdog'          => (string)$mdl->general->za_watchdog_enabled,
+            'status'               => 'online',
+            'is_local'             => true,
+            'opnsense_version'     => $this->localOpnVersion(),
+            'opnsense_update'      => 'none',
+            'za_installed'         => false,
+            'za_version'           => null,
+            'za_running'           => null,
+            'error'                => null,
+        ];
+
+        // Check for local firmware updates (--no-repo-update = fast, uses cached catalogue)
+        exec('pkg version --no-repo-update -l "<" 2>/dev/null', $pkgOut, $pkgRc);
+        if ($pkgRc === 0 && !empty($pkgOut)) {
+            $entry['opnsense_update']       = 'update';
+            $entry['opnsense_update_count'] = count($pkgOut);
+            foreach ($pkgOut as $line) {
+                if (strpos($line, 'os-zenarmor') !== false) {
+                    $entry['za_update'] = true;
+                    exec('pkg rquery "%v" os-zenarmor 2>/dev/null', $zaV);
+                    if (!empty($zaV)) $entry['za_new_ver'] = trim($zaV[0]);
+                }
+            }
+        }
+
+        // Zenarmor: check by directory (may not be in pkg db when installed via SunnyValley repo)
+        $zaDir = '/usr/local/zenarmor';
+        if (is_dir($zaDir)) {
+            $entry['za_installed'] = true;
+            // Version from db/VERSION file
+            $zaVerFile = $zaDir . '/db/VERSION';
+            if (file_exists($zaVerFile)) {
+                $entry['za_version'] = trim(file_get_contents($zaVerFile));
+            }
+            // Running: pgrep (works regardless of binary path)
+            exec('pgrep eastpect 2>/dev/null', $_pids, $pgrepRc);
+            $entry['za_running']       = ($pgrepRc === 0);
+            $entry['za_engine_status'] = $entry['za_running'] ? 'running' : 'stopped';
+        }
+
+        return $entry;
+    }
+
+    /**
+     * Restart the local Zenarmor engine.
+     * Tries multiple methods: ZA's own start script, pluginctl, service.
+     */
+    private function localZaRestart()
+    {
+        // Method 1: ZA's own restart script (if it exists)
+        foreach (['/usr/local/zenarmor/scripts/restart.sh', '/usr/local/zenarmor/scripts/stop.sh'] as $script) {
+            if (file_exists($script)) {
+                exec('sh ' . escapeshellarg($script) . ' 2>&1', $out, $rc);
+                if ($rc === 0) return true;
+            }
+        }
+        // Method 2: pluginctl (OPNsense service manager)
+        exec('/usr/local/sbin/pluginctl -s eastpect restart 2>&1', $out, $rc);
+        if ($rc === 0) return true;
+        // Method 3: BSD service
+        exec('service eastpect restart 2>&1', $out, $rc);
+        return $rc === 0;
+    }
+
     public function allStatusAction()
     {
-        $result = [];
+        // Always include the local firewall as the first entry
+        $result = [$this->getLocalStatus()];
         $mdl = $this->getModel();
         foreach ($mdl->hosts->host->iterateItems() as $uuid => $host) {
             if ((string)$host->enabled !== '1') continue;
@@ -114,7 +212,19 @@ class ServiceController extends ApiControllerBase
     public function updateOpnsenseAction()
     {
         if (!$this->request->isPost()) return ['result'=>'failed','message'=>'POST required'];
-        $host = $this->getHostByUuid($this->request->getPost('uuid','string',''));
+        $uuid = $this->request->getPost('uuid','string','');
+
+        if ($uuid === '__local__') {
+            try {
+                $backend = new Backend();
+                $backend->configdRun('firmware update');
+                return ['result'=>'ok','message'=>'Lokales OPNsense-Update gestartet. Die Firewall startet danach neu — Browser-Verbindung wird kurz unterbrochen.'];
+            } catch (\Exception $e) {
+                return ['result'=>'failed','message'=>'Lokales Update fehlgeschlagen: ' . $e->getMessage()];
+            }
+        }
+
+        $host = $this->getHostByUuid($uuid);
         if (!$host) return ['result'=>'failed','message'=>'Host nicht gefunden'];
         list($url,$key,$secret,$sv) = $host;
         $r = $this->remoteApiCall($url,$key,$secret,'core/firmware/upgrade','POST',['mode'=>'update'],$sv);
@@ -124,7 +234,19 @@ class ServiceController extends ApiControllerBase
     public function updateZaAction()
     {
         if (!$this->request->isPost()) return ['result'=>'failed','message'=>'POST required'];
-        $host = $this->getHostByUuid($this->request->getPost('uuid','string',''));
+        $uuid = $this->request->getPost('uuid','string','');
+
+        if ($uuid === '__local__') {
+            try {
+                $backend = new Backend();
+                $backend->configdRun('firmware install os-zenarmor');
+                return ['result'=>'ok','message'=>'Lokales Zenarmor-Update gestartet.'];
+            } catch (\Exception $e) {
+                return ['result'=>'failed','message'=>'Lokales ZA-Update fehlgeschlagen: ' . $e->getMessage()];
+            }
+        }
+
+        $host = $this->getHostByUuid($uuid);
         if (!$host) return ['result'=>'failed','message'=>'Host nicht gefunden'];
         list($url,$key,$secret,$sv) = $host;
         $r = $this->remoteApiCall($url,$key,$secret,'core/firmware/install/os-zenarmor','POST',[],$sv);
@@ -134,7 +256,16 @@ class ServiceController extends ApiControllerBase
     public function restartZaAction()
     {
         if (!$this->request->isPost()) return ['result'=>'failed','message'=>'POST required'];
-        $host = $this->getHostByUuid($this->request->getPost('uuid','string',''));
+        $uuid = $this->request->getPost('uuid','string','');
+
+        if ($uuid === '__local__') {
+            $ok = $this->localZaRestart();
+            return $ok
+                ? ['result'=>'ok','message'=>'Lokale ZA Engine neu gestartet.']
+                : ['result'=>'failed','message'=>'Lokaler ZA-Neustart fehlgeschlagen. Prüfe ob Interfaces in Zenarmor konfiguriert sind.'];
+        }
+
+        $host = $this->getHostByUuid($uuid);
         if (!$host) return ['result'=>'failed','message'=>'Host nicht gefunden'];
         list($url,$key,$secret,$sv) = $host;
         $ok = $this->zaServiceAction($url, $key, $secret, $sv, 'eastpect', 'restart');
@@ -147,7 +278,28 @@ class ServiceController extends ApiControllerBase
     public function zaWatchdogCheckAction()
     {
         if (!$this->request->isPost()) return ['result'=>'failed'];
-        $host = $this->getHostByUuid($this->request->getPost('uuid','string',''));
+        $uuid = $this->request->getPost('uuid','string','');
+
+        if ($uuid === '__local__') {
+            $actions = [];
+            exec('pkg info -e os-zenarmor 2>/dev/null', $_d, $instRc);
+            if ($instRc !== 0) {
+                return ['result'=>'ok','actions'=>['Zenarmor nicht installiert — kein Eingriff nötig.']];
+            }
+            exec('pgrep -x eastpect 2>/dev/null', $_d2, $pgrepRc);
+            $running = ($pgrepRc === 0);
+            if (!$running) {
+                $actions[] = 'Lokale ZA Engine nicht aktiv — starte...';
+                exec('pluginctl -s eastpect start 2>&1', $_d3, $rc);
+                if ($rc !== 0) exec('service eastpect start 2>&1', $_d4, $rc);
+                $actions[] = $rc === 0 ? 'Engine gestartet.' : 'Start fehlgeschlagen.';
+            } else {
+                $actions[] = 'Lokale ZA Engine läuft — kein Eingriff nötig.';
+            }
+            return ['result'=>'ok','actions'=>$actions];
+        }
+
+        $host = $this->getHostByUuid($uuid);
         if (!$host) return ['result'=>'failed','message'=>'Host nicht gefunden'];
         list($url,$key,$secret,$sv) = $host;
 

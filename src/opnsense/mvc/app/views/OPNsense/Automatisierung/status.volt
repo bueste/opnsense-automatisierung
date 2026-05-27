@@ -101,6 +101,9 @@
 .btn-action { margin-right:6px; margin-bottom:6px; }
 .za-section { margin-top:14px; padding-top:14px; border-top:1px dashed #e0e0e0; }
 .spinner-inline { display:inline-block; }
+.host-card-local { border-color: #0069d9; }
+.host-card-local .host-header.status-online { background: #f0f7ff; border-left: 4px solid #0069d9; }
+.badge-local { background: #0069d9; color:#fff; padding:3px 8px; border-radius:10px; font-size:0.82em; }
 </style>
 
 <script>
@@ -171,14 +174,19 @@ function buildHostCard(host) {
                     : host.status === 'error'  ? '<i class="fa fa-times-circle text-danger"></i>'
                     :                            '<i class="fa fa-question-circle text-muted"></i>';
 
-    var html = '<div class="host-card" data-uuid="' + escHtml(host.uuid) + '">';
+    var isLocal = (host.uuid === '__local__');
+    var html = '<div class="host-card' + (isLocal ? ' host-card-local' : '') + '" data-uuid="' + escHtml(host.uuid) + '">';
     html += '<div class="host-header ' + statusClass + '">';
     html += '<div style="display:flex;align-items:center;gap:8px;">';
-    if (host.status === 'online') {
+    if (host.status === 'online' && !isLocal) {
         html += '<input type="checkbox" class="host-select-cb" data-uuid="' + escHtml(host.uuid) + '" style="margin:0;cursor:pointer;" title="Host für Sammelupdate auswählen">';
     }
+    if (isLocal) {
+        html += '<span class="badge-local"><i class="fa fa-home"></i> Diese Firewall</span> ';
+    }
     html += '<span class="host-name">' + statusIcon + ' ' + escHtml(host.name) + '</span> ';
-    html += '<span class="host-url">' + escHtml(host.url) + '</span></div>';
+    if (!isLocal) html += '<span class="host-url">' + escHtml(host.url) + '</span>';
+    html += '</div>';
     html += '<div>';
     if (host.status === 'online') {
         html += '<span class="badge-version">OPNsense ' + escHtml(host.opnsense_version || '?') + '</span> ';
@@ -290,14 +298,24 @@ function bindActionButtons() {
     $(document).off('click', '.btn-update-opnsense').on('click', '.btn-update-opnsense', function() {
         var uuid = $(this).data('uuid');
         var name = $(this).data('name');
+        var isLocal = (uuid === '__local__');
         pendingAction = {type: 'opnsense_update', uuid: uuid};
-        $('#confirm_update_body').html(
-            '<p>OPNsense Firmware-Update auf <strong>' + escHtml(name) + '</strong> starten?</p>' +
-            '<p class="text-warning"><i class="fa fa-warning"></i> Die Firewall wird nach dem Update ggf. neu gestartet.</p>'
-        );
+        var body = '<p>OPNsense Firmware-Update auf <strong>' + escHtml(name) + '</strong> starten?</p>' +
+            '<p class="text-warning"><i class="fa fa-warning"></i> Die Firewall wird nach dem Update neu gestartet.</p>';
+        if (isLocal) {
+            body += '<div class="alert alert-danger" style="margin-top:8px;margin-bottom:0;">' +
+                '<i class="fa fa-home"></i> <strong>Achtung – Diese Firewall:</strong> ' +
+                'Die Browser-Verbindung wird während des Updates und Neustarts kurz unterbrochen. ' +
+                'Die Seite lädt sich danach automatisch neu.</div>';
+        }
+        $('#confirm_update_body').html(body);
         $('#btn_confirm_update').off('click').on('click', function() {
             $('#ConfirmUpdateModal').modal('hide');
             triggerAction('/api/automatisierung/service/updateOpnsense', {uuid: uuid}, 'OPNsense Update auf ' + name);
+            if (isLocal) {
+                // Attempt page reload after ~90s (firewall needs time to update + reboot)
+                setTimeout(function() { location.reload(); }, 90000);
+            }
         });
         $('#ConfirmUpdateModal').modal('show');
     });
