@@ -1,4 +1,4 @@
-﻿<div class="content-box" style="padding-bottom:1.5em;">
+<div class="content-box" style="padding-bottom:1.5em;">
 
     <div class="col-xs-12">
         <h1><i class="fa fa-archive"></i> {{ lang._('Automation – Configuration Backup') }}</h1>

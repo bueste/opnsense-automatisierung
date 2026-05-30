@@ -1,4 +1,4 @@
-﻿{{ partial("layout_partials/base_form",['fields':form_fields,'id':'frm_GeneralSettings','apply_btn_id':'btn_apply_general'])}}
+{{ partial("layout_partials/base_form",['fields':form_fields,'id':'frm_GeneralSettings','apply_btn_id':'btn_apply_general'])}}
 
 <div class="content-box" style="padding-bottom: 1.5em;">
 

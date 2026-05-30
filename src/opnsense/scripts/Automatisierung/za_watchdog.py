@@ -1,4 +1,4 @@
-﻿#!/usr/local/bin/python3
+#!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
 """
 Copyright (C) 2024 Automatisierung Plugin Contributors

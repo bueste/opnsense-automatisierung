@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
  * Copyright (C) 2024 Automatisierung Plugin Contributors
  * All rights reserved.

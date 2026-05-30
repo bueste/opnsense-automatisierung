@@ -1,4 +1,4 @@
-﻿<div class="content-box" style="padding-bottom: 1.5em;">
+<div class="content-box" style="padding-bottom: 1.5em;">
 
     <!-- ====== Header ====== -->
     <div class="col-xs-12">
