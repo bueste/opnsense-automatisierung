@@ -330,3 +330,120 @@ msgstr ""
 
 msgid "Überwacht ob Zenarmor läuft und startet den Engine ggf. neu"
 msgstr ""
+
+msgid "Update bestätigen"
+msgstr ""
+
+msgid "Update starten"
+msgstr ""
+
+msgid "Teste..."
+msgstr ""
+
+msgid "Fehler"
+msgstr ""
+
+msgid "Gespeichert."
+msgstr ""
+
+msgid "Keine aktiven Instanzen konfiguriert. Bitte unter"
+msgstr ""
+
+msgid "Instanzen hinzufügen."
+msgstr ""
+
+msgid "Letzte Aktualisierung"
+msgstr ""
+
+msgid "Fehler beim Laden der Statusdaten."
+msgstr ""
+
+msgid "Verbindungsfehler"
+msgstr ""
+
+msgid "Läuft"
+msgstr ""
+
+msgid "Gestoppt"
+msgstr ""
+
+msgid "Engine Neustart empfohlen"
+msgstr ""
+
+msgid "Zenarmor nicht installiert"
+msgstr ""
+
+msgid "Keine aktiv"
+msgstr ""
+
+msgid "OPNsense Auto-Update"
+msgstr ""
+
+msgid "ZA Auto-Update"
+msgstr ""
+
+msgid "Update verfügbar"
+msgstr ""
+
+msgid "Aktuell"
+msgstr ""
+
+msgid "Update auf"
+msgstr ""
+
+msgid "Update"
+msgstr ""
+
+msgid "Netzwerkfehler bei"
+msgstr ""
+
+msgid "aktuell"
+msgstr ""
+
+msgid "aktualisieren"
+msgstr ""
+
+msgid "ZA Engine neu starten"
+msgstr ""
+
+msgid "ZA Watchdog jetzt prüfen"
+msgstr ""
+
+msgid "OPNsense (alle aktuell)"
+msgstr ""
+
+msgid "ZA (alle aktuell)"
+msgstr ""
+
+msgid "ausgewählt"
+msgstr ""
+
+msgid "OPNsense Firmware-Update auf"
+msgstr ""
+
+msgid "Die Firewall wird nach dem Update neu gestartet."
+msgstr ""
+
+msgid "Achtung – Diese Firewall"
+msgstr ""
+
+msgid "Die Browser-Verbindung wird während des Updates und Neustarts kurz unterbrochen. Die Seite lädt sich danach automatisch neu."
+msgstr ""
+
+msgid "Zenarmor Update auf"
+msgstr ""
+
+msgid "starten"
+msgstr ""
+
+msgid "OPNsense-Update starten auf"
+msgstr ""
+
+msgid "Die Firewalls werden danach neu gestartet. Fortfahren?"
+msgstr ""
+
+msgid "ZA-Update starten auf"
+msgstr ""
+
+msgid "Fortfahren?"
+msgstr ""

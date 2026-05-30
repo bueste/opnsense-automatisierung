@@ -58,12 +58,12 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-                <h4 class="modal-title"><i class="fa fa-warning text-warning"></i> Update bestätigen</h4>
+                <h4 class="modal-title"><i class="fa fa-warning text-warning"></i> {{ lang._('Update bestätigen') }}</h4>
             </div>
             <div class="modal-body" id="confirm_update_body"></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Abbrechen</button>
-                <button type="button" id="btn_confirm_update" class="btn btn-primary">Update starten</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ lang._('Abbrechen') }}</button>
+                <button type="button" id="btn_confirm_update" class="btn btn-primary">{{ lang._('Update starten') }}</button>
             </div>
         </div>
     </div>
@@ -116,6 +116,53 @@
         }
     })();
 
+// i18n strings used in JS (rendered server-side by Volt)
+var i18n = {
+    noHostsMsg:     "{{ lang._('Keine aktiven Instanzen konfiguriert. Bitte unter') }}",
+    noHostsLink:    "{{ lang._('Konfiguration') }}",
+    noHostsEnd:     "{{ lang._('Instanzen hinzufügen.') }}",
+    lastRefresh:    "{{ lang._('Letzte Aktualisierung') }}",
+    loadError:      "{{ lang._('Fehler beim Laden der Statusdaten.') }}",
+    connError:      "{{ lang._('Verbindungsfehler') }}",
+    unknown:        "{{ lang._('Unbekannt') }}",
+    zaRunning:      "{{ lang._('Läuft') }}",
+    zaStopped:      "{{ lang._('Gestoppt') }}",
+    zaRestart:      "{{ lang._('Engine Neustart empfohlen') }}",
+    zaNotInstalled: "{{ lang._('Zenarmor nicht installiert') }}",
+    autoNone:       "{{ lang._('Keine aktiv') }}",
+    autoOpn:        "{{ lang._('OPNsense Auto-Update') }}",
+    autoZa:         "{{ lang._('ZA Auto-Update') }}",
+    autoWd:         "{{ lang._('ZA Watchdog') }}",
+    updAvail:       "{{ lang._('Update verfügbar') }}",
+    updCurrent:     "{{ lang._('Aktuell') }}",
+    updOn:          "{{ lang._('Update auf') }}",
+    upd:            "{{ lang._('Update') }}",
+    networkError:   "{{ lang._('Netzwerkfehler bei') }}",
+    autoLabel:      "{{ lang._('Automatisierung') }}",
+    testing:        "{{ lang._('Teste...') }}",
+    pkgs:           "{{ lang._('Paket(e)') }}",
+    pkg:            "{{ lang._('Paket') }}",
+    pkgs_pl:        "{{ lang._('Pakete') }}",
+    current:        "{{ lang._('aktuell') }}",
+    updateBtn:      "{{ lang._('aktualisieren') }}",
+    zaReloadNow:    "{{ lang._('ZA Engine neu starten') }}",
+    zaWdCheck:      "{{ lang._('ZA Watchdog jetzt prüfen') }}",
+    bulkOPNLabel:   "{{ lang._('OPNsense aktualisieren') }}",
+    bulkOPNAll:     "{{ lang._('OPNsense (alle aktuell)') }}",
+    bulkZALabel:    "{{ lang._('ZA aktualisieren') }}",
+    bulkZAAll:      "{{ lang._('ZA (alle aktuell)') }}",
+    selCount:       "{{ lang._('ausgewählt') }}",
+    confirmOPNMsg:  "{{ lang._('OPNsense Firmware-Update auf') }}",
+    confirmOPNWarn: "{{ lang._('Die Firewall wird nach dem Update neu gestartet.') }}",
+    confirmLocal:   "{{ lang._('Achtung – Diese Firewall') }}",
+    confirmLocalTxt:"{{ lang._('Die Browser-Verbindung wird während des Updates und Neustarts kurz unterbrochen. Die Seite lädt sich danach automatisch neu.') }}",
+    confirmZAMsg:   "{{ lang._('Zenarmor Update auf') }}",
+    confirmZAFw:    "{{ lang._('starten') }}",
+    bulkOPNConfirm: "{{ lang._('OPNsense-Update starten auf') }}",
+    bulkOPNReboot:  "{{ lang._('Die Firewalls werden danach neu gestartet. Fortfahren?') }}",
+    bulkZAConfirm:  "{{ lang._('ZA-Update starten auf') }}",
+    bulkZAConf2:    "{{ lang._('Fortfahren?') }}",
+};
 
 var pendingAction = null;
 var isLoading = false;
@@ -141,8 +188,8 @@ function loadAllStatus() {
 
             if (!resp.hosts || resp.hosts.length === 0) {
                 $('#hosts_container').append(
-                    '<div class="alert alert-info"><i class="fa fa-info-circle"></i> Keine aktiven Instanzen konfiguriert. ' +
-                    'Bitte unter <a href="/automatisierung/index/index">Konfiguration</a> Instanzen hinzufügen.</div>'
+                    '<div class="alert alert-info"><i class="fa fa-info-circle"></i> ' + i18n.noHostsMsg + ' ' +
+                    '<a href="/automatisierung/index/index">' + i18n.noHostsLink + '</a> ' + i18n.noHostsEnd + '</div>'
                 );
                 return;
             }
@@ -157,12 +204,12 @@ function loadAllStatus() {
 
             bindActionButtons();
             updateSelectedButton();
-            $('#last_refresh').text('Letzte Aktualisierung: ' + new Date().toLocaleTimeString('de-CH'));
+            $('#last_refresh').text(i18n.lastRefresh + ': ' + new Date().toLocaleTimeString());
         },
         error: function() {
             isLoading = false;
             $('#loading_indicator').hide();
-            $('#hosts_container').append('<div class="alert alert-danger"><i class="fa fa-times-circle"></i> Fehler beim Laden der Statusdaten.</div>');
+            $('#hosts_container').append('<div class="alert alert-danger"><i class="fa fa-times-circle"></i> ' + i18n.loadError + '</div>');
         }
     });
 }
@@ -206,11 +253,11 @@ function buildHostCard(host) {
         html += '<span class="badge-version">' + escHtml(host.opnsense_version || '?') + '</span>';
         var updStatus = host.opnsense_update || 'none';
         if (updStatus === 'update' || (host.opnsense_update_count && host.opnsense_update_count > 0)) {
-            html += ' <span class="badge-update"><i class="fa fa-arrow-up"></i> Update verfügbar';
-            if (host.opnsense_update_count) html += ' (' + host.opnsense_update_count + ' Paket(e))';
+            html += ' <span class="badge-update"><i class="fa fa-arrow-up"></i> ' + i18n.updAvail;
+            if (host.opnsense_update_count) html += ' (' + host.opnsense_update_count + ' ' + (host.opnsense_update_count !== 1 ? i18n.pkgs_pl : i18n.pkg) + ')';
             html += '</span>';
         } else if (updStatus === 'none') {
-            html += ' <span class="badge-ok"><i class="fa fa-check"></i> Aktuell</span>';
+            html += ' <span class="badge-ok"><i class="fa fa-check"></i> ' + i18n.updCurrent + '</span>';
         } else {
             html += ' <span class="badge-warn">' + escHtml(updStatus) + '</span>';
         }
@@ -224,14 +271,14 @@ function buildHostCard(host) {
                 'data-uuid="' + escHtml(host.uuid) + '" data-name="' + escHtml(host.name) + '"' +
                 (opnHasUpdate ? '' : ' disabled') + '>';
         html += '<i class="fa fa-download"></i> OPNsense' +
-                (opnHasUpdate ? ' aktualisieren (' + (host.opnsense_update_count || '?') + ' Paket' + (host.opnsense_update_count !== 1 ? 'e' : '') + ')' : ' (aktuell)') +
+                (opnHasUpdate ? ' ' + i18n.updateBtn + ' (' + (host.opnsense_update_count || '?') + ' ' + (host.opnsense_update_count !== 1 ? i18n.pkgs_pl : i18n.pkg) + ')' : ' (' + i18n.current + ')') +
                 '</button> ';
         if (host.za_installed) {
             html += '<button class="btn btn-sm btn-action btn-update-za ' + (zaHasUpdate ? 'btn-warning' : 'btn-default') + '" ' +
                     'data-uuid="' + escHtml(host.uuid) + '" data-name="' + escHtml(host.name) + '"' +
                     (zaHasUpdate ? '' : ' disabled') + '>';
             html += '<i class="fa fa-shield"></i> ZA' +
-                    (zaHasUpdate ? ' aktualisieren' + (host.za_new_ver ? ' → ' + escHtml(host.za_new_ver) : '') : ' (aktuell)') +
+                    (zaHasUpdate ? ' ' + i18n.updateBtn + (host.za_new_ver ? ' → ' + escHtml(host.za_new_ver) : '') : ' (' + i18n.current + ')') +
                     '</button>';
         }
         html += '</div>';
@@ -243,9 +290,9 @@ function buildHostCard(host) {
             html += '<span class="info-label"><i class="fa fa-shield"></i> Zenarmor Version:</span>';
             html += '<span class="badge-version">' + escHtml(host.za_version || '?') + '</span>';
             if (zaHasUpdate && host.za_new_ver) {
-                html += ' <span class="badge-update"><i class="fa fa-arrow-up"></i> Update auf ' + escHtml(host.za_new_ver) + '</span>';
+                html += ' <span class="badge-update"><i class="fa fa-arrow-up"></i> ' + i18n.updOn + ' ' + escHtml(host.za_new_ver) + '</span>';
             } else {
-                html += ' <span class="badge-ok"><i class="fa fa-check"></i> Aktuell</span>';
+                html += ' <span class="badge-ok"><i class="fa fa-check"></i> ' + i18n.updCurrent + '</span>';
             }
             html += '</div>';
 
@@ -253,26 +300,26 @@ function buildHostCard(host) {
             html += '<span class="info-label"><i class="fa fa-heartbeat"></i> ZA Engine Status:</span>';
             var zaRunning = host.za_running;
             if (zaRunning === true) {
-                html += '<span class="badge-ok"><i class="fa fa-play-circle"></i> Läuft</span>';
+                html += '<span class="badge-ok"><i class="fa fa-play-circle"></i> ' + i18n.zaRunning + '</span>';
             } else if (zaRunning === false) {
-                html += '<span class="badge-error"><i class="fa fa-stop-circle"></i> Gestoppt</span>';
+                html += '<span class="badge-error"><i class="fa fa-stop-circle"></i> ' + i18n.zaStopped + '</span>';
             } else {
-                html += '<span class="badge-warn">Unbekannt</span>';
+                html += '<span class="badge-warn">' + i18n.unknown + '</span>';
             }
             if (host.za_needs_restart) {
-                html += ' <span class="badge-warn"><i class="fa fa-exclamation"></i> Engine Neustart empfohlen</span>';
+                html += ' <span class="badge-warn"><i class="fa fa-exclamation"></i> ' + i18n.zaRestart + '</span>';
             }
             html += '</div>';
 
             html += '<div style="margin-top:8px;">';
             html += '<button class="btn btn-sm btn-default btn-action btn-restart-za" data-uuid="' + escHtml(host.uuid) + '" data-name="' + escHtml(host.name) + '">';
-            html += '<i class="fa fa-refresh"></i> ZA Engine neu starten</button>';
+            html += '<i class="fa fa-refresh"></i> ' + i18n.zaReloadNow + '</button>';
             html += '<button class="btn btn-sm btn-info btn-action btn-watchdog-check" data-uuid="' + escHtml(host.uuid) + '" data-name="' + escHtml(host.name) + '">';
-            html += '<i class="fa fa-search"></i> ZA Watchdog jetzt prüfen</button>';
+            html += '<i class="fa fa-search"></i> ' + i18n.zaWdCheck + '</button>';
             html += '</div>';
 
         } else {
-            html += '<div class="info-row"><span class="text-muted"><i class="fa fa-shield"></i> Zenarmor nicht installiert</span></div>';
+            html += '<div class="info-row"><span class="text-muted"><i class="fa fa-shield"></i> ' + i18n.zaNotInstalled + '</span></div>';
         }
         html += '</div>'; // za-section
 
@@ -280,10 +327,10 @@ function buildHostCard(host) {
         html += '<div style="margin-top:14px;padding-top:10px;border-top:1px solid #f0f0f0;font-size:0.88em;color:#888;">';
         html += '<i class="fa fa-clock-o"></i> Automatisierung: ';
         var autoFlags = [];
-        if (host.auto_update_opnsense == '1') autoFlags.push('OPNsense Auto-Update');
-        if (host.auto_update_za == '1')       autoFlags.push('ZA Auto-Update');
-        if (host.za_watchdog == '1')           autoFlags.push('ZA Watchdog');
-        html += autoFlags.length ? autoFlags.join(', ') : 'Keine aktiv';
+        if (host.auto_update_opnsense == '1') autoFlags.push(i18n.autoOpn);
+        if (host.auto_update_za == '1')       autoFlags.push(i18n.autoZa);
+        if (host.za_watchdog == '1')           autoFlags.push(i18n.autoWd);
+        html += autoFlags.length ? autoFlags.join(', ') : i18n.autoNone;
         html += '</div>';
     }
 
@@ -300,18 +347,17 @@ function bindActionButtons() {
         var name = $(this).data('name');
         var isLocal = (uuid === '__local__');
         pendingAction = {type: 'opnsense_update', uuid: uuid};
-        var body = '<p>OPNsense Firmware-Update auf <strong>' + escHtml(name) + '</strong> starten?</p>' +
-            '<p class="text-warning"><i class="fa fa-warning"></i> Die Firewall wird nach dem Update neu gestartet.</p>';
+        var body = '<p>' + i18n.confirmOPNMsg + ' <strong>' + escHtml(name) + '</strong> ' + i18n.confirmZAFw + '?</p>' +
+            '<p class="text-warning"><i class="fa fa-warning"></i> ' + i18n.confirmOPNWarn + '</p>';
         if (isLocal) {
             body += '<div class="alert alert-danger" style="margin-top:8px;margin-bottom:0;">' +
-                '<i class="fa fa-home"></i> <strong>Achtung – Diese Firewall:</strong> ' +
-                'Die Browser-Verbindung wird während des Updates und Neustarts kurz unterbrochen. ' +
-                'Die Seite lädt sich danach automatisch neu.</div>';
+                '<i class="fa fa-home"></i> <strong>' + i18n.confirmLocal + ':</strong> ' +
+                i18n.confirmLocalTxt + '</div>';
         }
         $('#confirm_update_body').html(body);
         $('#btn_confirm_update').off('click').on('click', function() {
             $('#ConfirmUpdateModal').modal('hide');
-            triggerAction('/api/automatisierung/service/updateOpnsense', {uuid: uuid}, 'OPNsense Update auf ' + name);
+            triggerAction('/api/automatisierung/service/updateOpnsense', {uuid: uuid}, i18n.upd + ' ' + name);
             if (isLocal) {
                 // Attempt page reload after ~90s (firewall needs time to update + reboot)
                 setTimeout(function() { location.reload(); }, 90000);
@@ -324,10 +370,10 @@ function bindActionButtons() {
     $(document).off('click', '.btn-update-za').on('click', '.btn-update-za', function() {
         var uuid = $(this).data('uuid');
         var name = $(this).data('name');
-        $('#confirm_update_body').html('<p>Zenarmor Update auf <strong>' + escHtml(name) + '</strong> starten?</p>');
+        $('#confirm_update_body').html('<p>' + i18n.confirmZAMsg + ' <strong>' + escHtml(name) + '</strong> ' + i18n.confirmZAFw + '?</p>');
         $('#btn_confirm_update').off('click').on('click', function() {
             $('#ConfirmUpdateModal').modal('hide');
-            triggerAction('/api/automatisierung/service/updateZa', {uuid: uuid}, 'Zenarmor Update auf ' + name);
+            triggerAction('/api/automatisierung/service/updateZa', {uuid: uuid}, i18n.upd + ' ZA ' + name);
         });
         $('#ConfirmUpdateModal').modal('show');
     });
@@ -336,14 +382,14 @@ function bindActionButtons() {
     $(document).off('click', '.btn-restart-za').on('click', '.btn-restart-za', function() {
         var uuid = $(this).data('uuid');
         var name = $(this).data('name');
-        triggerAction('/api/automatisierung/service/restartZa', {uuid: uuid}, 'ZA Engine Neustart auf ' + name);
+        triggerAction('/api/automatisierung/service/restartZa', {uuid: uuid}, i18n.zaReloadNow + ' ' + name);
     });
 
     // ZA Watchdog Check
     $(document).off('click', '.btn-watchdog-check').on('click', '.btn-watchdog-check', function() {
         var uuid = $(this).data('uuid');
         var name = $(this).data('name');
-        triggerAction('/api/automatisierung/service/zaWatchdogCheck', {uuid: uuid}, 'ZA Watchdog auf ' + name);
+        triggerAction('/api/automatisierung/service/zaWatchdogCheck', {uuid: uuid}, i18n.zaWdCheck + ' ' + name);
     });
 
     // Host-Auswahl Checkbox
@@ -374,7 +420,7 @@ function triggerAction(url, data, label) {
         },
         error: function() {
             $msg.removeClass('alert-info').addClass('alert-danger')
-                .html('<i class="fa fa-times-circle"></i> Netzwerkfehler bei: ' + escHtml(label));
+                .html('<i class="fa fa-times-circle"></i> ' + i18n.networkError + ': ' + escHtml(label));
         }
     });
 }
@@ -427,24 +473,24 @@ function updateSelectedButton() {
         $('#bottom_action_bar').hide();
         return;
     }
-    $('#bottom_sel_count').text(checkedCnt + ' Host' + (checkedCnt !== 1 ? 's' : '') + ' ausgewählt');
+    $('#bottom_sel_count').text(checkedCnt + ' Host' + (checkedCnt !== 1 ? 's' : '') + ' ' + i18n.selCount);
     $('#bottom_action_bar').show();
 
     // OPNsense-Button — immer sichtbar, nur disabled wenn kein Update ausstehend
     if (opnUpdates.length > 0) {
-        $('#bulk_opnsense_label').text('OPNsense aktualisieren (' + opnUpdates.length + '×)');
+        $('#bulk_opnsense_label').text(i18n.bulkOPNLabel + ' (' + opnUpdates.length + '×)');
         $('#btn_bulk_opnsense').prop('disabled', false).removeClass('btn-default').addClass('btn-warning').show();
     } else {
-        $('#bulk_opnsense_label').text('OPNsense (alle aktuell)');
+        $('#bulk_opnsense_label').text(i18n.bulkOPNAll);
         $('#btn_bulk_opnsense').prop('disabled', true).removeClass('btn-warning').addClass('btn-default').show();
     }
 
     // ZA-Button — immer sichtbar, nur disabled wenn kein Update ausstehend
     if (zaUpdates.length > 0) {
-        $('#bulk_za_label').text('ZA aktualisieren (' + zaUpdates.length + '×)');
+        $('#bulk_za_label').text(i18n.bulkZALabel + ' (' + zaUpdates.length + '×)');
         $('#btn_bulk_za').prop('disabled', false).removeClass('btn-default').addClass('btn-warning').show();
     } else {
-        $('#bulk_za_label').text('ZA (alle aktuell)');
+        $('#bulk_za_label').text(i18n.bulkZAAll);
         $('#btn_bulk_za').prop('disabled', true).removeClass('btn-warning').addClass('btn-default').show();
     }
 }
@@ -463,10 +509,10 @@ $('#btn_bulk_opnsense').on('click', function() {
     });
     if (!hostsOpn.length) return;
     var names = hostsOpn.map(function(h) { return h.name; });
-    if (!confirm('OPNsense-Update starten auf:\n• ' + names.join('\n• ') +
-                 '\n\nDie Firewalls werden danach neu gestartet. Fortfahren?')) return;
+    if (!confirm(i18n.bulkOPNConfirm + ':\n• ' + names.join('\n• ') +
+                 '\n\n' + i18n.bulkOPNReboot)) return;
     var queue = hostsOpn.map(function(h) {
-        return {url: '/api/automatisierung/service/updateOpnsense', data: {uuid: h.uuid}, label: 'OPNsense Update auf ' + h.name};
+        return {url: '/api/automatisierung/service/updateOpnsense', data: {uuid: h.uuid}, label: i18n.upd + ' OPNsense ' + h.name};
     });
     (function runNext(i) {
         if (i >= queue.length) { setTimeout(loadAllStatus, 3000); return; }
@@ -480,9 +526,9 @@ $('#btn_bulk_za').on('click', function() {
     var hostsZa = getSelectedHosts().filter(function(h) { return h.za_update === true; });
     if (!hostsZa.length) return;
     var names = hostsZa.map(function(h) { return h.name; });
-    if (!confirm('ZA-Update starten auf:\n• ' + names.join('\n• ') + '\n\nFortfahren?')) return;
+    if (!confirm(i18n.bulkZAConfirm + ':\n• ' + names.join('\n• ') + '\n\n' + i18n.bulkZAConf2)) return;
     var queue = hostsZa.map(function(h) {
-        return {url: '/api/automatisierung/service/updateZa', data: {uuid: h.uuid}, label: 'ZA Update auf ' + h.name};
+        return {url: '/api/automatisierung/service/updateZa', data: {uuid: h.uuid}, label: i18n.upd + ' ZA ' + h.name};
     });
     (function runNext(i) {
         if (i >= queue.length) { setTimeout(loadAllStatus, 3000); return; }

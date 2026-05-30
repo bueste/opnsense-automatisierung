@@ -17,6 +17,7 @@ import logging
 import os
 import glob
 import time
+import hashlib
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
@@ -42,11 +43,11 @@ def load_config():
         root = tree.getroot()
         node = root.find('.//automatisierung')
         if node is None:
-            log.warning("Kein 'automatisierung' Block in config.xml.")
+            log.warning("No 'automatisierung' section found in config.xml.")
             return None
         return node
     except Exception as e:
-        log.error("Konfigurationsfehler: %s", e)
+        log.error("Configuration error: %s", e)
         return None
 
 
@@ -94,7 +95,7 @@ def fetch_backup(url, api_key, api_secret, skip_verify):
     code, raw = api_call(url, api_key, api_secret, 'core/backup/download/this',
                           skip_verify=skip_verify, raw=True)
     if code == 200 and raw and raw.startswith(b'<?xml'):
-        log.info("  ✓ Backup via /api/core/backup/download/this erhalten.")
+        log.info("  ✓ Backup received via /api/core/backup/download/this.")
         return raw
 
     # Method 2: list remote backups and download latest
@@ -105,15 +106,15 @@ def fetch_backup(url, api_key, api_secret, skip_verify):
         if files:
             files.sort()
             latest = files[-1]
-            log.info("  Versuche Download von Remote-Backup: %s", latest)
+            log.info("  Trying download of remote backup: %s", latest)
             code3, raw3 = api_call(url, api_key, api_secret,
                                     f'core/backup/download/{latest}',
                                     skip_verify=skip_verify, raw=True)
             if code3 == 200 and raw3 and raw3.startswith(b'<?xml'):
-                log.info("  ✓ Remote-Backup heruntergeladen: %s", latest)
+                log.info("  ✓ Remote backup downloaded: %s", latest)
                 return raw3
 
-    log.warning("  ✗ Kein Backup verfügbar (versucht: /download/this, /list+download).")
+    log.warning("  ✗ No backup available (tried: /download/this, /list+download).")
     return None
 
 
@@ -126,11 +127,11 @@ def apply_retention(host_dir, retention_days):
             try:
                 os.unlink(fpath)
                 deleted += 1
-                log.info("  Retention: Gelöscht: %s", os.path.basename(fpath))
+                log.info("  Retention: Deleted: %s", os.path.basename(fpath))
             except Exception as e:
-                log.warning("  Retention: Fehler beim Löschen von %s: %s", fpath, e)
+                log.warning("  Retention: Error deleting %s: %s", fpath, e)
     if deleted:
-        log.info("  Retention: %d alte Backup(s) gelöscht.", deleted)
+        log.info("  Retention: %d old backup(s) deleted.", deleted)
     return deleted
 
 
@@ -148,7 +149,7 @@ def skip_if_identical(host_dir, new_content):
 
 
 def main():
-    log.info("=== Automatisierung Backup-Job gestartet ===")
+    log.info("=== Automatisierung backup job started ===")
     config = load_config()
     if config is None:
         sys.exit(1)
@@ -158,16 +159,16 @@ def main():
     if general is not None:
         global_enabled = general.findtext('backup_enabled', '0').strip() == '1'
         if not global_enabled:
-            log.info("Backup global deaktiviert – beende.")
+            log.info("Backup globally disabled - exiting.")
             sys.exit(0)
         retention_days = int(general.findtext('backup_retention_days', '30').strip() or 30)
     else:
-        log.warning("Keine 'general' Einstellungen gefunden – verwende Defaults.")
+        log.warning("No 'general' settings found - using defaults.")
         retention_days = 30
 
     hosts_node = config.find('hosts')
     if hosts_node is None:
-        log.info("Keine Hosts konfiguriert.")
+        log.info("No hosts configured.")
         sys.exit(0)
 
     backed_up = 0
@@ -183,31 +184,29 @@ def main():
         api_secret = host.findtext('api_secret', '').strip()
         skip_tls   = host.findtext('skip_verify_tls', '0').strip() == '1'
 
-        # UUID is the XML tag's uuid child or we derive from order
-        uuid_node = host.find('uuid')
-        uuid = uuid_node.text.strip() if uuid_node is not None else None
+        # UUID is stored as an XML attribute on the <host> element in OPNsense config.xml
+        uuid = host.attrib.get('uuid', '').strip()
 
-        # Fallback: use name-based slug
+        # Fallback: derive from URL (e.g. non-pkg / manual installations)
         if not uuid:
-            import hashlib
             uuid = hashlib.md5(url.encode()).hexdigest()
 
         if not url or not api_key or not api_secret:
-            log.warning("Host '%s' unvollständig konfiguriert – überspringe.", name)
+            log.warning("Host '%s' incompletely configured - skipping.", name)
             continue
 
         log.info("=== Backup: %s (%s) ===", name, url)
 
         xml_content = fetch_backup(url, api_key, api_secret, skip_tls)
         if xml_content is None:
-            log.warning("  ✗ Kein Backup erhalten für %s.", name)
+            log.warning("  ✗ No backup received for %s.", name)
             continue
 
         host_dir = ensure_dir(uuid)
 
         # Skip if unchanged
         if skip_if_identical(host_dir, xml_content):
-            log.info("  Konfiguration unverändert – kein neues Backup nötig.")
+            log.info("  Configuration unchanged - no new backup needed.")
         else:
             filename = datetime.now().strftime('%Y-%m-%d_%H%M%S') + '.xml'
             fpath    = os.path.join(host_dir, filename)
@@ -215,21 +214,21 @@ def main():
                 with open(fpath, 'wb') as f:
                     f.write(xml_content)
                 # Write sidecar metadata
-                import json as _json
-                open(fpath + '.meta.json', 'w').write(_json.dumps({
-                    'comment': 'Automatisches Backup',
-                    'source': 'auto',
-                    'created': datetime.now().isoformat()
-                }))
-                log.info("  ✓ Backup gespeichert: %s (%d Bytes)", filename, len(xml_content))
+                with open(fpath + '.meta.json', 'w') as mf:
+                    mf.write(json.dumps({
+                        'comment': 'Automatic backup',
+                        'source': 'auto',
+                        'created': datetime.now().isoformat(),
+                    }))
+                log.info("  ✓ Backup saved: %s (%d bytes)", filename, len(xml_content))
                 backed_up += 1
             except Exception as e:
-                log.error("  ✗ Fehler beim Speichern: %s", e)
+                log.error("  ✗ Error saving backup: %s", e)
 
         # Apply retention
         apply_retention(host_dir, retention_days)
 
-    log.info("=== Fertig: %d Host(s) gesichert, Retention: %d Tage ===", backed_up, retention_days)
+    log.info("=== Done: %d host(s) backed up, retention: %d days ===", backed_up, retention_days)
 
 
 if __name__ == '__main__':

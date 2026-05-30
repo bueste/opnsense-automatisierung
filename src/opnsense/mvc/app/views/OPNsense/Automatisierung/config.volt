@@ -258,7 +258,7 @@
 
     // ====== Verbindung testen ======
     $("#btn_test_connection").on("click", function() {
-        var $sp = $("#test_connection_result").html('<i class="fa fa-spinner fa-spin"></i> Teste...');
+        var $sp = $("#test_connection_result").html('<i class="fa fa-spinner fa-spin"></i> {{ lang._("Teste...") }}');
         $.ajax({
             url:    "/api/automatisierung/settings/testConnection",
             method: "POST",
@@ -304,7 +304,7 @@
                     $("#DialogHost").modal("hide");
                     $("#tbl-hosts").bootgrid("reload");
                 } else {
-                    alert("Fehler: " + JSON.stringify(r.validations || r));
+                    alert("{{ lang._('Fehler') }}: " + JSON.stringify(r.validations || r));
                 }
             },
             complete: function() { $btn.prop("disabled", false); }
@@ -346,7 +346,7 @@
                 $alert.removeClass('alert-danger alert-success')
                     .addClass(ok ? 'alert-success' : 'alert-danger')
                     .html('<i class="fa fa-' + (ok ? 'check' : 'times') + '-circle"></i> ' +
-                          (ok ? 'Gespeichert.' : JSON.stringify(resp.validations || resp)))
+                          (ok ? '{{ lang._("Gespeichert.") }}' : JSON.stringify(resp.validations || resp)))
                     .show();
                 setTimeout(function() { $alert.fadeOut(); }, 4000);
             },

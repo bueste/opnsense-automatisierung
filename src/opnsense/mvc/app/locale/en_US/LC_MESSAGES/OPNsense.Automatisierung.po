@@ -330,3 +330,120 @@ msgstr "Overview of all configured OPNsense instances with current version infor
 
 msgid "Überwacht ob Zenarmor läuft und startet den Engine ggf. neu"
 msgstr "Monitors whether Zenarmor is running and restarts the engine if necessary"
+
+msgid "Update bestätigen"
+msgstr "Confirm Update"
+
+msgid "Update starten"
+msgstr "Start Update"
+
+msgid "Teste..."
+msgstr "Testing..."
+
+msgid "Fehler"
+msgstr "Error"
+
+msgid "Gespeichert."
+msgstr "Saved."
+
+msgid "Keine aktiven Instanzen konfiguriert. Bitte unter"
+msgstr "No active instances configured. Please go to"
+
+msgid "Instanzen hinzufügen."
+msgstr "to add instances."
+
+msgid "Letzte Aktualisierung"
+msgstr "Last refresh"
+
+msgid "Fehler beim Laden der Statusdaten."
+msgstr "Error loading status data."
+
+msgid "Verbindungsfehler"
+msgstr "Connection error"
+
+msgid "Läuft"
+msgstr "Running"
+
+msgid "Gestoppt"
+msgstr "Stopped"
+
+msgid "Engine Neustart empfohlen"
+msgstr "Engine restart recommended"
+
+msgid "Zenarmor nicht installiert"
+msgstr "Zenarmor not installed"
+
+msgid "Keine aktiv"
+msgstr "None active"
+
+msgid "OPNsense Auto-Update"
+msgstr "OPNsense auto-update"
+
+msgid "ZA Auto-Update"
+msgstr "ZA auto-update"
+
+msgid "Update verfügbar"
+msgstr "Update available"
+
+msgid "Aktuell"
+msgstr "Up to date"
+
+msgid "Update auf"
+msgstr "Update to"
+
+msgid "Update"
+msgstr "Update"
+
+msgid "Netzwerkfehler bei"
+msgstr "Network error on"
+
+msgid "aktuell"
+msgstr "up to date"
+
+msgid "aktualisieren"
+msgstr "update"
+
+msgid "ZA Engine neu starten"
+msgstr "Restart ZA engine"
+
+msgid "ZA Watchdog jetzt prüfen"
+msgstr "Run ZA Watchdog check now"
+
+msgid "OPNsense (alle aktuell)"
+msgstr "OPNsense (all up to date)"
+
+msgid "ZA (alle aktuell)"
+msgstr "ZA (all up to date)"
+
+msgid "ausgewählt"
+msgstr "selected"
+
+msgid "OPNsense Firmware-Update auf"
+msgstr "Start OPNsense firmware update on"
+
+msgid "Die Firewall wird nach dem Update neu gestartet."
+msgstr "The firewall will reboot after the update."
+
+msgid "Achtung – Diese Firewall"
+msgstr "Caution – This Firewall"
+
+msgid "Die Browser-Verbindung wird während des Updates und Neustarts kurz unterbrochen. Die Seite lädt sich danach automatisch neu."
+msgstr "The browser connection will be briefly interrupted during the update and reboot. The page will reload automatically afterwards."
+
+msgid "Zenarmor Update auf"
+msgstr "Zenarmor update on"
+
+msgid "starten"
+msgstr "start"
+
+msgid "OPNsense-Update starten auf"
+msgstr "Start OPNsense update on"
+
+msgid "Die Firewalls werden danach neu gestartet. Fortfahren?"
+msgstr "The firewalls will reboot afterwards. Continue?"
+
+msgid "ZA-Update starten auf"
+msgstr "Start ZA update on"
+
+msgid "Fortfahren?"
+msgstr "Continue?"

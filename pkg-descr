@@ -1,0 +1,13 @@
+OPNsense Automation Plugin
+
+Provides centralized management of multiple OPNsense firewall instances
+from a single OPNsense installation, including:
+
+- Status dashboard with version overview for all managed instances
+- One-click and scheduled OPNsense firmware updates across instances
+- Zenarmor (os-sensei) version monitoring and update management
+- Zenarmor engine watchdog with automatic restart capability
+- Configuration backup with retention policy and unified diff view
+- Secure API-credential management per managed host
+
+WWW: https://github.com/example/os-automatisierung
