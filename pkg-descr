@@ -10,4 +10,4 @@ from a single OPNsense installation, including:
 - Configuration backup with retention policy and unified diff view
 - Secure API-credential management per managed host
 
-WWW: https://github.com/example/os-automatisierung
+WWW: https://github.com/bueste/opnsense-automatisierung
