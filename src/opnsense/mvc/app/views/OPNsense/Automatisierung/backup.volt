@@ -609,14 +609,11 @@ function renderUnifiedDiff(resp) {
                '<colgroup><col class="ln-col"/><col class="ln-col"/><col class="code-col"/></colgroup>' +
                '<tbody>';
 
-    // OPNsense Response::send() applies htmlspecialchars() to all JSON for browser clients
-    // (safe_output=false). So API strings already have < as &lt; etc. Do NOT call esc() on
-    // them — that would double-encode & → &amp;, making &lt; render as &lt; literally.
-    // Use values directly as innerHTML; browser decodes &lt; → < correctly.
+    // Always escape file_a/file_b from the API before inserting into innerHTML.
     html += '<tr class="d-hdr-del"><td class="ln"></td><td class="ln"></td>' +
-            '<td class="code">--- ' + resp.file_a + (resp.mtime_a ? '   ' + resp.mtime_a : '') + '</td></tr>';
+            '<td class="code">--- ' + esc(resp.file_a) + (resp.mtime_a ? '   ' + esc(resp.mtime_a) : '') + '</td></tr>';
     html += '<tr class="d-hdr-add"><td class="ln"></td><td class="ln"></td>' +
-            '<td class="code">+++ ' + resp.file_b + (resp.mtime_b ? '   ' + resp.mtime_b : '') + '</td></tr>';
+            '<td class="code">+++ ' + esc(resp.file_b) + (resp.mtime_b ? '   ' + esc(resp.mtime_b) : '') + '</td></tr>';
 
     for (var i = 0; i < rawLines.length; i++) {
         var line = rawLines[i];
@@ -630,10 +627,11 @@ function renderUnifiedDiff(resp) {
             continue;
         }
 
-        // Undo the extra &amp; introduced by OPNsense Response::send() htmlspecialchars().
-        // This restores XML entities like &amp;#xC4; → &#xC4; so the browser renders Ä (not &#xC4; literal).
-        // &amp;lt; → &lt; renders as <   |   &amp;amp; → &amp; renders as &   – all correct.
-        var code = line.slice(1).replace(/&amp;/g, '&');
+        // Escape the raw diff line first, then restore XML character entities.
+        // esc() converts < → &lt;, & → &amp; etc., making it safe for innerHTML.
+        // The replace then converts &amp;lt; → &lt; (renders as <), &amp;amp; → &amp; (renders as &),
+        // so XML entities in config.xml (e.g. &lt;tag&gt;) display correctly as text.
+        var code = esc(line.slice(1)).replace(/&amp;/g, '&');
 
         if (ch === '@') {
             var m = line.match(/@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);

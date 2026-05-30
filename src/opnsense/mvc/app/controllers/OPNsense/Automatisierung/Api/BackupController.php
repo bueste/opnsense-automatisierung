@@ -43,8 +43,12 @@ use OPNsense\Automatisierung\Automatisierung;
 
 class BackupController extends ApiControllerBase
 {
-    /** Local storage root for collected backups */
-    const BACKUP_ROOT = '/var/db/automatisierung/backups';
+    /** Local storage root for collected backups.
+     *  /conf is always persistent on OPNsense even when "Use RAM disk" is enabled.
+     *  Do NOT use /var/db — that path lives on a RAM disk when the admin enables
+     *  System > Settings > Miscellaneous > "Use RAM disk", causing all backups to
+     *  vanish on reboot. */
+    const BACKUP_ROOT = '/conf/automatisierung/backups';
 
     private function getModel()
     {
@@ -238,6 +242,10 @@ class BackupController extends ApiControllerBase
 
         if (empty($uuid) || empty($file_a) || empty($file_b)) {
             return ['result' => 'failed', 'message' => 'Parameter fehlen'];
+        }
+
+        if (!preg_match('/^[\w\-\.]+\.xml$/', $file_a) || !preg_match('/^[\w\-\.]+\.xml$/', $file_b)) {
+            return ['result' => 'failed', 'message' => 'Ungültiger Dateiname'];
         }
 
         $dir    = self::BACKUP_ROOT . '/' . preg_replace('/[^a-f0-9\-]/', '', $uuid) . '/';

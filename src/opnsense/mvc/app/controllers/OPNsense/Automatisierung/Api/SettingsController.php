@@ -155,6 +155,12 @@ class SettingsController extends ApiMutableModelControllerBase
                 return $result;
             }
 
+            // Only allow https:// and http:// schemes to prevent file://, gopher:// SSRF
+            if (!preg_match('/^https?:\/\/.+/', $url)) {
+                $result['message'] = 'URL muss mit https:// oder http:// beginnen.';
+                return $result;
+            }
+
             $url = rtrim($url, '/');
             $ch = curl_init($url . '/api/core/firmware/info');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
