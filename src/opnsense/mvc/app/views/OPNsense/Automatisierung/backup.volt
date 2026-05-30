@@ -609,10 +609,14 @@ function renderUnifiedDiff(resp) {
                '<colgroup><col class="ln-col"/><col class="ln-col"/><col class="code-col"/></colgroup>' +
                '<tbody>';
 
+    // OPNsense Response::send() applies htmlspecialchars() to all JSON for browser clients
+    // (safe_output=false). So API strings already have < as &lt; etc. Do NOT call esc() on
+    // them — that would double-encode & → &amp;, making &lt; render as &lt; literally.
+    // Use values directly as innerHTML; browser decodes &lt; → < correctly.
     html += '<tr class="d-hdr-del"><td class="ln"></td><td class="ln"></td>' +
-            '<td class="code">--- ' + esc(resp.file_a) + (resp.mtime_a ? '   ' + esc(resp.mtime_a) : '') + '</td></tr>';
+            '<td class="code">--- ' + resp.file_a + (resp.mtime_a ? '   ' + resp.mtime_a : '') + '</td></tr>';
     html += '<tr class="d-hdr-add"><td class="ln"></td><td class="ln"></td>' +
-            '<td class="code">+++ ' + esc(resp.file_b) + (resp.mtime_b ? '   ' + esc(resp.mtime_b) : '') + '</td></tr>';
+            '<td class="code">+++ ' + resp.file_b + (resp.mtime_b ? '   ' + resp.mtime_b : '') + '</td></tr>';
 
     for (var i = 0; i < rawLines.length; i++) {
         var line = rawLines[i];
@@ -620,34 +624,32 @@ function renderUnifiedDiff(resp) {
 
         var ch = line.charAt(0);
 
-        // Skip the --- / +++ header lines from diff output (we draw our own above)
+        // Skip the --- / +++ header lines from diff -u (we draw our own above)
         if ((ch === '-' && line.indexOf('--- ') === 0) ||
             (ch === '+' && line.indexOf('+++ ') === 0)) {
             continue;
         }
 
         if (ch === '@') {
-            // Hunk header: @@ -oldStart[,oldCount] +newStart[,newCount] @@
             var m = line.match(/@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
             if (m) { ol = parseInt(m[1], 10); nl = parseInt(m[2], 10); }
             hunks++;
             html += '<tr class="d-hunk"><td class="ln">···</td><td class="ln">···</td>' +
-                    '<td class="code">' + esc(line) + '</td></tr>';
+                    '<td class="code">' + line + '</td></tr>';
         } else if (ch === '-') {
             removed++;
             html += '<tr class="d-del"><td class="ln">' + ol++ + '</td><td class="ln"></td>' +
-                    '<td class="code">' + esc(line.slice(1)) + '</td></tr>';
+                    '<td class="code">' + line.slice(1) + '</td></tr>';
         } else if (ch === '+') {
             added++;
             html += '<tr class="d-add"><td class="ln"></td><td class="ln">' + nl++ + '</td>' +
-                    '<td class="code">' + esc(line.slice(1)) + '</td></tr>';
+                    '<td class="code">' + line.slice(1) + '</td></tr>';
         } else if (ch === ' ') {
             html += '<tr class="d-ctx"><td class="ln">' + ol++ + '</td><td class="ln">' + nl++ + '</td>' +
-                    '<td class="code">' + esc(line.slice(1)) + '</td></tr>';
+                    '<td class="code">' + line.slice(1) + '</td></tr>';
         } else if (ch === '\\') {
-            // "\ No newline at end of file"
             html += '<tr class="d-ctx"><td class="ln"></td><td class="ln"></td>' +
-                    '<td class="code text-muted" style="font-style:italic;">' + esc(line) + '</td></tr>';
+                    '<td class="code text-muted" style="font-style:italic;">' + line + '</td></tr>';
         }
     }
     html += '</tbody></table>';

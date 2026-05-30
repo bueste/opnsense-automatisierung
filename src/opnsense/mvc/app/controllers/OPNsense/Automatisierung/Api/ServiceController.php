@@ -103,24 +103,32 @@ class ServiceController extends ApiControllerBase
             $entry['opnsense_update']       = 'update';
             $entry['opnsense_update_count'] = count($pkgOut);
             foreach ($pkgOut as $line) {
-                if (strpos($line, 'os-zenarmor') !== false) {
+                // ZA is packaged as os-sensei via SunnyValley repo
+                if (strpos($line, 'os-sensei') !== false) {
                     $entry['za_update'] = true;
-                    exec('pkg rquery "%v" os-zenarmor 2>/dev/null', $zaV);
+                    exec('pkg rquery -r SunnyValley "%v" os-sensei 2>/dev/null', $zaV);
                     if (!empty($zaV)) $entry['za_new_ver'] = trim($zaV[0]);
                 }
             }
         }
 
-        // Zenarmor: check by directory (may not be in pkg db when installed via SunnyValley repo)
-        $zaDir = '/usr/local/zenarmor';
-        if (is_dir($zaDir)) {
+        // Zenarmor: installed as os-sensei pkg (SunnyValley repo)
+        // Use pkg for version; fall back to directory check
+        exec('pkg query "%v" os-sensei 2>/dev/null', $zaVerOut, $zaVerRc);
+        if ($zaVerRc === 0 && !empty($zaVerOut)) {
             $entry['za_installed'] = true;
-            // Version from db/VERSION file
-            $zaVerFile = $zaDir . '/db/VERSION';
+            $entry['za_version']   = trim($zaVerOut[0]);
+        } elseif (is_dir('/usr/local/zenarmor')) {
+            // Fallback: directory exists but not in pkg db
+            $entry['za_installed'] = true;
+            $zaVerFile = '/usr/local/zenarmor/db/VERSION';
             if (file_exists($zaVerFile)) {
                 $entry['za_version'] = trim(file_get_contents($zaVerFile));
             }
-            // Running: pgrep (works regardless of binary path)
+        }
+
+        if ($entry['za_installed']) {
+            // Running: pgrep eastpect (works regardless of installation method)
             exec('pgrep eastpect 2>/dev/null', $_pids, $pgrepRc);
             $entry['za_running']       = ($pgrepRc === 0);
             $entry['za_engine_status'] = $entry['za_running'] ? 'running' : 'stopped';
