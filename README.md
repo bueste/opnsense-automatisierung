@@ -7,7 +7,7 @@ OPNsense plugin for centralized management of multiple OPNsense firewall instanc
 - **Status dashboard** — firmware version, Zenarmor version, online/offline status and pending update indicators for all managed instances
 - **Firmware updates** — trigger OPNsense firmware updates individually or in bulk; scheduled via cron
 - **Zenarmor management** — version monitoring, update triggering, engine watchdog with automatic restart on crash
-- **Configuration backup** — periodic backup of `config.xml` from all managed hosts, stored locally under `/var/db/automatisierung/backups/`, configurable retention policy, unified diff view between versions
+- **Configuration backup** — periodic backup of `config.xml` from all managed hosts, stored locally under `/conf/automatisierung/backups/`, configurable retention policy, unified diff view between versions
 - **Secure credential management** — API key/secret per managed host, stored in OPNsense `config.xml`
 
 ## Requirements

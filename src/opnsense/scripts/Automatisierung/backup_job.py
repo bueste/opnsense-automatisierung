@@ -41,7 +41,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
 LOG_FILE    = '/var/log/automatisierung_backup.log'
-BACKUP_ROOT = '/var/db/automatisierung/backups'
+BACKUP_ROOT = '/conf/automatisierung/backups'
 
 logging.basicConfig(
     level=logging.INFO,
