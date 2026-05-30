@@ -1,26 +1,13 @@
-# OPNsense Automatisierung Plugin – German Translation
+﻿# OPNsense Automatisierung Plugin – German Translation
 # Copyright (C) 2024 Automatisierung Plugin Authors
 # This file is distributed under the same license as the Automatisierung package.
 #
-msgid ""
-msgstr ""
-"Project-Id-Version: OPNsense Automatisierung 1.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-01 00:00+0000\n"
-"PO-Revision-Date: 2024-01-01 00:00+0000\n"
-"Last-Translator: Auto-generated\n"
-"Language-Team: German\n"
-"Language: de_DE\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "* = jeden Tag, 1 = Montag, 7 = Sonntag (Beispiel: 1,3,5 = Mo,Mi,Fr)"
-msgstr ""
+msgid "* = every day, 1 = Monday, 7 = Sunday (Example: 1,3,5 = Mon,Wed,Fri)"
+msgstr "* = jeden Tag, 1 = Montag, 7 = Sonntag (Beispiel: 1,3,5 = Mo,Mi,Fr)"
 
-msgid "* = täglich | 1=Mo … 7=So | Bsp: 1,4 = Mo+Do"
-msgstr ""
+msgid "* = daily | 1=Mon … 7=Sun | Ex: 1,4 = Mon+Thu"
+msgstr "* = täglich | 1=Mo … 7=So | Bsp: 1,4 = Mo+Do"
 
 msgid "10 Min"
 msgstr ""
@@ -43,44 +30,44 @@ msgstr ""
 msgid "API Secret"
 msgstr ""
 
-msgid "Abbrechen"
-msgstr ""
+msgid "Cancel"
+msgstr "Abbrechen"
 
-msgid "Aktionen"
-msgstr ""
+msgid "Actions"
+msgstr "Aktionen"
 
-msgid "Aktiv"
-msgstr ""
+msgid "Active"
+msgstr "Aktiv"
 
-msgid "Aktualisieren"
-msgstr ""
+msgid "update"
+msgstr "Aktualisieren"
 
-msgid "Aktualisiert Zenarmor-Pakete automatisch"
-msgstr ""
+msgid "Automatically updates Zenarmor packages"
+msgstr "Aktualisiert Zenarmor-Pakete automatisch"
 
-msgid "Alle Sicherungen"
-msgstr ""
+msgid "All Backups"
+msgstr "Alle Sicherungen"
 
-msgid "Alle Status aktualisieren"
-msgstr ""
+msgid "Refresh all statuses"
+msgstr "Alle Status aktualisieren"
 
-msgid "Alle auswählen"
-msgstr ""
+msgid "Select all"
+msgstr "Alle auswählen"
 
-msgid "Allgemeine Einstellungen"
-msgstr ""
+msgid "General Settings"
+msgstr "Allgemeine Einstellungen"
 
-msgid "Alte Backups gemäss Retention-Einstellung entfernen"
-msgstr ""
+msgid "Remove old backups according to retention setting"
+msgstr "Alte Backups gemäss Retention-Einstellung entfernen"
 
-msgid "Aufbewahrungsdauer (Retention)"
-msgstr ""
+msgid "Retention period"
+msgstr "Aufbewahrungsdauer (Retention)"
 
-msgid "Ausgewählte vergleichen (2 wählen)"
-msgstr ""
+msgid "Compare selected (choose 2)"
+msgstr "Ausgewählte vergleichen (2 wählen)"
 
-msgid "Auswahl löschen"
-msgstr ""
+msgid "Delete selection"
+msgstr "Auswahl löschen"
 
 msgid "Auto OPNsense"
 msgstr ""
@@ -91,119 +78,119 @@ msgstr ""
 msgid "Auto-Backup"
 msgstr ""
 
-msgid "Automatische Backups aktivieren"
-msgstr ""
+msgid "Enable automatic backups"
+msgstr "Automatische Backups aktivieren"
 
-msgid "Automatische Sicherung"
-msgstr ""
+msgid "Automatic Backup"
+msgstr "Automatische Sicherung"
 
-msgid "Automatische Updates aktivieren"
-msgstr ""
+msgid "Enable automatic updates"
+msgstr "Automatische Updates aktivieren"
 
-msgid "Automatisierung"
-msgstr ""
+msgid "Automation"
+msgstr "Automatisierung"
 
-msgid "Automatisierung – Konfiguration"
-msgstr ""
+msgid "Automation – Configuration"
+msgstr "Automatisierung – Konfiguration"
 
-msgid "Automatisierung – Konfigurationsbackup"
-msgstr ""
+msgid "Automation – Configuration Backup"
+msgstr "Automatisierung – Konfigurationsbackup"
 
-msgid "Automatisierung – Status & Updates"
-msgstr ""
+msgid "Automation – Status & Updates"
+msgstr "Automatisierung – Status & Updates"
 
-msgid "Backup auf Firewall einspielen"
-msgstr ""
+msgid "Restore backup to firewall"
+msgstr "Backup auf Firewall einspielen"
 
-msgid "Backup erstellen"
-msgstr ""
+msgid "Create backup"
+msgstr "Backup erstellen"
 
-msgid "Backup jetzt erstellen"
-msgstr ""
+msgid "Create backup now"
+msgstr "Backup jetzt erstellen"
 
-msgid "Backup pro Host"
-msgstr ""
+msgid "Backup per host"
+msgstr "Backup pro Host"
 
-msgid "Backup-Zeitplan"
-msgstr ""
+msgid "Backup schedule"
+msgstr "Backup-Zeitplan"
 
 msgid "Backups"
 msgstr ""
 
-msgid "Backups werden zum konfigurierten Zeitplan erstellt"
-msgstr ""
+msgid "Backups are created according to the configured schedule"
+msgstr "Backups werden zum konfigurierten Zeitplan erstellt"
 
-msgid "Backups älter als dieser Wert werden automatisch gelöscht"
-msgstr ""
+msgid "Backups older than this value are automatically deleted"
+msgstr "Backups älter als dieser Wert werden automatisch gelöscht"
 
-msgid "Basis-URL der OPNsense (ohne /api)"
-msgstr ""
+msgid "Base URL of OPNsense (without /api)"
+msgstr "Basis-URL der OPNsense (ohne /api)"
 
-msgid "Benutzer"
-msgstr ""
+msgid "User"
+msgstr "Benutzer"
 
-msgid "Beschreibung / Revision"
-msgstr ""
+msgid "Description / Revision"
+msgstr "Beschreibung / Revision"
 
-msgid "Bitte oben einen Host auswählen."
-msgstr ""
+msgid "Please select a host above."
+msgstr "Bitte oben einen Host auswählen."
 
-msgid "Dateiname"
-msgstr ""
+msgid "Filename"
+msgstr "Dateiname"
 
-msgid "Die beiden Konfigurationen sind identisch – keine Unterschiede gefunden."
-msgstr ""
+msgid "The two configurations are identical – no differences found."
+msgstr "Die beiden Konfigurationen sind identisch – keine Unterschiede gefunden."
 
-msgid "Diese Konfiguration auf die Firewall einspielen"
-msgstr ""
+msgid "Restore this configuration to the firewall"
+msgstr "Diese Konfiguration auf die Firewall einspielen"
 
-msgid "Dieses Backup löschen"
-msgstr ""
+msgid "Delete this backup"
+msgstr "Dieses Backup löschen"
 
-msgid "Einstellungen"
-msgstr ""
+msgid "Settings"
+msgstr "Einstellungen"
 
-msgid "Einstellungen speichern"
-msgstr ""
+msgid "Save settings"
+msgstr "Einstellungen speichern"
 
-msgid "Grösse"
-msgstr ""
+msgid "Size"
+msgstr "Grösse"
 
-msgid "Herunterladen"
-msgstr ""
+msgid "Download"
+msgstr "Herunterladen"
 
-msgid "Hinweis: Änderungen werden sofort gespeichert. Für Automatisierungen ggf. unter „Allgemein“ die Zeitplanung anpassen."
-msgstr ""
+msgid "Note: Changes are saved immediately. For automations, adjust the schedule under “General” if needed."
+msgstr "Hinweis: Änderungen werden sofort gespeichert. Für Automatisierungen ggf. unter „Allgemein“ die Zeitplanung anpassen."
 
 msgid "Host"
 msgstr ""
 
-msgid "Jetzt einspielen"
-msgstr ""
+msgid "Restore now"
+msgstr "Jetzt einspielen"
 
-msgid "Keine Backups vorhanden. Erstelle jetzt eines oder aktiviere die automatische Sicherung."
-msgstr ""
+msgid "No backups available. Create one now or enable automatic backup."
+msgstr "Keine Backups vorhanden. Erstelle jetzt eines oder aktiviere die automatische Sicherung."
 
-msgid "Keine ZA-Backups vorhanden. Erstelle jetzt eines."
-msgstr ""
+msgid "No ZA backups available. Create one now."
+msgstr "Keine ZA-Backups vorhanden. Erstelle jetzt eines."
 
-msgid "Kommentar (optional)"
-msgstr ""
+msgid "Comment (optional)"
+msgstr "Kommentar (optional)"
 
-msgid "Konfigurationen werden lokal auf dieser OPNsense gespeichert unter:"
-msgstr ""
+msgid "Configurations are stored locally on this OPNsense under:"
+msgstr "Konfigurationen werden lokal auf dieser OPNsense gespeichert unter:"
 
-msgid "Lade Statusinformationen..."
-msgstr ""
+msgid "Loading status information..."
+msgstr "Lade Statusinformationen..."
 
-msgid "Lade und vergleiche Konfigurationen..."
-msgstr ""
+msgid "Loading and comparing configurations..."
+msgstr "Lade und vergleiche Konfigurationen..."
 
-msgid "Lege fest, für welche Hosts automatisch Konfigurationsbackups erstellt werden:"
-msgstr ""
+msgid "Define for which hosts configuration backups are automatically created:"
+msgstr "Lege fest, für welche Hosts automatisch Konfigurationsbackups erstellt werden:"
 
-msgid "Manuell"
-msgstr ""
+msgid "Manual"
+msgstr "Manuell"
 
 msgid "Minute (0-59)"
 msgstr ""
@@ -214,95 +201,95 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-msgid "Name / Beschreibung"
-msgstr ""
+msgid "Name / Description"
+msgstr "Name / Beschreibung"
 
-msgid "Nur für Self-Signed Zertifikate – unsicher!"
-msgstr ""
+msgid "Only for self-signed certificates – insecure!"
+msgstr "Nur für Self-Signed Zertifikate – unsicher!"
 
-msgid "OPNsense Instanz konfigurieren"
-msgstr ""
+msgid "Configure OPNsense instance"
+msgstr "OPNsense Instanz konfigurieren"
 
-msgid "OPNsense Instanzen"
-msgstr ""
+msgid "OPNsense Instances"
+msgstr "OPNsense Instanzen"
 
-msgid "OPNsense aktualisieren"
-msgstr ""
+msgid "Update OPNsense"
+msgstr "OPNsense aktualisieren"
 
-msgid "OPNsense automatisch updaten"
-msgstr ""
+msgid "Update OPNsense automatically"
+msgstr "OPNsense automatisch updaten"
 
-msgid "Retention anwenden"
-msgstr ""
+msgid "Apply retention"
+msgstr "Retention anwenden"
 
-msgid "Sicherungen (vergleichen)"
-msgstr ""
+msgid "Backups (compare)"
+msgstr "Sicherungen (vergleichen)"
 
-msgid "Sicherungen vergleichen"
-msgstr ""
+msgid "Compare backups"
+msgstr "Sicherungen vergleichen"
 
-msgid "Speichern"
-msgstr ""
+msgid "Save"
+msgstr "Speichern"
 
-msgid "Stunde (0-23)"
-msgstr ""
+msgid "Hour (0-23)"
+msgstr "Stunde (0-23)"
 
-msgid "Stunde (0–23)"
-msgstr ""
+msgid "Hour (0–23)"
+msgstr "Stunde (0–23)"
 
-msgid "TLS-Zertifikat nicht prüfen"
-msgstr ""
+msgid "Do not verify TLS certificate"
+msgstr "TLS-Zertifikat nicht prüfen"
 
-msgid "Tage"
-msgstr ""
+msgid "Days"
+msgstr "Tage"
 
 msgid "URL"
 msgstr ""
 
-msgid "Update-Zeitplan"
-msgstr ""
+msgid "Update schedule"
+msgstr "Update-Zeitplan"
 
-msgid "Updates werden zur konfigurierten Zeit automatisch eingespielt"
-msgstr ""
+msgid "Updates are automatically applied at the configured time"
+msgstr "Updates werden zur konfigurierten Zeit automatisch eingespielt"
 
-msgid "Verbindung"
-msgstr ""
+msgid "Connection"
+msgstr "Verbindung"
 
-msgid "Verbindung testen"
-msgstr ""
+msgid "Test connection"
+msgstr "Verbindung testen"
 
-msgid "Versionen vergleichen"
-msgstr ""
+msgid "Compare versions"
+msgstr "Versionen vergleichen"
 
-msgid "Verwalte die Verbindungsdaten zu allen OPNsense Instanzen. Die API Credentials findest du unter System → Benutzerverwaltung → API-Keys."
-msgstr ""
+msgid "Manage connection data for all OPNsense instances. API credentials can be found under System → User Management → API Keys."
+msgstr "Verwalte die Verbindungsdaten zu allen OPNsense Instanzen. Die API Credentials findest du unter System → Benutzerverwaltung → API-Keys."
 
-msgid "Wendet Firmware-Updates automatisch zum konfigurierten Zeitplan an"
-msgstr ""
+msgid "Automatically applies firmware updates at the configured schedule"
+msgstr "Wendet Firmware-Updates automatisch zum konfigurierten Zeitplan an"
 
-msgid "Wochentage"
-msgstr ""
+msgid "Weekdays"
+msgstr "Wochentage"
 
-msgid "Wochentage (*, 1-7)"
-msgstr ""
+msgid "Weekdays (*, 1-7)"
+msgstr "Wochentage (*, 1-7)"
 
-msgid "ZA Check-Intervall"
-msgstr ""
+msgid "ZA check interval"
+msgstr "ZA Check-Intervall"
 
 msgid "ZA Watchdog"
 msgstr ""
 
-msgid "ZA Watchdog aktivieren"
-msgstr ""
+msgid "Enable ZA Watchdog"
+msgstr "ZA Watchdog aktivieren"
 
-msgid "ZA aktualisieren"
-msgstr ""
+msgid "Update ZA"
+msgstr "ZA aktualisieren"
 
-msgid "ZA-Backup jetzt erstellen"
-msgstr ""
+msgid "Create ZA backup now"
+msgstr "ZA-Backup jetzt erstellen"
 
-msgid "Zeitstempel"
-msgstr ""
+msgid "Timestamp"
+msgstr "Zeitstempel"
 
 msgid "Zenarmor Backup"
 msgstr ""
@@ -310,71 +297,71 @@ msgstr ""
 msgid "Zenarmor Watchdog"
 msgstr ""
 
-msgid "Zenarmor automatisch updaten"
-msgstr ""
+msgid "Update Zenarmor automatically"
+msgstr "Zenarmor automatisch updaten"
 
-msgid "Zenarmor-Backups werden als .gz-Datei auf dem Remote-Host erstellt und dann lokal gespeichert. Der API-Benutzer benötigt Zenarmor-Backup-Rechte."
-msgstr ""
+msgid "Zenarmor backups are created as .gz files on the remote host and stored locally. The API user needs Zenarmor backup permissions."
+msgstr "Zenarmor-Backups werden als .gz-Datei auf dem Remote-Host erstellt und dann lokal gespeichert. Der API-Benutzer benötigt Zenarmor-Backup-Rechte."
 
-msgid "z.B. Hauptstandort Firewall"
-msgstr ""
+msgid "e.g. Main site firewall"
+msgstr "z.B. Hauptstandort Firewall"
 
-msgid "Änderungen zwischen ausgewählten Versionen"
-msgstr ""
+msgid "Changes between selected versions"
+msgstr "Änderungen zwischen ausgewählten Versionen"
 
-msgid "Überprüft periodisch ob Zenarmor läuft und startet ggf. neu"
-msgstr ""
+msgid "Periodically checks if Zenarmor is running and restarts it if necessary"
+msgstr "Überprüft periodisch ob Zenarmor läuft und startet ggf. neu"
 
-msgid "Übersicht aller konfigurierten OPNsense Instanzen mit aktuellen Versionsinformationen und Update-Optionen."
-msgstr ""
+msgid "Overview of all configured OPNsense instances with current version information and update options."
+msgstr "Übersicht aller konfigurierten OPNsense Instanzen mit aktuellen Versionsinformationen und Update-Optionen."
 
-msgid "Überwacht ob Zenarmor läuft und startet den Engine ggf. neu"
-msgstr ""
+msgid "Monitors whether Zenarmor is running and restarts the engine if necessary"
+msgstr "Überwacht ob Zenarmor läuft und startet den Engine ggf. neu"
 
-msgid "Update bestätigen"
-msgstr ""
+msgid "Confirm Update"
+msgstr "Update bestätigen"
 
-msgid "Update starten"
-msgstr ""
+msgid "Start Update"
+msgstr "Update starten"
 
-msgid "Teste..."
-msgstr ""
+msgid "Testing..."
+msgstr "Teste..."
 
-msgid "Fehler"
-msgstr ""
+msgid "Error"
+msgstr "Fehler"
 
-msgid "Gespeichert."
-msgstr ""
+msgid "Saved."
+msgstr "Gespeichert."
 
-msgid "Keine aktiven Instanzen konfiguriert. Bitte unter"
-msgstr ""
+msgid "No active instances configured. Please go to"
+msgstr "Keine aktiven Instanzen konfiguriert. Bitte unter"
 
-msgid "Instanzen hinzufügen."
-msgstr ""
+msgid "to add instances."
+msgstr "Instanzen hinzufügen."
 
-msgid "Letzte Aktualisierung"
-msgstr ""
+msgid "Last refresh"
+msgstr "Letzte Aktualisierung"
 
-msgid "Fehler beim Laden der Statusdaten."
-msgstr ""
+msgid "Error loading status data."
+msgstr "Fehler beim Laden der Statusdaten."
 
-msgid "Verbindungsfehler"
-msgstr ""
+msgid "Connection error"
+msgstr "Verbindungsfehler"
 
-msgid "Läuft"
-msgstr ""
+msgid "Running"
+msgstr "Läuft"
 
-msgid "Gestoppt"
-msgstr ""
+msgid "Stopped"
+msgstr "Gestoppt"
 
-msgid "Engine Neustart empfohlen"
-msgstr ""
+msgid "Engine restart recommended"
+msgstr "Engine Neustart empfohlen"
 
-msgid "Zenarmor nicht installiert"
-msgstr ""
+msgid "Zenarmor not installed"
+msgstr "Zenarmor nicht installiert"
 
-msgid "Keine aktiv"
-msgstr ""
+msgid "None active"
+msgstr "Keine aktiv"
 
 msgid "OPNsense Auto-Update"
 msgstr ""
@@ -382,68 +369,90 @@ msgstr ""
 msgid "ZA Auto-Update"
 msgstr ""
 
-msgid "Update verfügbar"
-msgstr ""
+msgid "Update available"
+msgstr "Update verfügbar"
 
-msgid "Aktuell"
-msgstr ""
+msgid "up to date"
+msgstr "Aktuell"
 
-msgid "Update auf"
-msgstr ""
+msgid "Update to"
+msgstr "Update auf"
 
 msgid "Update"
 msgstr ""
 
-msgid "Netzwerkfehler bei"
-msgstr ""
+msgid "Network error on"
+msgstr "Netzwerkfehler bei"
 
-msgid "aktuell"
-msgstr ""
+msgid "up to date"
+msgstr "aktuell"
 
-msgid "aktualisieren"
-msgstr ""
+msgid "update"
+msgstr "aktualisieren"
 
-msgid "ZA Engine neu starten"
-msgstr ""
+msgid "Restart ZA engine"
+msgstr "ZA Engine neu starten"
 
-msgid "ZA Watchdog jetzt prüfen"
-msgstr ""
+msgid "Run ZA Watchdog check now"
+msgstr "ZA Watchdog jetzt prüfen"
 
-msgid "OPNsense (alle aktuell)"
-msgstr ""
+msgid "OPNsense (all up to date)"
+msgstr "OPNsense (alle aktuell)"
 
-msgid "ZA (alle aktuell)"
-msgstr ""
+msgid "ZA (all up to date)"
+msgstr "ZA (alle aktuell)"
 
-msgid "ausgewählt"
-msgstr ""
+msgid "selected"
+msgstr "ausgewählt"
 
-msgid "OPNsense Firmware-Update auf"
-msgstr ""
+msgid "Start OPNsense firmware update on"
+msgstr "OPNsense Firmware-Update auf"
 
-msgid "Die Firewall wird nach dem Update neu gestartet."
-msgstr ""
+msgid "The firewall will reboot after the update."
+msgstr "Die Firewall wird nach dem Update neu gestartet."
 
-msgid "Achtung – Diese Firewall"
-msgstr ""
+msgid "Caution – This Firewall"
+msgstr "Achtung – Diese Firewall"
 
-msgid "Die Browser-Verbindung wird während des Updates und Neustarts kurz unterbrochen. Die Seite lädt sich danach automatisch neu."
-msgstr ""
+msgid "The browser connection will be briefly interrupted during the update and reboot. The page will reload automatically afterwards."
+msgstr "Die Browser-Verbindung wird während des Updates und Neustarts kurz unterbrochen. Die Seite lädt sich danach automatisch neu."
 
-msgid "Zenarmor Update auf"
-msgstr ""
+msgid "Zenarmor update on"
+msgstr "Zenarmor Update auf"
 
-msgid "starten"
-msgstr ""
+msgid "start"
+msgstr "starten"
 
-msgid "OPNsense-Update starten auf"
-msgstr ""
+msgid "Start OPNsense update on"
+msgstr "OPNsense-Update starten auf"
 
-msgid "Die Firewalls werden danach neu gestartet. Fortfahren?"
-msgstr ""
+msgid "The firewalls will reboot afterwards. Continue?"
+msgstr "Die Firewalls werden danach neu gestartet. Fortfahren?"
 
-msgid "ZA-Update starten auf"
-msgstr ""
+msgid "Start ZA update on"
+msgstr "ZA-Update starten auf"
 
-msgid "Fortfahren?"
-msgstr ""
+msgid "Continue?"
+msgstr "Fortfahren?"
+
+
+msgid "Configuration"
+msgstr "Konfiguration"
+
+msgid "Configuration Backup"
+msgstr "Konfigurationsbackup"
+
+msgid "Unknown"
+msgstr "Unbekannt"
+
+msgid "Up to date"
+msgstr "Aktuell"
+
+msgid "package(s)"
+msgstr "Paket(e)"
+
+msgid "package"
+msgstr "Paket"
+
+msgid "packages"
+msgstr "Pakete"

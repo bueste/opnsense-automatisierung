@@ -1,25 +1,12 @@
-# OPNsense Automatisierung Plugin – French Translation
+﻿# OPNsense Automatisierung Plugin – French Translation
 # Copyright (C) 2024 Automatisierung Plugin Authors
 # This file is distributed under the same license as the Automatisierung package.
 #
-msgid ""
-msgstr ""
-"Project-Id-Version: OPNsense Automatisierung 1.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-01 00:00+0000\n"
-"PO-Revision-Date: 2024-01-01 00:00+0000\n"
-"Last-Translator: Auto-generated\n"
-"Language-Team: French\n"
-"Language: fr_FR\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "* = jeden Tag, 1 = Montag, 7 = Sonntag (Beispiel: 1,3,5 = Mo,Mi,Fr)"
+msgid "* = every day, 1 = Monday, 7 = Sunday (Example: 1,3,5 = Mon,Wed,Fri)"
 msgstr "* = chaque jour, 1 = lundi, 7 = dimanche (Exemple: 1,3,5 = Lun,Mer,Ven)"
 
-msgid "* = täglich | 1=Mo … 7=So | Bsp: 1,4 = Mo+Do"
+msgid "* = daily | 1=Mon … 7=Sun | Ex: 1,4 = Mon+Thu"
 msgstr "* = quotidien | 1=Lun … 7=Dim | Ex: 1,4 = Lun+Jeu"
 
 msgid "10 Min"
@@ -43,43 +30,43 @@ msgstr "Clé API"
 msgid "API Secret"
 msgstr "Secret API"
 
-msgid "Abbrechen"
+msgid "Cancel"
 msgstr "Annuler"
 
-msgid "Aktionen"
+msgid "Actions"
 msgstr "Actions"
 
-msgid "Aktiv"
+msgid "Active"
 msgstr "Actif"
 
-msgid "Aktualisieren"
+msgid "update"
 msgstr "Actualiser"
 
-msgid "Aktualisiert Zenarmor-Pakete automatisch"
+msgid "Automatically updates Zenarmor packages"
 msgstr "Met à jour automatiquement les paquets Zenarmor"
 
-msgid "Alle Sicherungen"
+msgid "All Backups"
 msgstr "Toutes les sauvegardes"
 
-msgid "Alle Status aktualisieren"
+msgid "Refresh all statuses"
 msgstr "Actualiser tous les statuts"
 
-msgid "Alle auswählen"
+msgid "Select all"
 msgstr "Tout sélectionner"
 
-msgid "Allgemeine Einstellungen"
+msgid "General Settings"
 msgstr "Paramètres généraux"
 
-msgid "Alte Backups gemäss Retention-Einstellung entfernen"
+msgid "Remove old backups according to retention setting"
 msgstr "Supprimer les anciennes sauvegardes selon la rétention"
 
-msgid "Aufbewahrungsdauer (Retention)"
+msgid "Retention period"
 msgstr "Durée de rétention"
 
-msgid "Ausgewählte vergleichen (2 wählen)"
+msgid "Compare selected (choose 2)"
 msgstr "Comparer la sélection (choisir 2)"
 
-msgid "Auswahl löschen"
+msgid "Delete selection"
 msgstr "Supprimer la sélection"
 
 msgid "Auto OPNsense"
@@ -91,118 +78,118 @@ msgstr "Auto ZA"
 msgid "Auto-Backup"
 msgstr "Sauvegarde auto"
 
-msgid "Automatische Backups aktivieren"
+msgid "Enable automatic backups"
 msgstr "Activer les sauvegardes automatiques"
 
-msgid "Automatische Sicherung"
+msgid "Automatic Backup"
 msgstr "Sauvegarde automatique"
 
-msgid "Automatische Updates aktivieren"
+msgid "Enable automatic updates"
 msgstr "Activer les mises à jour automatiques"
 
-msgid "Automatisierung"
+msgid "Automation"
 msgstr "Automatisation"
 
-msgid "Automatisierung – Konfiguration"
+msgid "Automation – Configuration"
 msgstr "Automatisation – Configuration"
 
-msgid "Automatisierung – Konfigurationsbackup"
+msgid "Automation – Configuration Backup"
 msgstr "Automatisation – Sauvegarde de configuration"
 
-msgid "Automatisierung – Status & Updates"
+msgid "Automation – Status & Updates"
 msgstr "Automatisation – Statut & Mises à jour"
 
-msgid "Backup auf Firewall einspielen"
+msgid "Restore backup to firewall"
 msgstr "Restaurer la sauvegarde sur le pare-feu"
 
-msgid "Backup erstellen"
+msgid "Create backup"
 msgstr "Créer une sauvegarde"
 
-msgid "Backup jetzt erstellen"
+msgid "Create backup now"
 msgstr "Créer une sauvegarde maintenant"
 
-msgid "Backup pro Host"
+msgid "Backup per host"
 msgstr "Sauvegarde par hôte"
 
-msgid "Backup-Zeitplan"
+msgid "Backup schedule"
 msgstr "Planification des sauvegardes"
 
 msgid "Backups"
 msgstr "Sauvegardes"
 
-msgid "Backups werden zum konfigurierten Zeitplan erstellt"
+msgid "Backups are created according to the configured schedule"
 msgstr "Les sauvegardes sont créées selon le planning configuré"
 
-msgid "Backups älter als dieser Wert werden automatisch gelöscht"
+msgid "Backups older than this value are automatically deleted"
 msgstr "Les sauvegardes plus anciennes que cette valeur sont supprimées automatiquement"
 
-msgid "Basis-URL der OPNsense (ohne /api)"
+msgid "Base URL of OPNsense (without /api)"
 msgstr "URL de base d’OPNsense (sans /api)"
 
-msgid "Benutzer"
+msgid "User"
 msgstr "Utilisateur"
 
-msgid "Beschreibung / Revision"
+msgid "Description / Revision"
 msgstr "Description / Révision"
 
-msgid "Bitte oben einen Host auswählen."
+msgid "Please select a host above."
 msgstr "Veuillez sélectionner un hôte ci-dessus."
 
-msgid "Dateiname"
+msgid "Filename"
 msgstr "Nom de fichier"
 
-msgid "Die beiden Konfigurationen sind identisch – keine Unterschiede gefunden."
+msgid "The two configurations are identical – no differences found."
 msgstr "Les deux configurations sont identiques – aucune différence trouvée."
 
-msgid "Diese Konfiguration auf die Firewall einspielen"
+msgid "Restore this configuration to the firewall"
 msgstr "Restaurer cette configuration sur le pare-feu"
 
-msgid "Dieses Backup löschen"
+msgid "Delete this backup"
 msgstr "Supprimer cette sauvegarde"
 
-msgid "Einstellungen"
+msgid "Settings"
 msgstr "Paramètres"
 
-msgid "Einstellungen speichern"
+msgid "Save settings"
 msgstr "Enregistrer les paramètres"
 
-msgid "Grösse"
+msgid "Size"
 msgstr "Taille"
 
-msgid "Herunterladen"
+msgid "Download"
 msgstr "Télécharger"
 
-msgid "Hinweis: Änderungen werden sofort gespeichert. Für Automatisierungen ggf. unter „Allgemein“ die Zeitplanung anpassen."
+msgid "Note: Changes are saved immediately. For automations, adjust the schedule under “General” if needed."
 msgstr "Remarque: Les modifications sont enregistrées immédiatement. Pour les automatisations, ajustez la planification sous « Général » si nécessaire."
 
 msgid "Host"
 msgstr "Hôte"
 
-msgid "Jetzt einspielen"
+msgid "Restore now"
 msgstr "Restaurer maintenant"
 
-msgid "Keine Backups vorhanden. Erstelle jetzt eines oder aktiviere die automatische Sicherung."
+msgid "No backups available. Create one now or enable automatic backup."
 msgstr "Aucune sauvegarde disponible. Créez-en une maintenant ou activez la sauvegarde automatique."
 
-msgid "Keine ZA-Backups vorhanden. Erstelle jetzt eines."
+msgid "No ZA backups available. Create one now."
 msgstr "Aucune sauvegarde ZA disponible. Créez-en une maintenant."
 
-msgid "Kommentar (optional)"
+msgid "Comment (optional)"
 msgstr "Commentaire (optionnel)"
 
-msgid "Konfigurationen werden lokal auf dieser OPNsense gespeichert unter:"
+msgid "Configurations are stored locally on this OPNsense under:"
 msgstr "Les configurations sont stockées localement sur cet OPNsense sous:"
 
-msgid "Lade Statusinformationen..."
+msgid "Loading status information..."
 msgstr "Chargement des informations de statut..."
 
-msgid "Lade und vergleiche Konfigurationen..."
+msgid "Loading and comparing configurations..."
 msgstr "Chargement et comparaison des configurations..."
 
-msgid "Lege fest, für welche Hosts automatisch Konfigurationsbackups erstellt werden:"
+msgid "Define for which hosts configuration backups are automatically created:"
 msgstr "Définissez pour quels hôtes des sauvegardes de configuration sont créées automatiquement:"
 
-msgid "Manuell"
+msgid "Manual"
 msgstr "Manuel"
 
 msgid "Minute (0-59)"
@@ -214,94 +201,94 @@ msgstr "Minute (0–59)"
 msgid "Name"
 msgstr "Nom"
 
-msgid "Name / Beschreibung"
+msgid "Name / Description"
 msgstr "Nom / Description"
 
-msgid "Nur für Self-Signed Zertifikate – unsicher!"
+msgid "Only for self-signed certificates – insecure!"
 msgstr "Uniquement pour les certificats auto-signés – non sécurisé !"
 
-msgid "OPNsense Instanz konfigurieren"
+msgid "Configure OPNsense instance"
 msgstr "Configurer une instance OPNsense"
 
-msgid "OPNsense Instanzen"
+msgid "OPNsense Instances"
 msgstr "Instances OPNsense"
 
-msgid "OPNsense aktualisieren"
+msgid "Update OPNsense"
 msgstr "Mettre à jour OPNsense"
 
-msgid "OPNsense automatisch updaten"
+msgid "Update OPNsense automatically"
 msgstr "Mettre à jour OPNsense automatiquement"
 
-msgid "Retention anwenden"
+msgid "Apply retention"
 msgstr "Appliquer la rétention"
 
-msgid "Sicherungen (vergleichen)"
+msgid "Backups (compare)"
 msgstr "Sauvegardes (comparer)"
 
-msgid "Sicherungen vergleichen"
+msgid "Compare backups"
 msgstr "Comparer les sauvegardes"
 
-msgid "Speichern"
+msgid "Save"
 msgstr "Enregistrer"
 
-msgid "Stunde (0-23)"
+msgid "Hour (0-23)"
 msgstr "Heure (0-23)"
 
-msgid "Stunde (0–23)"
+msgid "Hour (0–23)"
 msgstr "Heure (0–23)"
 
-msgid "TLS-Zertifikat nicht prüfen"
+msgid "Do not verify TLS certificate"
 msgstr "Ne pas vérifier le certificat TLS"
 
-msgid "Tage"
+msgid "Days"
 msgstr "Jours"
 
 msgid "URL"
 msgstr "URL"
 
-msgid "Update-Zeitplan"
+msgid "Update schedule"
 msgstr "Planification des mises à jour"
 
-msgid "Updates werden zur konfigurierten Zeit automatisch eingespielt"
+msgid "Updates are automatically applied at the configured time"
 msgstr "Les mises à jour sont appliquées automatiquement à l’heure configurée"
 
-msgid "Verbindung"
+msgid "Connection"
 msgstr "Connexion"
 
-msgid "Verbindung testen"
+msgid "Test connection"
 msgstr "Tester la connexion"
 
-msgid "Versionen vergleichen"
+msgid "Compare versions"
 msgstr "Comparer les versions"
 
-msgid "Verwalte die Verbindungsdaten zu allen OPNsense Instanzen. Die API Credentials findest du unter System → Benutzerverwaltung → API-Keys."
+msgid "Manage connection data for all OPNsense instances. API credentials can be found under System → User Management → API Keys."
 msgstr "Gérez les données de connexion de toutes les instances OPNsense. Les identifiants API se trouvent sous Système → Gestion des utilisateurs → Clés API."
 
-msgid "Wendet Firmware-Updates automatisch zum konfigurierten Zeitplan an"
+msgid "Automatically applies firmware updates at the configured schedule"
 msgstr "Applique automatiquement les mises à jour du firmware selon la planification"
 
-msgid "Wochentage"
+msgid "Weekdays"
 msgstr "Jours de la semaine"
 
-msgid "Wochentage (*, 1-7)"
+msgid "Weekdays (*, 1-7)"
 msgstr "Jours de la semaine (*, 1-7)"
 
-msgid "ZA Check-Intervall"
+msgid "ZA check interval"
 msgstr "Intervalle de vérification ZA"
 
 msgid "ZA Watchdog"
 msgstr "Chien de garde ZA"
 
-msgid "ZA Watchdog aktivieren"
+msgid "Enable ZA Watchdog"
 msgstr "Activer le chien de garde ZA"
 
-msgid "ZA aktualisieren"
+msgid "Update ZA"
 msgstr "Mettre à jour ZA"
 
-msgid "ZA-Backup jetzt erstellen"
+msgid "Create ZA backup now"
 msgstr "Créer une sauvegarde ZA maintenant"
 
-msgid "Zeitstempel"
+msgid "Timestamp"
 msgstr "Horodatage"
 
 msgid "Zenarmor Backup"
@@ -310,23 +297,23 @@ msgstr "Sauvegarde Zenarmor"
 msgid "Zenarmor Watchdog"
 msgstr "Chien de garde Zenarmor"
 
-msgid "Zenarmor automatisch updaten"
+msgid "Update Zenarmor automatically"
 msgstr "Mettre à jour Zenarmor automatiquement"
 
-msgid "Zenarmor-Backups werden als .gz-Datei auf dem Remote-Host erstellt und dann lokal gespeichert. Der API-Benutzer benötigt Zenarmor-Backup-Rechte."
+msgid "Zenarmor backups are created as .gz files on the remote host and stored locally. The API user needs Zenarmor backup permissions."
 msgstr "Les sauvegardes Zenarmor sont créées en tant que fichiers .gz sur l’hôte distant puis stockées localement. L’utilisateur API a besoin des droits de sauvegarde Zenarmor."
 
-msgid "z.B. Hauptstandort Firewall"
+msgid "e.g. Main site firewall"
 msgstr "p.ex. Pare-feu site principal"
 
-msgid "Änderungen zwischen ausgewählten Versionen"
+msgid "Changes between selected versions"
 msgstr "Modifications entre les versions sélectionnées"
 
-msgid "Überprüft periodisch ob Zenarmor läuft und startet ggf. neu"
+msgid "Periodically checks if Zenarmor is running and restarts it if necessary"
 msgstr "Vérifie périodiquement si Zenarmor fonctionne et le redémarre si nécessaire"
 
-msgid "Übersicht aller konfigurierten OPNsense Instanzen mit aktuellen Versionsinformationen und Update-Optionen."
+msgid "Overview of all configured OPNsense instances with current version information and update options."
 msgstr "Aperçu de toutes les instances OPNsense configurées avec les informations de version actuelles et les options de mise à jour."
 
-msgid "Überwacht ob Zenarmor läuft und startet den Engine ggf. neu"
+msgid "Monitors whether Zenarmor is running and restarts the engine if necessary"
 msgstr "Surveille si Zenarmor fonctionne et redémarre le moteur si nécessaire"

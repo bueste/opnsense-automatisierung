@@ -1,25 +1,12 @@
-# OPNsense Automatisierung Plugin – Korean Translation
+﻿# OPNsense Automatisierung Plugin – Korean Translation
 # Copyright (C) 2024 Automatisierung Plugin Authors
 # This file is distributed under the same license as the Automatisierung package.
 #
-msgid ""
-msgstr ""
-"Project-Id-Version: OPNsense Automatisierung 1.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-01 00:00+0000\n"
-"PO-Revision-Date: 2024-01-01 00:00+0000\n"
-"Last-Translator: Auto-generated\n"
-"Language-Team: Korean\n"
-"Language: ko_KR\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "* = jeden Tag, 1 = Montag, 7 = Sonntag (Beispiel: 1,3,5 = Mo,Mi,Fr)"
+msgid "* = every day, 1 = Monday, 7 = Sunday (Example: 1,3,5 = Mon,Wed,Fri)"
 msgstr ""
 
-msgid "* = täglich | 1=Mo … 7=So | Bsp: 1,4 = Mo+Do"
+msgid "* = daily | 1=Mon … 7=Sun | Ex: 1,4 = Mon+Thu"
 msgstr ""
 
 msgid "10 Min"
@@ -43,43 +30,43 @@ msgstr ""
 msgid "API Secret"
 msgstr ""
 
-msgid "Abbrechen"
+msgid "Cancel"
 msgstr "취소"
 
-msgid "Aktionen"
+msgid "Actions"
 msgstr "작업"
 
-msgid "Aktiv"
+msgid "Active"
 msgstr "활성화"
 
-msgid "Aktualisieren"
+msgid "update"
 msgstr "새로고침"
 
-msgid "Aktualisiert Zenarmor-Pakete automatisch"
+msgid "Automatically updates Zenarmor packages"
 msgstr ""
 
-msgid "Alle Sicherungen"
+msgid "All Backups"
 msgstr "모든 백업"
 
-msgid "Alle Status aktualisieren"
+msgid "Refresh all statuses"
 msgstr "모든 상태 새로고침"
 
-msgid "Alle auswählen"
+msgid "Select all"
 msgstr "모두 선택"
 
-msgid "Allgemeine Einstellungen"
+msgid "General Settings"
 msgstr ""
 
-msgid "Alte Backups gemäss Retention-Einstellung entfernen"
+msgid "Remove old backups according to retention setting"
 msgstr ""
 
-msgid "Aufbewahrungsdauer (Retention)"
+msgid "Retention period"
 msgstr ""
 
-msgid "Ausgewählte vergleichen (2 wählen)"
+msgid "Compare selected (choose 2)"
 msgstr ""
 
-msgid "Auswahl löschen"
+msgid "Delete selection"
 msgstr ""
 
 msgid "Auto OPNsense"
@@ -91,118 +78,118 @@ msgstr ""
 msgid "Auto-Backup"
 msgstr ""
 
-msgid "Automatische Backups aktivieren"
+msgid "Enable automatic backups"
 msgstr ""
 
-msgid "Automatische Sicherung"
+msgid "Automatic Backup"
 msgstr "자동 백업"
 
-msgid "Automatische Updates aktivieren"
+msgid "Enable automatic updates"
 msgstr ""
 
-msgid "Automatisierung"
+msgid "Automation"
 msgstr "자동화"
 
-msgid "Automatisierung – Konfiguration"
+msgid "Automation – Configuration"
 msgstr ""
 
-msgid "Automatisierung – Konfigurationsbackup"
+msgid "Automation – Configuration Backup"
 msgstr ""
 
-msgid "Automatisierung – Status & Updates"
+msgid "Automation – Status & Updates"
 msgstr ""
 
-msgid "Backup auf Firewall einspielen"
+msgid "Restore backup to firewall"
 msgstr ""
 
-msgid "Backup erstellen"
+msgid "Create backup"
 msgstr "백업 생성"
 
-msgid "Backup jetzt erstellen"
+msgid "Create backup now"
 msgstr ""
 
-msgid "Backup pro Host"
+msgid "Backup per host"
 msgstr ""
 
-msgid "Backup-Zeitplan"
+msgid "Backup schedule"
 msgstr ""
 
 msgid "Backups"
 msgstr "백업"
 
-msgid "Backups werden zum konfigurierten Zeitplan erstellt"
+msgid "Backups are created according to the configured schedule"
 msgstr ""
 
-msgid "Backups älter als dieser Wert werden automatisch gelöscht"
+msgid "Backups older than this value are automatically deleted"
 msgstr ""
 
-msgid "Basis-URL der OPNsense (ohne /api)"
+msgid "Base URL of OPNsense (without /api)"
 msgstr ""
 
-msgid "Benutzer"
+msgid "User"
 msgstr "사용자"
 
-msgid "Beschreibung / Revision"
+msgid "Description / Revision"
 msgstr ""
 
-msgid "Bitte oben einen Host auswählen."
+msgid "Please select a host above."
 msgstr ""
 
-msgid "Dateiname"
+msgid "Filename"
 msgstr "파일 이름"
 
-msgid "Die beiden Konfigurationen sind identisch – keine Unterschiede gefunden."
+msgid "The two configurations are identical – no differences found."
 msgstr ""
 
-msgid "Diese Konfiguration auf die Firewall einspielen"
+msgid "Restore this configuration to the firewall"
 msgstr ""
 
-msgid "Dieses Backup löschen"
+msgid "Delete this backup"
 msgstr ""
 
-msgid "Einstellungen"
+msgid "Settings"
 msgstr "설정"
 
-msgid "Einstellungen speichern"
+msgid "Save settings"
 msgstr "설정 저장"
 
-msgid "Grösse"
+msgid "Size"
 msgstr "크기"
 
-msgid "Herunterladen"
+msgid "Download"
 msgstr "다운로드"
 
-msgid "Hinweis: Änderungen werden sofort gespeichert. Für Automatisierungen ggf. unter „Allgemein“ die Zeitplanung anpassen."
+msgid "Note: Changes are saved immediately. For automations, adjust the schedule under “General” if needed."
 msgstr ""
 
 msgid "Host"
 msgstr "호스트"
 
-msgid "Jetzt einspielen"
+msgid "Restore now"
 msgstr ""
 
-msgid "Keine Backups vorhanden. Erstelle jetzt eines oder aktiviere die automatische Sicherung."
+msgid "No backups available. Create one now or enable automatic backup."
 msgstr ""
 
-msgid "Keine ZA-Backups vorhanden. Erstelle jetzt eines."
+msgid "No ZA backups available. Create one now."
 msgstr ""
 
-msgid "Kommentar (optional)"
+msgid "Comment (optional)"
 msgstr "설명 (선택사항)"
 
-msgid "Konfigurationen werden lokal auf dieser OPNsense gespeichert unter:"
+msgid "Configurations are stored locally on this OPNsense under:"
 msgstr ""
 
-msgid "Lade Statusinformationen..."
+msgid "Loading status information..."
 msgstr ""
 
-msgid "Lade und vergleiche Konfigurationen..."
+msgid "Loading and comparing configurations..."
 msgstr ""
 
-msgid "Lege fest, für welche Hosts automatisch Konfigurationsbackups erstellt werden:"
+msgid "Define for which hosts configuration backups are automatically created:"
 msgstr ""
 
-msgid "Manuell"
+msgid "Manual"
 msgstr "수동"
 
 msgid "Minute (0-59)"
@@ -214,94 +201,94 @@ msgstr ""
 msgid "Name"
 msgstr "이름"
 
-msgid "Name / Beschreibung"
+msgid "Name / Description"
 msgstr ""
 
-msgid "Nur für Self-Signed Zertifikate – unsicher!"
+msgid "Only for self-signed certificates – insecure!"
 msgstr ""
 
-msgid "OPNsense Instanz konfigurieren"
+msgid "Configure OPNsense instance"
 msgstr ""
 
-msgid "OPNsense Instanzen"
+msgid "OPNsense Instances"
 msgstr ""
 
-msgid "OPNsense aktualisieren"
+msgid "Update OPNsense"
 msgstr "OPNsense 업데이트"
 
-msgid "OPNsense automatisch updaten"
+msgid "Update OPNsense automatically"
 msgstr ""
 
-msgid "Retention anwenden"
+msgid "Apply retention"
 msgstr ""
 
-msgid "Sicherungen (vergleichen)"
+msgid "Backups (compare)"
 msgstr ""
 
-msgid "Sicherungen vergleichen"
+msgid "Compare backups"
 msgstr ""
 
-msgid "Speichern"
+msgid "Save"
 msgstr "저장"
 
-msgid "Stunde (0-23)"
+msgid "Hour (0-23)"
 msgstr ""
 
-msgid "Stunde (0–23)"
+msgid "Hour (0–23)"
 msgstr ""
 
-msgid "TLS-Zertifikat nicht prüfen"
+msgid "Do not verify TLS certificate"
 msgstr ""
 
-msgid "Tage"
+msgid "Days"
 msgstr "일"
 
 msgid "URL"
 msgstr ""
 
-msgid "Update-Zeitplan"
+msgid "Update schedule"
 msgstr ""
 
-msgid "Updates werden zur konfigurierten Zeit automatisch eingespielt"
+msgid "Updates are automatically applied at the configured time"
 msgstr ""
 
-msgid "Verbindung"
+msgid "Connection"
 msgstr "연결"
 
-msgid "Verbindung testen"
+msgid "Test connection"
 msgstr ""
 
-msgid "Versionen vergleichen"
+msgid "Compare versions"
 msgstr ""
 
-msgid "Verwalte die Verbindungsdaten zu allen OPNsense Instanzen. Die API Credentials findest du unter System → Benutzerverwaltung → API-Keys."
+msgid "Manage connection data for all OPNsense instances. API credentials can be found under System → User Management → API Keys."
 msgstr ""
 
-msgid "Wendet Firmware-Updates automatisch zum konfigurierten Zeitplan an"
+msgid "Automatically applies firmware updates at the configured schedule"
 msgstr ""
 
-msgid "Wochentage"
+msgid "Weekdays"
 msgstr "요일"
 
-msgid "Wochentage (*, 1-7)"
+msgid "Weekdays (*, 1-7)"
 msgstr ""
 
-msgid "ZA Check-Intervall"
+msgid "ZA check interval"
 msgstr ""
 
 msgid "ZA Watchdog"
 msgstr ""
 
-msgid "ZA Watchdog aktivieren"
+msgid "Enable ZA Watchdog"
 msgstr ""
 
-msgid "ZA aktualisieren"
+msgid "Update ZA"
 msgstr "ZA 업데이트"
 
-msgid "ZA-Backup jetzt erstellen"
+msgid "Create ZA backup now"
 msgstr ""
 
-msgid "Zeitstempel"
+msgid "Timestamp"
 msgstr "타임스탬프"
 
 msgid "Zenarmor Backup"
@@ -310,23 +297,23 @@ msgstr ""
 msgid "Zenarmor Watchdog"
 msgstr ""
 
-msgid "Zenarmor automatisch updaten"
+msgid "Update Zenarmor automatically"
 msgstr ""
 
-msgid "Zenarmor-Backups werden als .gz-Datei auf dem Remote-Host erstellt und dann lokal gespeichert. Der API-Benutzer benötigt Zenarmor-Backup-Rechte."
+msgid "Zenarmor backups are created as .gz files on the remote host and stored locally. The API user needs Zenarmor backup permissions."
 msgstr ""
 
-msgid "z.B. Hauptstandort Firewall"
+msgid "e.g. Main site firewall"
 msgstr ""
 
-msgid "Änderungen zwischen ausgewählten Versionen"
+msgid "Changes between selected versions"
 msgstr ""
 
-msgid "Überprüft periodisch ob Zenarmor läuft und startet ggf. neu"
+msgid "Periodically checks if Zenarmor is running and restarts it if necessary"
 msgstr ""
 
-msgid "Übersicht aller konfigurierten OPNsense Instanzen mit aktuellen Versionsinformationen und Update-Optionen."
+msgid "Overview of all configured OPNsense instances with current version information and update options."
 msgstr ""
 
-msgid "Überwacht ob Zenarmor läuft und startet den Engine ggf. neu"
+msgid "Monitors whether Zenarmor is running and restarts the engine if necessary"
 msgstr ""

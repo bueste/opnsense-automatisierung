@@ -1,17 +1,17 @@
-{{ partial("layout_partials/base_form",['fields':form_fields,'id':'frm_GeneralSettings','apply_btn_id':'btn_apply_general'])}}
+﻿{{ partial("layout_partials/base_form",['fields':form_fields,'id':'frm_GeneralSettings','apply_btn_id':'btn_apply_general'])}}
 
 <div class="content-box" style="padding-bottom: 1.5em;">
 
     <!-- ====== Header ====== -->
     <div class="col-xs-12">
-        <h1><i class="fa fa-cogs"></i> {{ lang._('Automatisierung – Konfiguration') }}</h1>
+        <h1><i class="fa fa-cogs"></i> {{ lang._('Automation – Configuration') }}</h1>
         <hr/>
     </div>
 
     <!-- ====== Hosts Tabelle ====== -->
     <div class="col-xs-12">
-        <h2>{{ lang._('OPNsense Instanzen') }}</h2>
-        <p class="text-muted">{{ lang._('Verwalte die Verbindungsdaten zu allen OPNsense Instanzen. Die API Credentials findest du unter System → Benutzerverwaltung → API-Keys.') }}</p>
+        <h2>{{ lang._('OPNsense Instances') }}</h2>
+        <p class="text-muted">{{ lang._('Manage connection data for all OPNsense instances. API credentials can be found under System → User Management → API Keys.') }}</p>
     </div>
 
     <div class="col-xs-12">
@@ -20,13 +20,13 @@
             <table id="tbl-hosts" class="table table-condensed table-hover table-striped" data-editDialog="DialogHost" data-editAlert="hostChangeMessage">
                 <thead>
                 <tr>
-                    <th data-column-id="enabled" data-width="6em" data-type="boolean" data-formatter="rowtoggle">{{ lang._('Aktiv') }}</th>
+                    <th data-column-id="enabled" data-width="6em" data-type="boolean" data-formatter="rowtoggle">{{ lang._('Active') }}</th>
                     <th data-column-id="name" data-type="string">{{ lang._('Name') }}</th>
                     <th data-column-id="url" data-type="string">{{ lang._('URL') }}</th>
                     <th data-column-id="auto_update_opnsense" data-type="boolean" data-formatter="boolean" data-width="8em">{{ lang._('Auto OPNsense') }}</th>
                     <th data-column-id="auto_update_za" data-type="boolean" data-formatter="boolean" data-width="8em">{{ lang._('Auto ZA') }}</th>
                     <th data-column-id="za_watchdog" data-type="boolean" data-formatter="boolean" data-width="8em">{{ lang._('ZA Watchdog') }}</th>
-                    <th data-column-id="commands" data-width="7em" data-formatter="commands" data-sortable="false">{{ lang._('Aktionen') }}</th>
+                    <th data-column-id="commands" data-width="7em" data-formatter="commands" data-sortable="false">{{ lang._('Actions') }}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -50,7 +50,7 @@
 
     <!-- ====== Allgemeine Einstellungen ====== -->
     <div class="col-xs-12" style="margin-top:2em;">
-        <h2>{{ lang._('Allgemeine Einstellungen') }}</h2>
+        <h2>{{ lang._('General Settings') }}</h2>
     </div>
 
     <div class="col-xs-12">
@@ -59,18 +59,18 @@
                 <table class="table table-striped table-condensed">
                     <tbody>
                     <tr>
-                        <td style="width:30%"><strong>{{ lang._('Automatische Updates aktivieren') }}</strong></td>
+                        <td style="width:30%"><strong>{{ lang._('Enable automatic updates') }}</strong></td>
                         <td>
                             <input type="checkbox" id="auto_update_enabled" name="general[auto_update_enabled]" value="1"/>
-                            <label for="auto_update_enabled" class="text-muted">{{ lang._('Updates werden zur konfigurierten Zeit automatisch eingespielt') }}</label>
+                            <label for="auto_update_enabled" class="text-muted">{{ lang._('Updates are automatically applied at the configured time') }}</label>
                         </td>
                     </tr>
                     <tr>
-                        <td><strong>{{ lang._('Update-Zeitplan') }}</strong></td>
+                        <td><strong>{{ lang._('Update schedule') }}</strong></td>
                         <td>
                             <div class="row">
                                 <div class="col-xs-4">
-                                    <label>{{ lang._('Stunde (0-23)') }}</label>
+                                    <label>{{ lang._('Hour (0-23)') }}</label>
                                     <input type="number" class="form-control" id="update_hour" name="general[update_hour]" min="0" max="23" value="3"/>
                                 </div>
                                 <div class="col-xs-4">
@@ -78,22 +78,22 @@
                                     <input type="number" class="form-control" id="update_minute" name="general[update_minute]" min="0" max="59" value="0"/>
                                 </div>
                                 <div class="col-xs-4">
-                                    <label>{{ lang._('Wochentage (*, 1-7)') }}</label>
+                                    <label>{{ lang._('Weekdays (*, 1-7)') }}</label>
                                     <input type="text" class="form-control" id="update_days" name="general[update_days]" value="*" placeholder="* = täglich"/>
                                 </div>
                             </div>
-                            <span class="text-muted small">{{ lang._('* = jeden Tag, 1 = Montag, 7 = Sonntag (Beispiel: 1,3,5 = Mo,Mi,Fr)') }}</span>
+                            <span class="text-muted small">{{ lang._('* = every day, 1 = Monday, 7 = Sunday (Example: 1,3,5 = Mon,Wed,Fri)') }}</span>
                         </td>
                     </tr>
                     <tr>
-                        <td><strong>{{ lang._('ZA Watchdog aktivieren') }}</strong></td>
+                        <td><strong>{{ lang._('Enable ZA Watchdog') }}</strong></td>
                         <td>
                             <input type="checkbox" id="za_watchdog_enabled" name="general[za_watchdog_enabled]" value="1"/>
-                            <label for="za_watchdog_enabled" class="text-muted">{{ lang._('Überprüft periodisch ob Zenarmor läuft und startet ggf. neu') }}</label>
+                            <label for="za_watchdog_enabled" class="text-muted">{{ lang._('Periodically checks if Zenarmor is running and restarts it if necessary') }}</label>
                         </td>
                     </tr>
                     <tr>
-                        <td><strong>{{ lang._('ZA Check-Intervall') }}</strong></td>
+                        <td><strong>{{ lang._('ZA check interval') }}</strong></td>
                         <td>
                             <div id="za_check_interval_radios">
                                 <label style="margin-right:12px;font-weight:normal"><input type="radio" name="za_iv" value="5"> {{ lang._('5 Min') }}</label>
@@ -108,7 +108,7 @@
                 </table>
             </div>
             <button id="btn_save_general" class="btn btn-primary" type="button">
-                <span class="fa fa-save"></span> {{ lang._('Einstellungen speichern') }}
+                <span class="fa fa-save"></span> {{ lang._('Save settings') }}
             </button>
         </form>
     </div>
@@ -125,13 +125,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-                <h4 class="modal-title" id="DialogHostLabel"><i class="fa fa-server"></i> {{ lang._('OPNsense Instanz konfigurieren') }}</h4>
+                <h4 class="modal-title" id="DialogHostLabel"><i class="fa fa-server"></i> {{ lang._('Configure OPNsense instance') }}</h4>
             </div>
             <div class="modal-body">
                 <form id="frm_DialogHost" action="#">
                     <ul class="nav nav-tabs" role="tablist">
-                        <li class="active"><a href="#tab_host_basic" role="tab" data-toggle="tab">{{ lang._('Verbindung') }}</a></li>
-                        <li><a href="#tab_host_automation" role="tab" data-toggle="tab">{{ lang._('Automatisierung') }}</a></li>
+                        <li class="active"><a href="#tab_host_basic" role="tab" data-toggle="tab">{{ lang._('Connection') }}</a></li>
+                        <li><a href="#tab_host_automation" role="tab" data-toggle="tab">{{ lang._('Automation') }}</a></li>
                     </ul>
                     <div class="tab-content content-box" style="padding:1em;">
                         <!-- Verbindung Tab -->
@@ -139,18 +139,18 @@
                             <table class="table table-condensed table-striped">
                                 <tbody>
                                 <tr>
-                                    <td style="width:35%"><strong>{{ lang._('Aktiv') }}</strong></td>
+                                    <td style="width:35%"><strong>{{ lang._('Active') }}</strong></td>
                                     <td><input type="checkbox" id="host.enabled" data-field="enabled"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>{{ lang._('Name / Beschreibung') }}</strong> <span class="text-danger">*</span></td>
-                                    <td><input type="text" class="form-control" id="host.name" data-field="name" placeholder="{{ lang._('z.B. Hauptstandort Firewall') }}"/></td>
+                                    <td><strong>{{ lang._('Name / Description') }}</strong> <span class="text-danger">*</span></td>
+                                    <td><input type="text" class="form-control" id="host.name" data-field="name" placeholder="{{ lang._('e.g. Main site firewall') }}"/></td>
                                 </tr>
                                 <tr>
                                     <td><strong>{{ lang._('URL') }}</strong> <span class="text-danger">*</span></td>
                                     <td>
                                         <input type="url" class="form-control" id="host.url" data-field="url" placeholder="https://192.168.1.1"/>
-                                        <span class="text-muted small">{{ lang._('Basis-URL der OPNsense (ohne /api)') }}</span>
+                                        <span class="text-muted small">{{ lang._('Base URL of OPNsense (without /api)') }}</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -162,16 +162,16 @@
                                     <td><input type="password" class="form-control" id="host.api_secret" data-field="api_secret" autocomplete="off"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>{{ lang._('TLS-Zertifikat nicht prüfen') }}</strong></td>
+                                    <td><strong>{{ lang._('Do not verify TLS certificate') }}</strong></td>
                                     <td>
                                         <input type="checkbox" id="host.skip_verify_tls" data-field="skip_verify_tls"/>
-                                        <label for="host.skip_verify_tls" class="text-warning"> {{ lang._('Nur für Self-Signed Zertifikate – unsicher!') }}</label>
+                                        <label for="host.skip_verify_tls" class="text-warning"> {{ lang._('Only for self-signed certificates – insecure!') }}</label>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">
                                         <button id="btn_test_connection" class="btn btn-default btn-sm" type="button">
-                                            <span class="fa fa-plug"></span> {{ lang._('Verbindung testen') }}
+                                            <span class="fa fa-plug"></span> {{ lang._('Test connection') }}
                                         </button>
                                         <span id="test_connection_result" style="margin-left:1em;"></span>
                                     </td>
@@ -185,22 +185,22 @@
                                 <tbody>
                                 <tr>
                                     <td style="width:50%">
-                                        <strong>{{ lang._('OPNsense automatisch updaten') }}</strong><br/>
-                                        <span class="text-muted small">{{ lang._('Wendet Firmware-Updates automatisch zum konfigurierten Zeitplan an') }}</span>
+                                        <strong>{{ lang._('Update OPNsense automatically') }}</strong><br/>
+                                        <span class="text-muted small">{{ lang._('Automatically applies firmware updates at the configured schedule') }}</span>
                                     </td>
                                     <td><input type="checkbox" id="host.auto_update_opnsense" data-field="auto_update_opnsense"/></td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <strong>{{ lang._('Zenarmor automatisch updaten') }}</strong><br/>
-                                        <span class="text-muted small">{{ lang._('Aktualisiert Zenarmor-Pakete automatisch') }}</span>
+                                        <strong>{{ lang._('Update Zenarmor automatically') }}</strong><br/>
+                                        <span class="text-muted small">{{ lang._('Automatically updates Zenarmor packages') }}</span>
                                     </td>
                                     <td><input type="checkbox" id="host.auto_update_za" data-field="auto_update_za"/></td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <strong>{{ lang._('Zenarmor Watchdog') }}</strong><br/>
-                                        <span class="text-muted small">{{ lang._('Überwacht ob Zenarmor läuft und startet den Engine ggf. neu') }}</span>
+                                        <span class="text-muted small">{{ lang._('Monitors whether Zenarmor is running and restarts the engine if necessary') }}</span>
                                     </td>
                                     <td><input type="checkbox" id="host.za_watchdog" data-field="za_watchdog"/></td>
                                 </tr>
@@ -211,9 +211,9 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">{{ lang._('Abbrechen') }}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ lang._('Cancel') }}</button>
                 <button id="btn_host_save" type="button" class="btn btn-primary">
-                    <span class="fa fa-save"></span> {{ lang._('Speichern') }}
+                    <span class="fa fa-save"></span> {{ lang._('Save') }}
                 </button>
             </div>
         </div>
@@ -258,7 +258,7 @@
 
     // ====== Verbindung testen ======
     $("#btn_test_connection").on("click", function() {
-        var $sp = $("#test_connection_result").html('<i class="fa fa-spinner fa-spin"></i> {{ lang._("Teste...") }}');
+        var $sp = $("#test_connection_result").html('<i class="fa fa-spinner fa-spin"></i> {{ lang._("Testing...") }}');
         $.ajax({
             url:    "/api/automatisierung/settings/testConnection",
             method: "POST",
@@ -304,7 +304,7 @@
                     $("#DialogHost").modal("hide");
                     $("#tbl-hosts").bootgrid("reload");
                 } else {
-                    alert("{{ lang._('Fehler') }}: " + JSON.stringify(r.validations || r));
+                    alert("{{ lang._('Error') }}: " + JSON.stringify(r.validations || r));
                 }
             },
             complete: function() { $btn.prop("disabled", false); }
@@ -346,7 +346,7 @@
                 $alert.removeClass('alert-danger alert-success')
                     .addClass(ok ? 'alert-success' : 'alert-danger')
                     .html('<i class="fa fa-' + (ok ? 'check' : 'times') + '-circle"></i> ' +
-                          (ok ? '{{ lang._("Gespeichert.") }}' : JSON.stringify(resp.validations || resp)))
+                          (ok ? '{{ lang._("Saved.") }}' : JSON.stringify(resp.validations || resp)))
                     .show();
                 setTimeout(function() { $alert.fadeOut(); }, 4000);
             },

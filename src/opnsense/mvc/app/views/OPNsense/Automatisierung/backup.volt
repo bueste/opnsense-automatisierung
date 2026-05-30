@@ -1,17 +1,17 @@
-<div class="content-box" style="padding-bottom:1.5em;">
+﻿<div class="content-box" style="padding-bottom:1.5em;">
 
     <div class="col-xs-12">
-        <h1><i class="fa fa-archive"></i> {{ lang._('Automatisierung – Konfigurationsbackup') }}</h1>
+        <h1><i class="fa fa-archive"></i> {{ lang._('Automation – Configuration Backup') }}</h1>
         <hr/>
     </div>
 
     <!-- ========== TABS ========== -->
     <div class="col-xs-12">
         <ul class="nav nav-tabs" id="backupMainTabs" role="tablist">
-            <li class="active"><a href="#tab-compare" data-toggle="tab"><i class="fa fa-code-fork"></i> {{ lang._('Sicherungen vergleichen') }}</a></li>
-            <li><a href="#tab-list" data-toggle="tab"><i class="fa fa-list"></i> {{ lang._('Alle Sicherungen') }}</a></li>
+            <li class="active"><a href="#tab-compare" data-toggle="tab"><i class="fa fa-code-fork"></i> {{ lang._('Compare backups') }}</a></li>
+            <li><a href="#tab-list" data-toggle="tab"><i class="fa fa-list"></i> {{ lang._('All Backups') }}</a></li>
             <li><a href="#tab-za" data-toggle="tab"><i class="fa fa-shield"></i> {{ lang._('Zenarmor Backup') }}</a></li>
-            <li><a href="#tab-settings" data-toggle="tab"><i class="fa fa-cog"></i> {{ lang._('Einstellungen') }}</a></li>
+            <li><a href="#tab-settings" data-toggle="tab"><i class="fa fa-cog"></i> {{ lang._('Settings') }}</a></li>
         </ul>
     </div>
 
@@ -31,10 +31,10 @@
             </div>
             <div class="col-xs-12 col-sm-5" style="padding-top:5px;">
                 <input type="text" id="cmp_comment" class="form-control input-sm"
-                       placeholder="{{ lang._('Kommentar (optional)') }}" maxlength="120"
+                       placeholder="{{ lang._('Comment (optional)') }}" maxlength="120"
                        style="max-width:240px;margin-bottom:4px;"/>
                 <button id="btn_cmp_backup_now" class="btn btn-primary btn-sm" disabled>
-                    <i class="fa fa-camera"></i> {{ lang._('Backup jetzt erstellen') }}
+                    <i class="fa fa-camera"></i> {{ lang._('Create backup now') }}
                 </button>
             </div>
         </div>
@@ -43,7 +43,7 @@
 
         <div id="cmp_section" style="display:none;">
 
-            <h4 style="font-weight:600;margin:0 0 10px 0;">{{ lang._('Sicherungen (vergleichen)') }}</h4>
+            <h4 style="font-weight:600;margin:0 0 10px 0;">{{ lang._('Backups (compare)') }}</h4>
 
             <div class="row" style="margin-bottom:4px;">
                 <div class="col-xs-12 col-sm-6" style="padding-right:3px;">
@@ -61,17 +61,17 @@
             <div class="row" style="margin-bottom:10px;">
                 <div class="col-xs-12 col-sm-6" style="padding-right:3px;">
                     <div id="actions_a" style="display:none;line-height:2.2;">
-                        <button class="btn btn-xs btn-default" id="btn_restore_a" title="{{ lang._('Diese Konfiguration auf die Firewall einspielen') }}"><i class="fa fa-reply"></i></button>
-                        <button class="btn btn-xs btn-default" id="btn_delete_a" title="{{ lang._('Dieses Backup löschen') }}"><i class="fa fa-trash-o"></i></button>
-                        <a id="btn_download_a" href="#" class="btn btn-xs btn-default" title="{{ lang._('Herunterladen') }}" download><i class="fa fa-download"></i></a>
+                        <button class="btn btn-xs btn-default" id="btn_restore_a" title="{{ lang._('Restore this configuration to the firewall') }}"><i class="fa fa-reply"></i></button>
+                        <button class="btn btn-xs btn-default" id="btn_delete_a" title="{{ lang._('Delete this backup') }}"><i class="fa fa-trash-o"></i></button>
+                        <a id="btn_download_a" href="#" class="btn btn-xs btn-default" title="{{ lang._('Download') }}" download><i class="fa fa-download"></i></a>
                         <span id="meta_a" class="text-muted" style="margin-left:4px;font-size:0.8em;"></span>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-6" style="padding-left:3px;">
                     <div id="actions_b" style="display:none;line-height:2.2;">
-                        <button class="btn btn-xs btn-default" id="btn_restore_b" title="{{ lang._('Diese Konfiguration auf die Firewall einspielen') }}"><i class="fa fa-reply"></i></button>
-                        <button class="btn btn-xs btn-default" id="btn_delete_b" title="{{ lang._('Dieses Backup löschen') }}"><i class="fa fa-trash-o"></i></button>
-                        <a id="btn_download_b" href="#" class="btn btn-xs btn-default" title="{{ lang._('Herunterladen') }}" download><i class="fa fa-download"></i></a>
+                        <button class="btn btn-xs btn-default" id="btn_restore_b" title="{{ lang._('Restore this configuration to the firewall') }}"><i class="fa fa-reply"></i></button>
+                        <button class="btn btn-xs btn-default" id="btn_delete_b" title="{{ lang._('Delete this backup') }}"><i class="fa fa-trash-o"></i></button>
+                        <a id="btn_download_b" href="#" class="btn btn-xs btn-default" title="{{ lang._('Download') }}" download><i class="fa fa-download"></i></a>
                         <span id="meta_b" class="text-muted" style="margin-left:4px;font-size:0.8em;"></span>
                     </div>
                 </div>
@@ -79,25 +79,25 @@
 
             <div style="margin-bottom:14px;">
                 <button id="btn_run_compare" class="btn btn-default btn-sm" disabled>
-                    <i class="fa fa-search"></i> {{ lang._('Versionen vergleichen') }}
+                    <i class="fa fa-search"></i> {{ lang._('Compare versions') }}
                 </button>
             </div>
 
             <div id="diff_loading" style="display:none;padding:2em 0;text-align:center;">
                 <i class="fa fa-spinner fa-spin fa-2x"></i>
-                <p>{{ lang._('Lade und vergleiche Konfigurationen...') }}</p>
+                <p>{{ lang._('Loading and comparing configurations...') }}</p>
             </div>
 
             <div id="diff_wrap" style="display:none;">
                 <div style="padding:4px 0 6px 0;font-size:0.9em;color:#333;">
-                    <strong>{{ lang._('Änderungen zwischen ausgewählten Versionen') }}</strong>
+                    <strong>{{ lang._('Changes between selected versions') }}</strong>
                     <span id="diff_stats" style="margin-left:12px;font-size:0.9em;"></span>
                 </div>
                 <div id="diff_output" style="font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:12.5px;line-height:1.5;border:1px solid #d1d5da;border-radius:4px;overflow:auto;max-height:560px;background:#fff;padding:0;"></div>
             </div>
 
             <div id="diff_identical" class="text-success" style="display:none;padding:1em 0;">
-                <i class="fa fa-check-circle"></i> {{ lang._('Die beiden Konfigurationen sind identisch – keine Unterschiede gefunden.') }}
+                <i class="fa fa-check-circle"></i> {{ lang._('The two configurations are identical – no differences found.') }}
             </div>
 
             <div id="cmp_action_msg" class="alert" style="display:none;margin-top:0.8em;"></div>
@@ -105,7 +105,7 @@
         </div>
 
         <div id="cmp_empty_state" class="text-muted" style="padding:2em 0;">
-            <i class="fa fa-arrow-up"></i> {{ lang._('Bitte oben einen Host auswählen.') }}
+            <i class="fa fa-arrow-up"></i> {{ lang._('Please select a host above.') }}
         </div>
 
     </div><!-- /#tab-compare -->
@@ -125,16 +125,16 @@
             </div>
             <div class="col-xs-12 col-sm-7" style="padding-top:1.6em;">
                 <input type="text" id="list_comment" class="form-control input-sm"
-                       placeholder="{{ lang._('Kommentar (optional)') }}" maxlength="120"
+                       placeholder="{{ lang._('Comment (optional)') }}" maxlength="120"
                        style="max-width:240px;margin-bottom:4px;"/>
                 <button id="btn_list_backup_now" class="btn btn-primary btn-sm" disabled>
-                    <i class="fa fa-camera"></i> {{ lang._('Backup erstellen') }}
+                    <i class="fa fa-camera"></i> {{ lang._('Create backup') }}
                 </button>
                 <button id="btn_list_refresh" class="btn btn-default btn-sm" disabled>
                     <i class="fa fa-refresh"></i> {{ lang._('Aktualisieren') }}
                 </button>
-                <button id="btn_list_retention" class="btn btn-default btn-sm" disabled title="{{ lang._('Alte Backups gemäss Retention-Einstellung entfernen') }}">
-                    <i class="fa fa-trash-o"></i> {{ lang._('Retention anwenden') }}
+                <button id="btn_list_retention" class="btn btn-default btn-sm" disabled title="{{ lang._('Remove old backups according to retention setting') }}">
+                    <i class="fa fa-trash-o"></i> {{ lang._('Apply retention') }}
                 </button>
             </div>
         </div>
@@ -146,28 +146,28 @@
                 <thead>
                 <tr>
                     <th style="width:2.5em;"><input type="checkbox" id="chk_all"/></th>
-                    <th>{{ lang._('Zeitstempel') }}</th>
-                    <th>{{ lang._('Beschreibung / Revision') }}</th>
-                    <th>{{ lang._('Benutzer') }}</th>
-                    <th style="width:5em;">{{ lang._('Grösse') }}</th>
-                    <th style="width:10em;">{{ lang._('Aktionen') }}</th>
+                    <th>{{ lang._('Timestamp') }}</th>
+                    <th>{{ lang._('Description / Revision') }}</th>
+                    <th>{{ lang._('User') }}</th>
+                    <th style="width:5em;">{{ lang._('Size') }}</th>
+                    <th style="width:10em;">{{ lang._('Actions') }}</th>
                 </tr>
                 </thead>
                 <tbody id="backup_list_tbody"></tbody>
             </table>
             <div style="margin-top:6px;display:flex;align-items:center;gap:8px;">
                 <button id="btn_compare_checked" class="btn btn-info btn-xs" disabled>
-                    <i class="fa fa-code-fork"></i> {{ lang._('Ausgewählte vergleichen (2 wählen)') }}
+                    <i class="fa fa-code-fork"></i> {{ lang._('Compare selected (choose 2)') }}
                 </button>
                 <button id="btn_delete_checked" class="btn btn-danger btn-xs" disabled>
-                    <i class="fa fa-trash-o"></i> {{ lang._('Auswahl löschen') }}
+                    <i class="fa fa-trash-o"></i> {{ lang._('Delete selection') }}
                 </button>
                 <span id="sel_count" class="text-muted" style="font-size:0.88em;"></span>
             </div>
         </div>
 
         <div id="list_empty" class="text-muted" style="display:none;padding:2em 0;">
-            <i class="fa fa-info-circle"></i> {{ lang._('Keine Backups vorhanden. Erstelle jetzt eines oder aktiviere die automatische Sicherung.') }}
+            <i class="fa fa-info-circle"></i> {{ lang._('No backups available. Create one now or enable automatic backup.') }}
         </div>
 
     </div><!-- /#tab-list -->
@@ -187,7 +187,7 @@
             </div>
             <div class="col-xs-12 col-sm-7" style="padding-top:1.6em;">
                 <button id="btn_za_backup_now" class="btn btn-primary btn-sm" disabled>
-                    <i class="fa fa-shield"></i> {{ lang._('ZA-Backup jetzt erstellen') }}
+                    <i class="fa fa-shield"></i> {{ lang._('Create ZA backup now') }}
                 </button>
                 <button id="btn_za_refresh" class="btn btn-default btn-sm" disabled>
                     <i class="fa fa-refresh"></i> {{ lang._('Aktualisieren') }}
@@ -197,7 +197,7 @@
 
         <div class="alert alert-info" style="max-width:720px;">
             <i class="fa fa-info-circle"></i>
-            {{ lang._('Zenarmor-Backups werden als .gz-Datei auf dem Remote-Host erstellt und dann lokal gespeichert. Der API-Benutzer benötigt Zenarmor-Backup-Rechte.') }}
+            {{ lang._('Zenarmor backups are created as .gz files on the remote host and stored locally. The API user needs Zenarmor backup permissions.') }}
         </div>
 
         <div id="za_msg" class="alert" style="display:none;max-width:720px;"></div>
@@ -206,10 +206,10 @@
             <table class="table table-condensed table-hover table-striped" style="max-width:900px;">
                 <thead>
                 <tr>
-                    <th>{{ lang._('Zeitstempel') }}</th>
-                    <th>{{ lang._('Dateiname') }}</th>
-                    <th style="width:5em;">{{ lang._('Grösse') }}</th>
-                    <th style="width:7em;">{{ lang._('Aktionen') }}</th>
+                    <th>{{ lang._('Timestamp') }}</th>
+                    <th>{{ lang._('Filename') }}</th>
+                    <th style="width:5em;">{{ lang._('Size') }}</th>
+                    <th style="width:7em;">{{ lang._('Actions') }}</th>
                 </tr>
                 </thead>
                 <tbody id="za_list_tbody"></tbody>
@@ -217,11 +217,11 @@
         </div>
 
         <div id="za_empty" class="text-muted" style="display:none;padding:2em 0;">
-            <i class="fa fa-info-circle"></i> {{ lang._('Keine ZA-Backups vorhanden. Erstelle jetzt eines.') }}
+            <i class="fa fa-info-circle"></i> {{ lang._('No ZA backups available. Create one now.') }}
         </div>
 
         <div id="za_host_hint" class="text-muted" style="padding:2em 0;">
-            <i class="fa fa-arrow-up"></i> {{ lang._('Bitte oben einen Host auswählen.') }}
+            <i class="fa fa-arrow-up"></i> {{ lang._('Please select a host above.') }}
         </div>
 
     </div><!-- /#tab-za -->
@@ -232,27 +232,27 @@
          =================================================================== -->
     <div id="tab-settings" class="tab-pane fade">
 
-        <h3>{{ lang._('Automatische Sicherung') }}</h3>
+        <h3>{{ lang._('Automatic Backup') }}</h3>
         <p class="text-muted small">
-            {{ lang._('Konfigurationen werden lokal auf dieser OPNsense gespeichert unter:') }}
+            {{ lang._('Configurations are stored locally on this OPNsense under:') }}
             <code>/var/db/automatisierung/backups/</code>
         </p>
 
         <table class="table table-condensed table-striped" style="max-width:720px;">
             <tbody>
             <tr>
-                <td style="width:44%;"><strong>{{ lang._('Automatische Backups aktivieren') }}</strong></td>
+                <td style="width:44%;"><strong>{{ lang._('Enable automatic backups') }}</strong></td>
                 <td>
                     <input type="checkbox" id="bk_enabled"/>
-                    <label for="bk_enabled" class="text-muted"> {{ lang._('Backups werden zum konfigurierten Zeitplan erstellt') }}</label>
+                    <label for="bk_enabled" class="text-muted"> {{ lang._('Backups are created according to the configured schedule') }}</label>
                 </td>
             </tr>
             <tr>
-                <td><strong>{{ lang._('Backup-Zeitplan') }}</strong></td>
+                <td><strong>{{ lang._('Backup schedule') }}</strong></td>
                 <td>
                     <div class="row">
                         <div class="col-xs-4">
-                            <label class="small">{{ lang._('Stunde (0–23)') }}</label>
+                            <label class="small">{{ lang._('Hour (0–23)') }}</label>
                             <input type="number" class="form-control input-sm" id="bk_hour" min="0" max="23" value="2"/>
                         </div>
                         <div class="col-xs-4">
@@ -260,28 +260,28 @@
                             <input type="number" class="form-control input-sm" id="bk_minute" min="0" max="59" value="0"/>
                         </div>
                         <div class="col-xs-4">
-                            <label class="small">{{ lang._('Wochentage') }}</label>
+                            <label class="small">{{ lang._('Weekdays') }}</label>
                             <input type="text" class="form-control input-sm" id="bk_days" value="*" placeholder="*"/>
                         </div>
                     </div>
-                    <span class="text-muted small">{{ lang._('* = täglich | 1=Mo … 7=So | Bsp: 1,4 = Mo+Do') }}</span>
+                    <span class="text-muted small">{{ lang._('* = daily | 1=Mon … 7=Sun | Ex: 1,4 = Mon+Thu') }}</span>
                 </td>
             </tr>
             <tr>
-                <td><strong>{{ lang._('Aufbewahrungsdauer (Retention)') }}</strong></td>
+                <td><strong>{{ lang._('Retention period') }}</strong></td>
                 <td>
                     <div class="input-group" style="max-width:200px;">
                         <input type="number" class="form-control input-sm" id="bk_retention" min="1" max="365" value="30"/>
-                        <span class="input-group-addon">{{ lang._('Tage') }}</span>
+                        <span class="input-group-addon">{{ lang._('Days') }}</span>
                     </div>
-                    <span class="text-muted small">{{ lang._('Backups älter als dieser Wert werden automatisch gelöscht') }}</span>
+                    <span class="text-muted small">{{ lang._('Backups older than this value are automatically deleted') }}</span>
                 </td>
             </tr>
             </tbody>
         </table>
 
-        <h3 style="margin-top:1.5em;">{{ lang._('Backup pro Host') }}</h3>
-        <p class="text-muted small">{{ lang._('Lege fest, für welche Hosts automatisch Konfigurationsbackups erstellt werden:') }}</p>
+        <h3 style="margin-top:1.5em;">{{ lang._('Backup per host') }}</h3>
+        <p class="text-muted small">{{ lang._('Define for which hosts configuration backups are automatically created:') }}</p>
 
         <table class="table table-condensed table-striped" style="max-width:720px;">
             <thead>
@@ -296,7 +296,7 @@
         </table>
 
         <button id="btn_save_bk_settings" class="btn btn-primary btn-sm">
-            <i class="fa fa-save"></i> {{ lang._('Einstellungen speichern') }}
+            <i class="fa fa-save"></i> {{ lang._('Save settings') }}
         </button>
         <div id="bk_settings_msg" class="alert" style="display:none;margin-top:0.8em;"></div>
 
@@ -314,14 +314,14 @@
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 <h4 class="modal-title">
                     <i class="fa fa-exclamation-triangle text-danger"></i>
-                    {{ lang._('Backup auf Firewall einspielen') }}
+                    {{ lang._('Restore backup to firewall') }}
                 </h4>
             </div>
             <div class="modal-body" id="deploy_confirm_body"></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">{{ lang._('Abbrechen') }}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ lang._('Cancel') }}</button>
                 <button type="button" id="btn_confirm_deploy" class="btn btn-danger">
-                    <i class="fa fa-upload"></i> {{ lang._('Jetzt einspielen') }}
+                    <i class="fa fa-upload"></i> {{ lang._('Restore now') }}
                 </button>
             </div>
         </div>

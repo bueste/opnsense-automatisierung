@@ -1,20 +1,20 @@
-<div class="content-box" style="padding-bottom: 1.5em;">
+﻿<div class="content-box" style="padding-bottom: 1.5em;">
 
     <!-- ====== Header ====== -->
     <div class="col-xs-12">
-        <h1><i class="fa fa-dashboard"></i> {{ lang._('Automatisierung – Status & Updates') }}</h1>
+        <h1><i class="fa fa-dashboard"></i> {{ lang._('Automation – Status & Updates') }}</h1>
         <hr/>
-        <p class="text-muted">{{ lang._('Übersicht aller konfigurierten OPNsense Instanzen mit aktuellen Versionsinformationen und Update-Optionen.') }}</p>
+        <p class="text-muted">{{ lang._('Overview of all configured OPNsense instances with current version information and update options.') }}</p>
     </div>
 
     <!-- ====== Aktions-Toolbar ====== -->
     <div class="col-xs-12" style="margin-bottom:1em;">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <button id="btn_refresh_all" class="btn btn-default">
-                <i class="fa fa-refresh"></i> {{ lang._('Alle Status aktualisieren') }}
+                <i class="fa fa-refresh"></i> {{ lang._('Refresh all statuses') }}
             </button>
             <select id="refresh_interval" class="form-control" style="width:auto;height:34px;">
-                <option value="0">{{ lang._('Manuell') }}</option>
+                <option value="0">{{ lang._('Manual') }}</option>
                 <option value="30000">30 Sek.</option>
                 <option value="60000">1 Min.</option>
                 <option value="180000" selected>3 Min.</option>
@@ -22,7 +22,7 @@
             </select>
             <label id="lbl_select_all" style="display:none;margin:0;font-weight:normal;cursor:pointer;white-space:nowrap;">
                 <input type="checkbox" id="chk_select_all" style="margin-right:4px;">
-                {{ lang._('Alle auswählen') }}
+                {{ lang._('Select all') }}
             </label>
             <span id="last_refresh" class="text-muted" style="font-size:0.9em;"></span>
         </div>
@@ -33,7 +33,7 @@
     <div class="col-xs-12" id="hosts_container">
         <div id="loading_indicator" class="text-center" style="padding:3em;">
             <i class="fa fa-spinner fa-spin fa-3x"></i>
-            <p style="margin-top:1em;">{{ lang._('Lade Statusinformationen...') }}</p>
+            <p style="margin-top:1em;">{{ lang._('Loading status information...') }}</p>
         </div>
     </div>
 
@@ -42,10 +42,10 @@
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <strong class="text-muted" style="margin-right:4px;"><i class="fa fa-check-square-o"></i> <span id="bottom_sel_count"></span></strong>
             <button id="btn_bulk_opnsense" class="btn btn-warning" style="display:none;">
-                <i class="fa fa-download"></i> <span id="bulk_opnsense_label">{{ lang._('OPNsense aktualisieren') }}</span>
+                <i class="fa fa-download"></i> <span id="bulk_opnsense_label">{{ lang._('Update OPNsense') }}</span>
             </button>
             <button id="btn_bulk_za" class="btn btn-warning" style="display:none;">
-                <i class="fa fa-shield"></i> <span id="bulk_za_label">{{ lang._('ZA aktualisieren') }}</span>
+                <i class="fa fa-shield"></i> <span id="bulk_za_label">{{ lang._('Update ZA') }}</span>
             </button>
         </div>
     </div>
@@ -58,12 +58,12 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-                <h4 class="modal-title"><i class="fa fa-warning text-warning"></i> {{ lang._('Update bestätigen') }}</h4>
+                <h4 class="modal-title"><i class="fa fa-warning text-warning"></i> {{ lang._('Confirm Update') }}</h4>
             </div>
             <div class="modal-body" id="confirm_update_body"></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">{{ lang._('Abbrechen') }}</button>
-                <button type="button" id="btn_confirm_update" class="btn btn-primary">{{ lang._('Update starten') }}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ lang._('Cancel') }}</button>
+                <button type="button" id="btn_confirm_update" class="btn btn-primary">{{ lang._('Start Update') }}</button>
             </div>
         </div>
     </div>
@@ -118,50 +118,50 @@
 
 // i18n strings used in JS (rendered server-side by Volt)
 var i18n = {
-    noHostsMsg:     "{{ lang._('Keine aktiven Instanzen konfiguriert. Bitte unter') }}",
-    noHostsLink:    "{{ lang._('Konfiguration') }}",
-    noHostsEnd:     "{{ lang._('Instanzen hinzufügen.') }}",
-    lastRefresh:    "{{ lang._('Letzte Aktualisierung') }}",
-    loadError:      "{{ lang._('Fehler beim Laden der Statusdaten.') }}",
-    connError:      "{{ lang._('Verbindungsfehler') }}",
-    unknown:        "{{ lang._('Unbekannt') }}",
-    zaRunning:      "{{ lang._('Läuft') }}",
-    zaStopped:      "{{ lang._('Gestoppt') }}",
-    zaRestart:      "{{ lang._('Engine Neustart empfohlen') }}",
-    zaNotInstalled: "{{ lang._('Zenarmor nicht installiert') }}",
-    autoNone:       "{{ lang._('Keine aktiv') }}",
+    noHostsMsg:     "{{ lang._('No active instances configured. Please go to') }}",
+    noHostsLink:    "{{ lang._('Configuration') }}",
+    noHostsEnd:     "{{ lang._('to add instances.') }}",
+    lastRefresh:    "{{ lang._('Last refresh') }}",
+    loadError:      "{{ lang._('Error loading status data.') }}",
+    connError:      "{{ lang._('Connection error') }}",
+    unknown:        "{{ lang._('Unknown') }}",
+    zaRunning:      "{{ lang._('Running') }}",
+    zaStopped:      "{{ lang._('Stopped') }}",
+    zaRestart:      "{{ lang._('Engine restart recommended') }}",
+    zaNotInstalled: "{{ lang._('Zenarmor not installed') }}",
+    autoNone:       "{{ lang._('None active') }}",
     autoOpn:        "{{ lang._('OPNsense Auto-Update') }}",
     autoZa:         "{{ lang._('ZA Auto-Update') }}",
     autoWd:         "{{ lang._('ZA Watchdog') }}",
-    updAvail:       "{{ lang._('Update verfügbar') }}",
-    updCurrent:     "{{ lang._('Aktuell') }}",
-    updOn:          "{{ lang._('Update auf') }}",
+    updAvail:       "{{ lang._('Update available') }}",
+    updCurrent:     "{{ lang._('Up to date') }}",
+    updOn:          "{{ lang._('Update to') }}",
     upd:            "{{ lang._('Update') }}",
-    networkError:   "{{ lang._('Netzwerkfehler bei') }}",
-    autoLabel:      "{{ lang._('Automatisierung') }}",
-    testing:        "{{ lang._('Teste...') }}",
-    pkgs:           "{{ lang._('Paket(e)') }}",
-    pkg:            "{{ lang._('Paket') }}",
-    pkgs_pl:        "{{ lang._('Pakete') }}",
-    current:        "{{ lang._('aktuell') }}",
-    updateBtn:      "{{ lang._('aktualisieren') }}",
-    zaReloadNow:    "{{ lang._('ZA Engine neu starten') }}",
-    zaWdCheck:      "{{ lang._('ZA Watchdog jetzt prüfen') }}",
-    bulkOPNLabel:   "{{ lang._('OPNsense aktualisieren') }}",
-    bulkOPNAll:     "{{ lang._('OPNsense (alle aktuell)') }}",
-    bulkZALabel:    "{{ lang._('ZA aktualisieren') }}",
-    bulkZAAll:      "{{ lang._('ZA (alle aktuell)') }}",
-    selCount:       "{{ lang._('ausgewählt') }}",
-    confirmOPNMsg:  "{{ lang._('OPNsense Firmware-Update auf') }}",
-    confirmOPNWarn: "{{ lang._('Die Firewall wird nach dem Update neu gestartet.') }}",
-    confirmLocal:   "{{ lang._('Achtung – Diese Firewall') }}",
-    confirmLocalTxt:"{{ lang._('Die Browser-Verbindung wird während des Updates und Neustarts kurz unterbrochen. Die Seite lädt sich danach automatisch neu.') }}",
-    confirmZAMsg:   "{{ lang._('Zenarmor Update auf') }}",
-    confirmZAFw:    "{{ lang._('starten') }}",
-    bulkOPNConfirm: "{{ lang._('OPNsense-Update starten auf') }}",
-    bulkOPNReboot:  "{{ lang._('Die Firewalls werden danach neu gestartet. Fortfahren?') }}",
-    bulkZAConfirm:  "{{ lang._('ZA-Update starten auf') }}",
-    bulkZAConf2:    "{{ lang._('Fortfahren?') }}",
+    networkError:   "{{ lang._('Network error on') }}",
+    autoLabel:      "{{ lang._('Automation') }}",
+    testing:        "{{ lang._('Testing...') }}",
+    pkgs:           "{{ lang._('package(s)') }}",
+    pkg:            "{{ lang._('package') }}",
+    pkgs_pl:        "{{ lang._('packages') }}",
+    current:        "{{ lang._('up to date') }}",
+    updateBtn:      "{{ lang._('update') }}",
+    zaReloadNow:    "{{ lang._('Restart ZA engine') }}",
+    zaWdCheck:      "{{ lang._('Run ZA Watchdog check now') }}",
+    bulkOPNLabel:   "{{ lang._('Update OPNsense') }}",
+    bulkOPNAll:     "{{ lang._('OPNsense (all up to date)') }}",
+    bulkZALabel:    "{{ lang._('Update ZA') }}",
+    bulkZAAll:      "{{ lang._('ZA (all up to date)') }}",
+    selCount:       "{{ lang._('selected') }}",
+    confirmOPNMsg:  "{{ lang._('Start OPNsense firmware update on') }}",
+    confirmOPNWarn: "{{ lang._('The firewall will reboot after the update.') }}",
+    confirmLocal:   "{{ lang._('Caution – This Firewall') }}",
+    confirmLocalTxt:"{{ lang._('The browser connection will be briefly interrupted during the update and reboot. The page will reload automatically afterwards.') }}",
+    confirmZAMsg:   "{{ lang._('Zenarmor update on') }}",
+    confirmZAFw:    "{{ lang._('start') }}",
+    bulkOPNConfirm: "{{ lang._('Start OPNsense update on') }}",
+    bulkOPNReboot:  "{{ lang._('The firewalls will reboot afterwards. Continue?') }}",
+    bulkZAConfirm:  "{{ lang._('Start ZA update on') }}",
+    bulkZAConf2:    "{{ lang._('Continue?') }}",
 };
 
 var pendingAction = null;
