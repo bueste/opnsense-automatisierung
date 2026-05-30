@@ -630,6 +630,11 @@ function renderUnifiedDiff(resp) {
             continue;
         }
 
+        // Undo the extra &amp; introduced by OPNsense Response::send() htmlspecialchars().
+        // This restores XML entities like &amp;#xC4; → &#xC4; so the browser renders Ä (not &#xC4; literal).
+        // &amp;lt; → &lt; renders as <   |   &amp;amp; → &amp; renders as &   – all correct.
+        var code = line.slice(1).replace(/&amp;/g, '&');
+
         if (ch === '@') {
             var m = line.match(/@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
             if (m) { ol = parseInt(m[1], 10); nl = parseInt(m[2], 10); }
@@ -639,14 +644,14 @@ function renderUnifiedDiff(resp) {
         } else if (ch === '-') {
             removed++;
             html += '<tr class="d-del"><td class="ln">' + ol++ + '</td><td class="ln"></td>' +
-                    '<td class="code">' + line.slice(1) + '</td></tr>';
+                    '<td class="code">' + code + '</td></tr>';
         } else if (ch === '+') {
             added++;
             html += '<tr class="d-add"><td class="ln"></td><td class="ln">' + nl++ + '</td>' +
-                    '<td class="code">' + line.slice(1) + '</td></tr>';
+                    '<td class="code">' + code + '</td></tr>';
         } else if (ch === ' ') {
             html += '<tr class="d-ctx"><td class="ln">' + ol++ + '</td><td class="ln">' + nl++ + '</td>' +
-                    '<td class="code">' + line.slice(1) + '</td></tr>';
+                    '<td class="code">' + code + '</td></tr>';
         } else if (ch === '\\') {
             html += '<tr class="d-ctx"><td class="ln"></td><td class="ln"></td>' +
                     '<td class="code text-muted" style="font-style:italic;">' + line + '</td></tr>';
