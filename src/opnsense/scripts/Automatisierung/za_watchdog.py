@@ -32,7 +32,7 @@ Prüft pro Host (za_watchdog=1): läuft die Engine, ist ein Restart empfohlen?
 Greift nur ein wenn nötig.
 """
 
-import sys, json, ssl, urllib.request, urllib.error, base64, logging, time
+import sys, os, json, ssl, urllib.request, urllib.error, base64, logging, time, subprocess
 import xml.etree.ElementTree as ET
 
 LOG_FILE   = '/var/log/automatisierung_watchdog.log'
@@ -148,6 +148,51 @@ def check_host(name, url, key, secret, skip_verify):
         log.info("  Engine läuft einwandfrei – kein Eingriff nötig.")
 
 
+def _sh(cmd):
+    """Run a shell command, return (returncode, combined output)."""
+    try:
+        p = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=90)
+        return p.returncode, ((p.stdout or '') + (p.stderr or '')).strip()
+    except Exception as e:
+        return 1, str(e)
+
+
+def _local_za_installed():
+    rc, _ = _sh('pkg info -e os-zenarmor')
+    return rc == 0 or os.path.isdir('/usr/local/zenarmor')
+
+
+def _local_engine_running():
+    rc, _ = _sh('pgrep -x eastpect')
+    return rc == 0
+
+
+def check_local():
+    """Monitor the Zenarmor engine on THIS firewall (no API, local commands).
+
+    The remote host loop never covers the firewall the watchdog runs on, yet the
+    status UI advertises the watchdog for it. Without this the local engine is
+    never auto-restarted after a stop.
+    """
+    log.info("--- LOKAL (diese Firewall) ---")
+    if not _local_za_installed():
+        log.info("  Zenarmor lokal nicht installiert – überspringe.")
+        return
+    if _local_engine_running():
+        log.info("  Lokale Engine läuft einwandfrei – kein Eingriff nötig.")
+        return
+
+    log.warning("  Lokale Engine NICHT aktiv – starte...")
+    rc, out = _sh('/usr/local/sbin/pluginctl -s eastpect start')
+    if rc != 0:
+        rc, out = _sh('/usr/sbin/service eastpect onestart')
+    time.sleep(5)
+    if _local_engine_running():
+        log.info("  Lokale Engine erfolgreich gestartet.")
+    else:
+        log.error("  Lokaler Engine-Start fehlgeschlagen: %s", (out or '')[:200])
+
+
 def interval_elapsed(interval_minutes):
     """Return True if configured interval has passed since last successful run."""
     now = time.time()
@@ -180,6 +225,12 @@ def main():
     if not interval_elapsed(interval):
         log.info("Intervall (%d Min) noch nicht erreicht – Ende.", interval)
         sys.exit(0)
+
+    # Lokale Firewall zuerst – der Host-Loop deckt sie nicht ab.
+    try:
+        check_local()
+    except Exception as e:
+        log.error("Fehler bei lokaler Prüfung: %s", e)
 
     processed = 0
     for h in root.findall('.//automatisierung/hosts/host'):

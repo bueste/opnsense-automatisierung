@@ -168,18 +168,17 @@ class ServiceController extends ApiControllerBase
      */
     private function localZaRestart()
     {
-        // Method 1: ZA's own restart script (if it exists)
-        foreach (['/usr/local/zenarmor/scripts/restart.sh', '/usr/local/zenarmor/scripts/stop.sh'] as $script) {
-            if (file_exists($script)) {
-                exec('sh ' . escapeshellarg($script) . ' 2>&1', $out, $rc);
-                if ($rc === 0) return true;
-            }
+        // Method 1: ZA's own service script (start|stop|restart)
+        $script = '/usr/local/zenarmor/scripts/service.sh';
+        if (file_exists($script)) {
+            exec('sh ' . escapeshellarg($script) . ' restart 2>&1', $out, $rc);
+            if ($rc === 0) return true;
         }
         // Method 2: pluginctl (OPNsense service manager)
         exec('/usr/local/sbin/pluginctl -s eastpect restart 2>&1', $out, $rc);
         if ($rc === 0) return true;
         // Method 3: BSD service
-        exec('service eastpect restart 2>&1', $out, $rc);
+        exec('/usr/sbin/service eastpect restart 2>&1', $out, $rc);
         return $rc === 0;
     }
 

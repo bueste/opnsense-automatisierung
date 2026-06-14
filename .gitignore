@@ -11,3 +11,6 @@ Thumbs.db
 # Temp
 *.tmp
 patch_*.py
+
+# Local retest/debug scripts
+_retest/
