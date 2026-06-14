@@ -39,6 +39,7 @@ import shutil
 import time
 import hashlib
 import xml.etree.ElementTree as ET
+from logging.handlers import RotatingFileHandler
 from datetime import datetime, timedelta
 
 LOG_FILE    = '/var/log/automatisierung_backup.log'
@@ -51,7 +52,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s',
     handlers=[
-        logging.FileHandler(LOG_FILE),
+        RotatingFileHandler(LOG_FILE, maxBytes=1048576, backupCount=3),
         logging.StreamHandler(sys.stdout),
     ]
 )

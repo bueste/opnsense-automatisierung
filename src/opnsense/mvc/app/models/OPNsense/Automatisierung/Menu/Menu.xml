@@ -4,6 +4,7 @@
             <Status order="0" url="/ui/automatisierung/index/status" VisibleName="Status" cssClass="fa fa-dashboard fa-fw"/>
             <Konfiguration order="1" url="/ui/automatisierung/index/index" VisibleName="Configuration" cssClass="fa fa-cog fa-fw"/>
             <Backup order="2" url="/ui/automatisierung/index/backup" VisibleName="Configuration Backup" cssClass="fa fa-archive fa-fw"/>
+            <Log order="3" url="/ui/automatisierung/index/log" VisibleName="Log" cssClass="fa fa-file-text-o fa-fw"/>
         </Automatisierung>
     </Services>
 </menu>

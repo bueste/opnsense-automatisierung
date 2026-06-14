@@ -33,11 +33,13 @@ Greift nur ein wenn nötig.
 """
 
 import sys, os, json, ssl, urllib.request, urllib.error, base64, logging, time, subprocess
+from logging.handlers import RotatingFileHandler
 import xml.etree.ElementTree as ET
 
 LOG_FILE   = '/var/log/automatisierung_watchdog.log'
 STATE_FILE = '/tmp/za_watchdog_last_run'
-_handlers = [logging.FileHandler(LOG_FILE)]
+# Rotate so the log (written every few minutes) can never grow without bound.
+_handlers = [RotatingFileHandler(LOG_FILE, maxBytes=1048576, backupCount=3)]
 if sys.stdout.isatty():
     _handlers.append(logging.StreamHandler(sys.stdout))
 logging.basicConfig(

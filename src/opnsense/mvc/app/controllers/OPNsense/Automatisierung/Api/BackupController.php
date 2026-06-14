@@ -40,6 +40,7 @@ namespace OPNsense\Automatisierung\Api;
 
 use OPNsense\Base\ApiControllerBase;
 use OPNsense\Automatisierung\Automatisierung;
+use OPNsense\Automatisierung\Logger;
 
 class BackupController extends ApiControllerBase
 {
@@ -345,9 +346,12 @@ class BackupController extends ApiControllerBase
         );
 
         if ($code === 200 && strpos($raw, '<?xml') !== false) {
-            return $this->storeBackup($uuid, $raw, $result, $comment);
+            $r = $this->storeBackup($uuid, $raw, $result, $comment);
+            Logger::info('backup', 'Backup ' . $host['name'] . ': ' . ($r['message'] ?? ''));
+            return $r;
         }
 
+        Logger::error('backup', 'Backup-Abruf fehlgeschlagen für ' . $host['name'] . ' (HTTP ' . $code . ')');
         $result['message'] = 'Backup konnte nicht abgerufen werden (HTTP ' . $code . '). '
             . 'Stelle sicher dass der API-Benutzer Backup-Rechte hat.';
         return $result;
@@ -489,6 +493,7 @@ class BackupController extends ApiControllerBase
         curl_close($ch);
 
         if ($curlErr) {
+            Logger::error('backup', 'Restore auf ' . $host['name'] . ' – Verbindungsfehler: ' . $curlErr);
             $result['message'] = 'Verbindungsfehler: ' . $curlErr;
             return $result;
         }
@@ -502,7 +507,9 @@ class BackupController extends ApiControllerBase
                 $result['result']  = 'ok';
                 $result['message'] = 'Restore-Befehl abgesendet. Bitte Firewall-Zustand prüfen.';
             }
+            Logger::warning('backup', 'Restore von ' . $filename . ' auf ' . $host['name'] . ' ausgelöst (Firewall startet neu).');
         } else {
+            Logger::error('backup', 'Restore auf ' . $host['name'] . ' fehlgeschlagen (HTTP ' . $httpCode . ')');
             $result['message'] = 'Restore fehlgeschlagen (HTTP ' . $httpCode . '). Prüfe ob der API-Benutzer die nötigen Rechte hat.';
         }
 

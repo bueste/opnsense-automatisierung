@@ -27,6 +27,7 @@
 namespace OPNsense\Automatisierung\Api;
 use OPNsense\Base\ApiControllerBase;
 use OPNsense\Automatisierung\Automatisierung;
+use OPNsense\Automatisierung\Logger;
 use OPNsense\Core\Backend;
 
 class ServiceController extends ApiControllerBase
@@ -250,8 +251,10 @@ class ServiceController extends ApiControllerBase
             try {
                 $backend = new Backend();
                 $backend->configdRun('firmware update');
+                Logger::info('service', 'Lokales OPNsense-Update gestartet.');
                 return ['result'=>'ok','message'=>'Lokales OPNsense-Update gestartet. Die Firewall startet danach neu — Browser-Verbindung wird kurz unterbrochen.'];
             } catch (\Exception $e) {
+                Logger::error('service', 'Lokales OPNsense-Update fehlgeschlagen: ' . $e->getMessage());
                 return ['result'=>'failed','message'=>'Lokales Update fehlgeschlagen: ' . $e->getMessage()];
             }
         }
@@ -272,8 +275,10 @@ class ServiceController extends ApiControllerBase
             try {
                 $backend = new Backend();
                 $backend->configdRun('firmware install os-sensei');
+                Logger::info('service', 'Lokales Zenarmor-Update gestartet.');
                 return ['result'=>'ok','message'=>'Lokales Zenarmor-Update gestartet.'];
             } catch (\Exception $e) {
+                Logger::error('service', 'Lokales ZA-Update fehlgeschlagen: ' . $e->getMessage());
                 return ['result'=>'failed','message'=>'Lokales ZA-Update fehlgeschlagen: ' . $e->getMessage()];
             }
         }
@@ -292,6 +297,8 @@ class ServiceController extends ApiControllerBase
 
         if ($uuid === '__local__') {
             $ok = $this->localZaRestart();
+            Logger::write('service', $ok ? 'info' : 'error',
+                'Lokaler ZA-Neustart ' . ($ok ? 'erfolgreich' : 'fehlgeschlagen'));
             return $ok
                 ? ['result'=>'ok','message'=>'Lokale ZA Engine neu gestartet.']
                 : ['result'=>'failed','message'=>'Lokaler ZA-Neustart fehlgeschlagen. Prüfe ob Interfaces in Zenarmor konfiguriert sind.'];
@@ -301,6 +308,8 @@ class ServiceController extends ApiControllerBase
         if (!$host) return ['result'=>'failed','message'=>'Host nicht gefunden'];
         list($url,$key,$secret,$sv) = $host;
         $ok = $this->zaServiceAction($url, $key, $secret, $sv, 'eastpect', 'restart');
+        Logger::write('service', $ok ? 'info' : 'error',
+            'ZA-Neustart auf ' . $url . ' ' . ($ok ? 'angestossen' : 'fehlgeschlagen'));
         if ($ok) {
             return ['result'=>'ok','message'=>'ZA Engine Neustart angestossen.'];
         }

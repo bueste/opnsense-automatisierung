@@ -46,4 +46,10 @@ class IndexController extends \OPNsense\Base\IndexController
         $this->view->title = gettext('Configuration Backup');
         $this->view->pick('OPNsense/Automatisierung/backup');
     }
+
+    public function logAction()
+    {
+        $this->view->title = gettext('Log');
+        $this->view->pick('OPNsense/Automatisierung/log');
+    }
 }
