@@ -76,10 +76,10 @@ msgid "Delete selection"
 msgstr "Auswahl löschen"
 
 msgid "Auto OPNsense"
-msgstr ""
+msgstr "Auto-OPNsense"
 
 msgid "Auto ZA"
-msgstr ""
+msgstr "Auto-ZA"
 
 msgid "Auto-Backup"
 msgstr ""
@@ -121,7 +121,7 @@ msgid "Backup schedule"
 msgstr "Backup-Zeitplan"
 
 msgid "Backups"
-msgstr ""
+msgstr "Sicherungen"
 
 msgid "Backups are created according to the configured schedule"
 msgstr "Backups werden zum konfigurierten Zeitplan erstellt"
@@ -283,7 +283,7 @@ msgid "ZA check interval"
 msgstr "ZA Check-Intervall"
 
 msgid "ZA Watchdog"
-msgstr ""
+msgstr "ZA-Watchdog"
 
 msgid "Enable ZA Watchdog"
 msgstr "ZA Watchdog aktivieren"
@@ -298,10 +298,10 @@ msgid "Timestamp"
 msgstr "Zeitstempel"
 
 msgid "Zenarmor Backup"
-msgstr ""
+msgstr "Zenarmor-Backup"
 
 msgid "Zenarmor Watchdog"
-msgstr ""
+msgstr "Zenarmor-Watchdog"
 
 msgid "Update Zenarmor automatically"
 msgstr "Zenarmor automatisch updaten"
@@ -455,3 +455,64 @@ msgstr "Paket"
 
 msgid "packages"
 msgstr "Pakete"
+
+# --- Log tab ---
+msgid "Automation – Log"
+msgstr "Automatisierung – Log"
+
+msgid "Source"
+msgstr "Quelle"
+
+msgid "All sources"
+msgstr "Alle Quellen"
+
+msgid "Level"
+msgstr "Level"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "Lines"
+msgstr "Zeilen"
+
+msgid "Search"
+msgstr "Suche"
+
+msgid "Filter messages..."
+msgstr "Meldungen filtern..."
+
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+msgid "Auto-refresh (10s)"
+msgstr "Auto-Aktualisierung (10s)"
+
+msgid "Clear"
+msgstr "Leeren"
+
+msgid "Time"
+msgstr "Zeit"
+
+msgid "Message"
+msgstr "Meldung"
+
+msgid "No entries."
+msgstr "Keine Einträge."
+
+msgid "entries"
+msgstr "Einträge"
+
+msgid "Failed to load log."
+msgstr "Log konnte nicht geladen werden."
+
+msgid "Please pick a single source to clear."
+msgstr "Bitte eine einzelne Quelle zum Leeren auswählen."
+
+msgid "Really clear this log?"
+msgstr "Dieses Log wirklich leeren?"
+
+msgid "Clear failed."
+msgstr "Leeren fehlgeschlagen."
+
+msgid "Log geleert."
+msgstr "Log geleert."
