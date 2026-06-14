@@ -35,6 +35,7 @@ import base64
 import logging
 import os
 import glob
+import shutil
 import time
 import hashlib
 import xml.etree.ElementTree as ET
@@ -42,6 +43,9 @@ from datetime import datetime, timedelta
 
 LOG_FILE    = '/var/log/automatisierung_backup.log'
 BACKUP_ROOT = '/conf/automatisierung/backups'
+# Legacy location used before the move to /conf (which is persistent even with
+# "Use RAM disk" enabled). /var/db lives on a RAM disk in that case.
+LEGACY_BACKUP_ROOT = '/var/db/automatisierung/backups'
 
 logging.basicConfig(
     level=logging.INFO,
@@ -79,11 +83,14 @@ def api_call(base_url, api_key, api_secret, endpoint,
         ctx.verify_mode = ssl.CERT_NONE
 
     creds = base64.b64encode(f"{api_key}:{api_secret}".encode()).decode()
-    headers = {
-        'Authorization': f'Basic {creds}',
-        'Content-Type': 'application/json',
-    }
-    body = json.dumps(data or {}).encode() if method == 'POST' else None
+    # Only send Content-Type on POST (with a body). Sending it on a bodyless GET
+    # makes OPNsense try to parse an empty JSON body and reject the request with
+    # HTTP 400 — which silently broke every scheduled backup download.
+    headers = {'Authorization': f'Basic {creds}'}
+    body = None
+    if method == 'POST':
+        body = json.dumps(data or {}).encode()
+        headers['Content-Type'] = 'application/json'
     req = urllib.request.Request(url, data=body, headers=headers, method=method)
 
     try:
@@ -99,6 +106,22 @@ def api_call(base_url, api_key, api_secret, endpoint,
     except Exception as e:
         log.warning("  Connection error %s: %s", url, e)
         return 0, None
+
+
+def migrate_legacy_backups():
+    """One-time move of backups from the old /var/db path to /conf.
+
+    Backups taken before the path move are otherwise invisible in the UI (which
+    reads BACKUP_ROOT) and would be lost on reboot if a RAM disk is enabled.
+    """
+    if not os.path.isdir(LEGACY_BACKUP_ROOT) or os.path.exists(BACKUP_ROOT):
+        return
+    try:
+        os.makedirs(os.path.dirname(BACKUP_ROOT), mode=0o750, exist_ok=True)
+        shutil.move(LEGACY_BACKUP_ROOT, BACKUP_ROOT)
+        log.info("Migrated legacy backups: %s -> %s", LEGACY_BACKUP_ROOT, BACKUP_ROOT)
+    except Exception as e:
+        log.error("Legacy backup migration failed: %s", e)
 
 
 def ensure_dir(uuid):
@@ -169,6 +192,7 @@ def skip_if_identical(host_dir, new_content):
 
 def main():
     log.info("=== Automatisierung backup job started ===")
+    migrate_legacy_backups()
     config = load_config()
     if config is None:
         sys.exit(1)
