@@ -217,7 +217,7 @@ class ServiceController extends ApiControllerBase
                 if (!empty($fwSt['data']['updates'])) {
                     $entry['opnsense_update_count'] = count($fwSt['data']['updates']);
                     foreach ($fwSt['data']['updates'] as $pkg) {
-                        if (strpos($pkg['name'] ?? '', 'os-zenarmor') !== false) {
+                        if (strpos($pkg['name'] ?? '', 'os-sensei') !== false) {
                             $entry['za_update']  = true;
                             $entry['za_new_ver'] = $pkg['version'] ?? '?';
                         }
@@ -271,7 +271,7 @@ class ServiceController extends ApiControllerBase
         if ($uuid === '__local__') {
             try {
                 $backend = new Backend();
-                $backend->configdRun('firmware install os-zenarmor');
+                $backend->configdRun('firmware install os-sensei');
                 return ['result'=>'ok','message'=>'Lokales Zenarmor-Update gestartet.'];
             } catch (\Exception $e) {
                 return ['result'=>'failed','message'=>'Lokales ZA-Update fehlgeschlagen: ' . $e->getMessage()];
@@ -281,7 +281,7 @@ class ServiceController extends ApiControllerBase
         $host = $this->getHostByUuid($uuid);
         if (!$host) return ['result'=>'failed','message'=>'Host nicht gefunden'];
         list($url,$key,$secret,$sv) = $host;
-        $r = $this->remoteApiCall($url,$key,$secret,'core/firmware/install/os-zenarmor','POST',[],$sv);
+        $r = $this->remoteApiCall($url,$key,$secret,'core/firmware/install/os-sensei','POST',[],$sv);
         return $r['http_code']===200 ? ['result'=>'ok','message'=>'ZA Update gestartet.'] : ['result'=>'failed','message'=>'HTTP '.$r['http_code']];
     }
 
@@ -314,8 +314,9 @@ class ServiceController extends ApiControllerBase
 
         if ($uuid === '__local__') {
             $actions = [];
-            exec('pkg info -e os-zenarmor 2>/dev/null', $_d, $instRc);
-            if ($instRc !== 0) {
+            // Zenarmor ships as the os-sensei package; fall back to the install dir.
+            exec('pkg info -e os-sensei 2>/dev/null', $_d, $instRc);
+            if ($instRc !== 0 && !is_dir('/usr/local/zenarmor') && !is_dir('/usr/local/sensei')) {
                 return ['result'=>'ok','actions'=>['Zenarmor nicht installiert — kein Eingriff nötig.']];
             }
             exec('pgrep -x eastpect 2>/dev/null', $_d2, $pgrepRc);

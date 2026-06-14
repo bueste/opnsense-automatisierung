@@ -60,6 +60,8 @@
             </update_minute>
             <update_days type="TextField">
                 <Default>*</Default>
+                <mask>/^[\d,\*\-\/]+$/</mask>
+                <ValidationMessage>Ungültiger Cron-Ausdruck für Wochentage.</ValidationMessage>
             </update_days>
             <za_check_interval type="TextField">
                 <Default>15</Default>

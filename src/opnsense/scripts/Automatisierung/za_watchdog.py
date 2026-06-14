@@ -158,8 +158,9 @@ def _sh(cmd):
 
 
 def _local_za_installed():
-    rc, _ = _sh('pkg info -e os-zenarmor')
-    return rc == 0 or os.path.isdir('/usr/local/zenarmor')
+    # Zenarmor ships as the os-sensei package; fall back to the install dir.
+    rc, _ = _sh('pkg info -e os-sensei')
+    return rc == 0 or os.path.isdir('/usr/local/zenarmor') or os.path.isdir('/usr/local/sensei')
 
 
 def _local_engine_running():
