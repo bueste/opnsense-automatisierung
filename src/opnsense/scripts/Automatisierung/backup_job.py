@@ -61,6 +61,15 @@ log = logging.getLogger('automatisierung-backup')
 CONFIG_FILE = '/conf/config.xml'
 
 
+def _notify(title, message, priority=0):
+    """Best-effort push notification; never breaks the backup job."""
+    try:
+        import notify
+        notify.send(title, message, priority)
+    except Exception as e:
+        log.debug("notify fehlgeschlagen: %s", e)
+
+
 def load_config():
     try:
         tree = ET.parse(CONFIG_FILE)
@@ -216,6 +225,7 @@ def main():
         sys.exit(0)
 
     backed_up = 0
+    failed = []
     for host in hosts_node.findall('host'):
         if host.findtext('enabled', '0').strip() != '1':
             continue
@@ -244,6 +254,7 @@ def main():
         xml_content = fetch_backup(url, api_key, api_secret, skip_tls)
         if xml_content is None:
             log.warning("  ✗ No backup received for %s.", name)
+            failed.append(name)
             continue
 
         host_dir = ensure_dir(uuid)
@@ -273,6 +284,11 @@ def main():
         apply_retention(host_dir, retention_days)
 
     log.info("=== Done: %d host(s) backed up, retention: %d days ===", backed_up, retention_days)
+
+    if failed:
+        _notify("Backup fehlgeschlagen",
+                "Konfigurationsbackup fehlgeschlagen für: %s. "
+                "Bitte API-Erreichbarkeit/Backup-Rechte prüfen." % ", ".join(failed), 1)
 
 
 if __name__ == '__main__':

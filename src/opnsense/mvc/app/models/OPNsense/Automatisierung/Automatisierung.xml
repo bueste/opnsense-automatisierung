@@ -97,6 +97,46 @@
                 <MinimumValue>1</MinimumValue>
                 <MaximumValue>365</MaximumValue>
             </backup_retention_days>
+            <!-- Notifications -->
+            <notify_enabled type="BooleanField">
+                <Default>0</Default>
+            </notify_enabled>
+            <notify_telegram_enabled type="BooleanField">
+                <Default>0</Default>
+            </notify_telegram_enabled>
+            <notify_telegram_token type="TextField">
+                <mask>/^[^\s]{0,128}$/</mask>
+                <ValidationMessage>Ungültiges Telegram Bot-Token.</ValidationMessage>
+            </notify_telegram_token>
+            <notify_telegram_chatid type="TextField">
+                <mask>/^[\w\-]{0,64}$/</mask>
+                <ValidationMessage>Ungültige Telegram Chat-ID.</ValidationMessage>
+            </notify_telegram_chatid>
+            <notify_pushover_enabled type="BooleanField">
+                <Default>0</Default>
+            </notify_pushover_enabled>
+            <notify_pushover_token type="TextField">
+                <mask>/^[\w]{0,40}$/</mask>
+                <ValidationMessage>Ungültiges Pushover App-Token.</ValidationMessage>
+            </notify_pushover_token>
+            <notify_pushover_user type="TextField">
+                <mask>/^[\w]{0,40}$/</mask>
+                <ValidationMessage>Ungültiger Pushover User-Key.</ValidationMessage>
+            </notify_pushover_user>
+            <notify_matrix_enabled type="BooleanField">
+                <Default>0</Default>
+            </notify_matrix_enabled>
+            <notify_matrix_homeserver type="TextField">
+                <mask>/^(https?:\/\/.+)?$/</mask>
+                <ValidationMessage>Homeserver muss eine URL sein (https://...).</ValidationMessage>
+            </notify_matrix_homeserver>
+            <notify_matrix_token type="TextField">
+                <mask>/^[^\s]{0,256}$/</mask>
+            </notify_matrix_token>
+            <notify_matrix_room type="TextField">
+                <mask>/^[^\s]{0,128}$/</mask>
+                <ValidationMessage>Ungültige Matrix Room-ID (z.B. !abc:server.tld).</ValidationMessage>
+            </notify_matrix_room>
         </general>
     </items>
 </model>

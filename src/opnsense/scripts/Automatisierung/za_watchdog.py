@@ -54,6 +54,15 @@ ZA_STATUS_EP  = 'zenarmor/status/index'    # GET  → engine status
 ZA_SERVICE_EP = 'zenarmor/status/service'  # PUT  → start / restart
 
 
+def _notify(title, message, priority=0):
+    """Best-effort push notification; never breaks the watchdog."""
+    try:
+        import notify
+        notify.send(title, message, priority)
+    except Exception as e:
+        log.debug("notify fehlgeschlagen: %s", e)
+
+
 def api_get(base_url, key, secret, endpoint, skip_verify=False):
     url = base_url.rstrip('/') + '/api/' + endpoint.lstrip('/')
     ctx = ssl.create_default_context()
@@ -138,9 +147,16 @@ def check_host(name, url, key, secret, skip_verify):
             _, d2 = api_get(url, key, secret, ZA_STATUS_EP, skip_verify)
             if bool(d2.get('eastpect', {}).get('status', False)):
                 log.info("  Engine erfolgreich gestartet.")
+                _notify("Zenarmor neugestartet: %s" % name,
+                        "Die Engine war gestoppt und wurde vom Watchdog automatisch wieder gestartet.")
             else:
                 log.error("  Engine-Start verifiziert fehlgeschlagen – versuche restart...")
                 za_service(url, key, secret, skip_verify, 'restart')
+                _notify("Zenarmor-Start fehlgeschlagen: %s" % name,
+                        "Engine war gestoppt; der automatische Start wurde nicht bestätigt. Bitte prüfen.", 1)
+        else:
+            _notify("Zenarmor-Start fehlgeschlagen: %s" % name,
+                    "Engine ist gestoppt und der Watchdog konnte sie nicht starten (API-Fehler). Bitte prüfen.", 1)
     elif update_in_prog:
         log.info("  Update abgeschlossen, Restart empfohlen – starte neu...")
         ok = za_service(url, key, secret, skip_verify, 'restart')
@@ -192,8 +208,12 @@ def check_local():
     time.sleep(5)
     if _local_engine_running():
         log.info("  Lokale Engine erfolgreich gestartet.")
+        _notify("Zenarmor neugestartet: diese Firewall",
+                "Die lokale Engine war gestoppt und wurde vom Watchdog automatisch wieder gestartet.")
     else:
         log.error("  Lokaler Engine-Start fehlgeschlagen: %s", (out or '')[:200])
+        _notify("Zenarmor-Start fehlgeschlagen: diese Firewall",
+                "Die lokale Engine ist gestoppt und konnte nicht gestartet werden. Bitte prüfen.", 1)
 
 
 def interval_elapsed(interval_minutes):

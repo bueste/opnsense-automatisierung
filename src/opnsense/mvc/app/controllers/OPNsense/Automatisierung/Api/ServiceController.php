@@ -34,6 +34,25 @@ class ServiceController extends ApiControllerBase
 {
     private function getModel() { return new Automatisierung(); }
 
+    /**
+     * Newest local config backup timestamp (ISO 8601) for a host UUID, or null.
+     */
+    private function lastBackupTime($uuid)
+    {
+        $dir = '/conf/automatisierung/backups/' . preg_replace('/[^a-f0-9\-]/', '', (string)$uuid);
+        if (!is_dir($dir)) {
+            return null;
+        }
+        $latest = 0;
+        foreach (glob($dir . '/*.xml') ?: [] as $f) {
+            $m = filemtime($f);
+            if ($m > $latest) {
+                $latest = $m;
+            }
+        }
+        return $latest ? date('c', $latest) : null;
+    }
+
     private function remoteApiCall($url, $key, $secret, $endpoint, $method = 'GET', $postData = null, $skipVerify = false)
     {
         $fullUrl = rtrim($url, '/') . '/api/' . ltrim($endpoint, '/');
@@ -121,6 +140,7 @@ class ServiceController extends ApiControllerBase
             'za_version'           => null,
             'za_running'           => null,
             'error'                => null,
+            'last_backup'          => null,
         ];
 
         // Check for local firmware updates (--no-repo-update = fast, uses cached catalogue)
@@ -202,6 +222,7 @@ class ServiceController extends ApiControllerBase
                 'status' => 'unknown', 'opnsense_version' => null,
                 'opnsense_update' => null, 'za_installed' => false,
                 'za_version' => null, 'za_running' => null, 'error' => null,
+                'last_backup' => $this->lastBackupTime($uuid),
             ];
             $fw = $this->remoteApiCall($url, $key, $secret, 'core/firmware/info', 'GET', null, $skipVerify);
             if (!empty($fw['error']) || $fw['http_code'] !== 200) {

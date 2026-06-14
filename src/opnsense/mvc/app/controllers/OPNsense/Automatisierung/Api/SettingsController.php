@@ -33,6 +33,8 @@ namespace OPNsense\Automatisierung\Api;
 
 use OPNsense\Base\ApiMutableModelControllerBase;
 use OPNsense\Core\Config;
+use OPNsense\Core\Backend;
+use OPNsense\Automatisierung\Logger;
 
 class SettingsController extends ApiMutableModelControllerBase
 {
@@ -187,6 +189,112 @@ class SettingsController extends ApiMutableModelControllerBase
             } else {
                 $result['message'] = 'HTTP Fehler: ' . $httpCode;
             }
+        }
+        return $result;
+    }
+
+    /**
+     * Get notification settings
+     */
+    public function getNotificationsAction()
+    {
+        $g = $this->getModel()->general;
+        return ['notify' => [
+            'enabled'           => (string)$g->notify_enabled,
+            'telegram_enabled'  => (string)$g->notify_telegram_enabled,
+            'telegram_token'    => (string)$g->notify_telegram_token,
+            'telegram_chatid'   => (string)$g->notify_telegram_chatid,
+            'pushover_enabled'  => (string)$g->notify_pushover_enabled,
+            'pushover_token'    => (string)$g->notify_pushover_token,
+            'pushover_user'     => (string)$g->notify_pushover_user,
+            'matrix_enabled'    => (string)$g->notify_matrix_enabled,
+            'matrix_homeserver' => (string)$g->notify_matrix_homeserver,
+            'matrix_token'      => (string)$g->notify_matrix_token,
+            'matrix_room'       => (string)$g->notify_matrix_room,
+        ]];
+    }
+
+    /**
+     * Save notification settings
+     */
+    public function setNotificationsAction()
+    {
+        $result = ['result' => 'failed'];
+        if (!$this->request->isPost()) {
+            $result['message'] = 'POST required';
+            return $result;
+        }
+        $data = $this->request->getPost('notify');
+        if (!is_array($data)) {
+            $result['message'] = 'Keine Daten übermittelt';
+            return $result;
+        }
+        $g = $this->getModel()->general;
+        $map = [
+            'enabled'           => 'notify_enabled',
+            'telegram_enabled'  => 'notify_telegram_enabled',
+            'telegram_token'    => 'notify_telegram_token',
+            'telegram_chatid'   => 'notify_telegram_chatid',
+            'pushover_enabled'  => 'notify_pushover_enabled',
+            'pushover_token'    => 'notify_pushover_token',
+            'pushover_user'     => 'notify_pushover_user',
+            'matrix_enabled'    => 'notify_matrix_enabled',
+            'matrix_homeserver' => 'notify_matrix_homeserver',
+            'matrix_token'      => 'notify_matrix_token',
+            'matrix_room'       => 'notify_matrix_room',
+        ];
+        foreach ($map as $key => $field) {
+            if ($g->$field !== null) {
+                $g->$field->setValue(isset($data[$key]) ? $data[$key] : '');
+            }
+        }
+        $validation = $this->getModel()->performValidation();
+        if ($validation->count() === 0) {
+            $this->getModel()->serializeToConfig();
+            Config::getInstance()->save();
+            Logger::info('notify', 'Benachrichtigungs-Einstellungen gespeichert.');
+            $result['result'] = 'saved';
+        } else {
+            $result['validations'] = [];
+            foreach ($validation as $msg) {
+                $result['validations'][$msg->getField()] = $msg->getMessage();
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Send a test notification through all enabled channels (uses saved settings).
+     */
+    public function testNotificationAction()
+    {
+        $result = ['result' => 'failed', 'message' => ''];
+        if (!$this->request->isPost()) {
+            $result['message'] = 'POST required';
+            return $result;
+        }
+        try {
+            $backend = new Backend();
+            $raw = trim($backend->configdRun('automatisierung notify-test'));
+            $channels = json_decode($raw, true);
+            Logger::info('notify', 'Testbenachrichtigung ausgelöst: ' . $raw);
+            if (!is_array($channels) || count($channels) === 0) {
+                $result['result']  = 'ok';
+                $result['message'] = 'Kein Kanal aktiv/vollständig konfiguriert – nichts gesendet. '
+                    . 'Bitte zuerst speichern und einen Kanal aktivieren.';
+                return $result;
+            }
+            $okCh = array_keys(array_filter($channels));
+            $failCh = array_keys(array_filter($channels, function ($v) { return !$v; }));
+            $result['result']   = empty($failCh) ? 'ok' : 'partial';
+            $result['channels'] = $channels;
+            $msg = [];
+            if ($okCh)   $msg[] = 'OK: ' . implode(', ', $okCh);
+            if ($failCh) $msg[] = 'Fehlgeschlagen: ' . implode(', ', $failCh);
+            $result['message'] = implode(' | ', $msg);
+        } catch (\Exception $e) {
+            $result['message'] = 'Testversand fehlgeschlagen: ' . $e->getMessage();
+            Logger::error('notify', $result['message']);
         }
         return $result;
     }

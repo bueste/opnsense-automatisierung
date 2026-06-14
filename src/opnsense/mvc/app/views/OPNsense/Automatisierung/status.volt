@@ -29,6 +29,28 @@
         <div id="global_message" class="alert" style="display:none;margin-top:0.5em;"></div>
     </div>
 
+    <!-- ====== Health-Dashboard Zusammenfassung ====== -->
+    <div class="col-xs-12" id="health_summary" style="display:none;margin-bottom:1em;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <div class="hs-tile" style="flex:1;min-width:150px;border:1px solid #ddd;border-radius:6px;padding:10px 14px;background:#fafbfc;">
+                <div class="text-muted" style="font-size:0.8em;text-transform:uppercase;">{{ lang._('Nodes online') }}</div>
+                <div id="hs_nodes" style="font-size:1.5em;font-weight:600;">–</div>
+            </div>
+            <div class="hs-tile" style="flex:1;min-width:150px;border:1px solid #ddd;border-radius:6px;padding:10px 14px;background:#fafbfc;">
+                <div class="text-muted" style="font-size:0.8em;text-transform:uppercase;">{{ lang._('Zenarmor running') }}</div>
+                <div id="hs_za" style="font-size:1.5em;font-weight:600;">–</div>
+            </div>
+            <div class="hs-tile" style="flex:1;min-width:150px;border:1px solid #ddd;border-radius:6px;padding:10px 14px;background:#fafbfc;">
+                <div class="text-muted" style="font-size:0.8em;text-transform:uppercase;">{{ lang._('Updates available') }}</div>
+                <div id="hs_updates" style="font-size:1.5em;font-weight:600;">–</div>
+            </div>
+            <div class="hs-tile" style="flex:1;min-width:180px;border:1px solid #ddd;border-radius:6px;padding:10px 14px;background:#fafbfc;">
+                <div class="text-muted" style="font-size:0.8em;text-transform:uppercase;">{{ lang._('Last backup') }}</div>
+                <div id="hs_backup" style="font-size:1.05em;font-weight:600;">–</div>
+            </div>
+        </div>
+    </div>
+
     <!-- ====== Host-Karten Container ====== -->
     <div class="col-xs-12" id="hosts_container">
         <div id="loading_indicator" class="text-center" style="padding:3em;">
@@ -147,6 +169,8 @@ var i18n = {
     updateBtn:      "{{ lang._('update') }}",
     zaReloadNow:    "{{ lang._('Restart ZA engine') }}",
     zaWdCheck:      "{{ lang._('Run ZA Watchdog check now') }}",
+    lastBackup:     "{{ lang._('Last backup') }}",
+    noBackup:       "{{ lang._('No backup yet') }}",
     bulkOPNLabel:   "{{ lang._('Update OPNsense') }}",
     bulkOPNAll:     "{{ lang._('OPNsense (all up to date)') }}",
     bulkZALabel:    "{{ lang._('Update ZA') }}",
@@ -202,6 +226,7 @@ function loadAllStatus() {
                 }
             });
 
+            renderHealthSummary(resp.hosts);
             bindActionButtons();
             updateSelectedButton();
             $('#last_refresh').text(i18n.lastRefresh + ': ' + new Date().toLocaleTimeString());
@@ -212,6 +237,24 @@ function loadAllStatus() {
             $('#hosts_container').append('<div class="alert alert-danger"><i class="fa fa-times-circle"></i> ' + i18n.loadError + '</div>');
         }
     });
+}
+
+// ====== Health-Dashboard Zusammenfassung ======
+function renderHealthSummary(hosts) {
+    var total = 0, online = 0, zaTotal = 0, zaRun = 0, upd = 0, lastBk = null;
+    hosts.forEach(function(h) {
+        total++;
+        if (h.status === 'online') online++;
+        if (h.za_installed) { zaTotal++; if (h.za_running === true) zaRun++; }
+        if (h.opnsense_update === 'update' || (h.opnsense_update_count > 0) || h.za_update === true) upd++;
+        if (h.last_backup) { var t = new Date(h.last_backup).getTime(); if (!lastBk || t > lastBk) lastBk = t; }
+    });
+    $('#hs_nodes').text(online + ' / ' + total);
+    $('#hs_za').text(zaRun + ' / ' + zaTotal)
+        .css('color', (zaTotal > 0 && zaRun < zaTotal) ? '#d9534f' : '#3c763d');
+    $('#hs_updates').text(upd).css('color', upd > 0 ? '#d9534f' : '#3c763d');
+    $('#hs_backup').text(lastBk ? new Date(lastBk).toLocaleString() : '–');
+    $('#health_summary').show();
 }
 
 // ====== Host-Karte aufbauen ======
@@ -322,6 +365,15 @@ function buildHostCard(host) {
             html += '<div class="info-row"><span class="text-muted"><i class="fa fa-shield"></i> ' + i18n.zaNotInstalled + '</span></div>';
         }
         html += '</div>'; // za-section
+
+        // ---- Letztes Backup ----
+        if (host.last_backup) {
+            html += '<div class="info-row"><span class="info-label"><i class="fa fa-archive"></i> ' + i18n.lastBackup + ':</span>' +
+                    '<span>' + escHtml(new Date(host.last_backup).toLocaleString()) + '</span></div>';
+        } else if (!isLocal) {
+            html += '<div class="info-row"><span class="info-label"><i class="fa fa-archive"></i> ' + i18n.lastBackup + ':</span>' +
+                    '<span class="text-muted">' + i18n.noBackup + '</span></div>';
+        }
 
         // ---- Automatisierungs-Status ----
         html += '<div style="margin-top:14px;padding-top:10px;border-top:1px solid #f0f0f0;font-size:0.88em;color:#888;">';

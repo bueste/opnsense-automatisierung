@@ -117,6 +117,78 @@
         <div id="general_save_result" class="alert" style="display:none;"></div>
     </div>
 
+    <!-- ====== Benachrichtigungen ====== -->
+    <div class="col-xs-12" style="margin-top:2em;">
+        <h2>{{ lang._('Notifications') }}</h2>
+        <p class="text-muted">{{ lang._('Get a push message when the Zenarmor watchdog restarts the engine or a backup fails. Save first, then send a test.') }}</p>
+    </div>
+
+    <div class="col-xs-12">
+        <form id="frm_notify">
+            <div class="table-responsive">
+                <table class="table table-striped table-condensed">
+                    <tbody>
+                    <tr>
+                        <td style="width:30%"><strong>{{ lang._('Enable notifications') }}</strong></td>
+                        <td>
+                            <input type="checkbox" id="notify_enabled" name="notify[enabled]" value="1"/>
+                            <label for="notify_enabled" class="text-muted">{{ lang._('Master switch for all channels') }}</label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td><strong><i class="fa fa-telegram"></i> {{ lang._('Telegram') }}</strong></td>
+                        <td>
+                            <label style="font-weight:normal;display:block;">
+                                <input type="checkbox" id="notify_telegram_enabled" name="notify[telegram_enabled]" value="1"/>
+                                {{ lang._('Enable Telegram') }}
+                            </label>
+                            <input type="text" class="form-control input-sm" style="max-width:420px;margin-top:4px;" id="notify_telegram_token" name="notify[telegram_token]" placeholder="{{ lang._('Bot token (123456:ABC-DEF...)') }}" autocomplete="off"/>
+                            <input type="text" class="form-control input-sm" style="max-width:420px;margin-top:4px;" id="notify_telegram_chatid" name="notify[telegram_chatid]" placeholder="{{ lang._('Chat ID (e.g. 123456789)') }}" autocomplete="off"/>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td><strong><i class="fa fa-mobile"></i> {{ lang._('Pushover') }}</strong></td>
+                        <td>
+                            <label style="font-weight:normal;display:block;">
+                                <input type="checkbox" id="notify_pushover_enabled" name="notify[pushover_enabled]" value="1"/>
+                                {{ lang._('Enable Pushover') }}
+                            </label>
+                            <input type="text" class="form-control input-sm" style="max-width:420px;margin-top:4px;" id="notify_pushover_token" name="notify[pushover_token]" placeholder="{{ lang._('Application API token') }}" autocomplete="off"/>
+                            <input type="text" class="form-control input-sm" style="max-width:420px;margin-top:4px;" id="notify_pushover_user" name="notify[pushover_user]" placeholder="{{ lang._('User key') }}" autocomplete="off"/>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td><strong><i class="fa fa-comments"></i> {{ lang._('Matrix') }}</strong></td>
+                        <td>
+                            <label style="font-weight:normal;display:block;">
+                                <input type="checkbox" id="notify_matrix_enabled" name="notify[matrix_enabled]" value="1"/>
+                                {{ lang._('Enable Matrix') }}
+                            </label>
+                            <input type="text" class="form-control input-sm" style="max-width:420px;margin-top:4px;" id="notify_matrix_homeserver" name="notify[matrix_homeserver]" placeholder="{{ lang._('Homeserver URL (https://matrix.org)') }}" autocomplete="off"/>
+                            <input type="text" class="form-control input-sm" style="max-width:420px;margin-top:4px;" id="notify_matrix_token" name="notify[matrix_token]" placeholder="{{ lang._('Access token') }}" autocomplete="off"/>
+                            <input type="text" class="form-control input-sm" style="max-width:420px;margin-top:4px;" id="notify_matrix_room" name="notify[matrix_room]" placeholder="{{ lang._('Room ID (!abc:server.tld)') }}" autocomplete="off"/>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button id="btn_save_notify" class="btn btn-primary" type="button">
+                <span class="fa fa-save"></span> {{ lang._('Save settings') }}
+            </button>
+            <button id="btn_test_notify" class="btn btn-default" type="button">
+                <span class="fa fa-paper-plane"></span> {{ lang._('Send test notification') }}
+            </button>
+            <span id="notify_test_spinner" style="display:none;margin-left:8px;"><i class="fa fa-spinner fa-spin"></i></span>
+        </form>
+    </div>
+
+    <div class="col-xs-12" style="margin-top:1em;">
+        <div id="notify_save_result" class="alert" style="display:none;"></div>
+    </div>
+
 </div>
 
 <!-- ====== Host Edit Dialog ====== -->
@@ -354,8 +426,81 @@
         });
     });
 
+    // ====== Notifications laden ======
+    function loadNotifications() {
+        $.ajax('/api/automatisierung/settings/getNotifications', {success: function(data) {
+            if (!data.notify) return;
+            var n = data.notify;
+            $('#notify_enabled').prop('checked', n.enabled == '1');
+            $('#notify_telegram_enabled').prop('checked', n.telegram_enabled == '1');
+            $('#notify_telegram_token').val(n.telegram_token || '');
+            $('#notify_telegram_chatid').val(n.telegram_chatid || '');
+            $('#notify_pushover_enabled').prop('checked', n.pushover_enabled == '1');
+            $('#notify_pushover_token').val(n.pushover_token || '');
+            $('#notify_pushover_user').val(n.pushover_user || '');
+            $('#notify_matrix_enabled').prop('checked', n.matrix_enabled == '1');
+            $('#notify_matrix_homeserver').val(n.matrix_homeserver || '');
+            $('#notify_matrix_token').val(n.matrix_token || '');
+            $('#notify_matrix_room').val(n.matrix_room || '');
+        }});
+    }
+
+    function notifyPayload() {
+        return {notify: {
+            enabled:           $('#notify_enabled').is(':checked') ? '1' : '0',
+            telegram_enabled:  $('#notify_telegram_enabled').is(':checked') ? '1' : '0',
+            telegram_token:    $('#notify_telegram_token').val(),
+            telegram_chatid:   $('#notify_telegram_chatid').val(),
+            pushover_enabled:  $('#notify_pushover_enabled').is(':checked') ? '1' : '0',
+            pushover_token:    $('#notify_pushover_token').val(),
+            pushover_user:     $('#notify_pushover_user').val(),
+            matrix_enabled:    $('#notify_matrix_enabled').is(':checked') ? '1' : '0',
+            matrix_homeserver: $('#notify_matrix_homeserver').val(),
+            matrix_token:      $('#notify_matrix_token').val(),
+            matrix_room:       $('#notify_matrix_room').val(),
+        }};
+    }
+
+    function showNotifyResult(type, html) {
+        $('#notify_save_result').removeClass('alert-danger alert-success alert-warning alert-info')
+            .addClass('alert-' + type).html(html).show();
+        setTimeout(function() { $('#notify_save_result').fadeOut(); }, 6000);
+    }
+
+    // ====== Notifications speichern ======
+    $('#btn_save_notify').on('click', function() {
+        var $btn = $(this).prop('disabled', true);
+        $.ajax({
+            url: '/api/automatisierung/settings/setNotifications', method: 'POST',
+            data: notifyPayload(),
+            success: function(resp) {
+                var ok = resp.result === 'saved';
+                showNotifyResult(ok ? 'success' : 'danger',
+                    '<i class="fa fa-' + (ok ? 'check' : 'times') + '-circle"></i> ' +
+                    (ok ? '{{ lang._("Saved.") }}' : JSON.stringify(resp.validations || resp)));
+            },
+            complete: function() { $btn.prop('disabled', false); }
+        });
+    });
+
+    // ====== Testbenachrichtigung (nutzt gespeicherte Einstellungen) ======
+    $('#btn_test_notify').on('click', function() {
+        var $btn = $(this).prop('disabled', true);
+        $('#notify_test_spinner').show();
+        $.ajax({
+            url: '/api/automatisierung/settings/testNotification', method: 'POST',
+            success: function(resp) {
+                var type = resp.result === 'ok' ? 'success' : (resp.result === 'partial' ? 'warning' : 'info');
+                showNotifyResult(type, '<i class="fa fa-paper-plane"></i> ' + (resp.message || ''));
+            },
+            error: function() { showNotifyResult('danger', '{{ lang._("Test failed.") }}'); },
+            complete: function() { $btn.prop('disabled', false); $('#notify_test_spinner').hide(); }
+        });
+    });
+
     $(document).ready(function() {
         loadGeneralSettings();
+        loadNotifications();
     });
 
 //]]>

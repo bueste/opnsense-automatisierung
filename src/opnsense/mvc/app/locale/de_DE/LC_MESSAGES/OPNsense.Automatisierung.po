@@ -516,3 +516,68 @@ msgstr "Leeren fehlgeschlagen."
 
 msgid "Log geleert."
 msgstr "Log geleert."
+
+# --- Notifications ---
+msgid "Notifications"
+msgstr "Benachrichtigungen"
+
+msgid "Get a push message when the Zenarmor watchdog restarts the engine or a backup fails. Save first, then send a test."
+msgstr "Erhalte eine Push-Nachricht, wenn der Zenarmor-Watchdog die Engine neu startet oder ein Backup fehlschlägt. Zuerst speichern, dann testen."
+
+msgid "Enable notifications"
+msgstr "Benachrichtigungen aktivieren"
+
+msgid "Master switch for all channels"
+msgstr "Hauptschalter für alle Kanäle"
+
+msgid "Enable Telegram"
+msgstr "Telegram aktivieren"
+
+msgid "Bot token (123456:ABC-DEF...)"
+msgstr "Bot-Token (123456:ABC-DEF...)"
+
+msgid "Chat ID (e.g. 123456789)"
+msgstr "Chat-ID (z.B. 123456789)"
+
+msgid "Enable Pushover"
+msgstr "Pushover aktivieren"
+
+msgid "Application API token"
+msgstr "Application-API-Token"
+
+msgid "User key"
+msgstr "User-Key"
+
+msgid "Enable Matrix"
+msgstr "Matrix aktivieren"
+
+msgid "Homeserver URL (https://matrix.org)"
+msgstr "Homeserver-URL (https://matrix.org)"
+
+msgid "Access token"
+msgstr "Access-Token"
+
+msgid "Room ID (!abc:server.tld)"
+msgstr "Room-ID (!abc:server.tld)"
+
+msgid "Send test notification"
+msgstr "Testbenachrichtigung senden"
+
+msgid "Test failed."
+msgstr "Test fehlgeschlagen."
+
+# --- Health dashboard ---
+msgid "Nodes online"
+msgstr "Nodes online"
+
+msgid "Zenarmor running"
+msgstr "Zenarmor läuft"
+
+msgid "Updates available"
+msgstr "Updates verfügbar"
+
+msgid "Last backup"
+msgstr "Letztes Backup"
+
+msgid "No backup yet"
+msgstr "Noch kein Backup"
