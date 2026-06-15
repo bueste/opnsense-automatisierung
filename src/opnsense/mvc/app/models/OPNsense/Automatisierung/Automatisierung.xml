@@ -151,6 +151,14 @@
                 <MinimumValue>50</MinimumValue>
                 <MaximumValue>99</MaximumValue>
             </heal_ram_threshold>
+            <heal_db_enabled type="BooleanField">
+                <Default>0</Default>
+            </heal_db_enabled>
+            <heal_db_threshold type="IntegerField">
+                <Default>80</Default>
+                <MinimumValue>50</MinimumValue>
+                <MaximumValue>99</MaximumValue>
+            </heal_db_threshold>
             <heal_disk_enabled type="BooleanField">
                 <Default>0</Default>
             </heal_disk_enabled>

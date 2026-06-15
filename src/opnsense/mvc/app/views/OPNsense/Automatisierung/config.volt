@@ -223,6 +223,16 @@
                         </td>
                     </tr>
                     <tr>
+                        <td><strong><i class="fa fa-database"></i> {{ lang._('Reporting database (mongod/elasticsearch)') }}</strong></td>
+                        <td>
+                            <label style="font-weight:normal;">
+                                <input type="checkbox" id="heal_db_enabled" value="1"/>
+                                {{ lang._('Restart the reporting DB when its RAM usage exceeds') }}
+                            </label>
+                            <input type="number" class="form-control input-sm" style="width:80px;display:inline-block;" id="heal_db_threshold" min="50" max="99" value="80"/> %
+                        </td>
+                    </tr>
+                    <tr>
                         <td><strong><i class="fa fa-hdd-o"></i> {{ lang._('Disk protection') }}</strong></td>
                         <td>
                             <label style="font-weight:normal;">
@@ -576,6 +586,8 @@
             $('input[name="heal_iv"][value="' + (h.check_interval || '15') + '"]').prop('checked', true);
             $('#heal_ram_enabled').prop('checked', h.ram_enabled == '1');
             $('#heal_ram_threshold').val(h.ram_threshold || 85);
+            $('#heal_db_enabled').prop('checked', h.db_enabled == '1');
+            $('#heal_db_threshold').val(h.db_threshold || 80);
             $('#heal_disk_enabled').prop('checked', h.disk_enabled == '1');
             $('#heal_disk_threshold').val(h.disk_threshold || 90);
             $('#heal_ifreset_enabled').prop('checked', h.ifreset_enabled == '1');
@@ -588,6 +600,8 @@
             check_interval:  $('input[name="heal_iv"]:checked').val() || '15',
             ram_enabled:     $('#heal_ram_enabled').is(':checked') ? '1' : '0',
             ram_threshold:   $('#heal_ram_threshold').val() || '85',
+            db_enabled:      $('#heal_db_enabled').is(':checked') ? '1' : '0',
+            db_threshold:    $('#heal_db_threshold').val() || '80',
             disk_enabled:    $('#heal_disk_enabled').is(':checked') ? '1' : '0',
             disk_threshold:  $('#heal_disk_threshold').val() || '90',
             ifreset_enabled: $('#heal_ifreset_enabled').is(':checked') ? '1' : '0',

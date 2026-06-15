@@ -595,6 +595,12 @@ msgstr "Prüfintervall"
 msgid "RAM rebooter"
 msgstr "RAM-Neustart"
 
+msgid "Reporting database (mongod/elasticsearch)"
+msgstr "Reporting-DB (mongod/elasticsearch)"
+
+msgid "Restart the reporting DB when its RAM usage exceeds"
+msgstr "Reporting-DB neu starten, wenn ihr RAM-Verbrauch übersteigt"
+
 msgid "Gently restart the engine when its RAM usage exceeds"
 msgstr "Engine sanft neu starten, wenn ihr RAM-Verbrauch übersteigt"
 

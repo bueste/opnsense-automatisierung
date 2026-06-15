@@ -110,23 +110,78 @@ def restart_engine():
 # --------------------------------------------------------------------------- #
 # RAM check
 # --------------------------------------------------------------------------- #
-def eastpect_ram_percent():
-    """Sum RSS of all eastpect processes as a percentage of physical RAM."""
+def _ram_percent_for_pids(pids):
+    """Sum RSS of the given pids as a percentage of physical RAM."""
     rc, pmem = _sh('sysctl -n hw.physmem')
     if rc != 0 or not pmem.isdigit():
         return None
     physmem_kb = int(pmem) / 1024.0
-    rc, pids = _sh('pgrep -x eastpect')
-    if rc != 0 or not pids:
+    if physmem_kb <= 0:
+        return None
+    if not pids:
         return 0.0
     total_rss = 0
     for pid in pids.split():
         rc, rss = _sh('ps -o rss= -p %s' % pid)
         if rc == 0 and rss.strip().isdigit():
             total_rss += int(rss.strip())
-    if physmem_kb <= 0:
-        return None
     return round(total_rss / physmem_kb * 100.0, 1)
+
+
+def eastpect_ram_percent():
+    """Sum RSS of all eastpect processes as a percentage of physical RAM."""
+    rc, pids = _sh('pgrep -x eastpect')
+    return _ram_percent_for_pids(pids if rc == 0 else '')
+
+
+def detect_db():
+    """Return the active ZA reporting database engine, or None."""
+    if _sh('pgrep -x mongod')[0] == 0:
+        return 'mongod'
+    if _sh("pgrep -f 'org.elasticsearch.bootstrap|/elasticsearch'")[0] == 0:
+        return 'elasticsearch'
+    return None
+
+
+def db_ram_percent(db):
+    if db == 'mongod':
+        rc, pids = _sh('pgrep -x mongod')
+    else:
+        rc, pids = _sh("pgrep -f 'org.elasticsearch.bootstrap|/elasticsearch'")
+    return _ram_percent_for_pids(pids if rc == 0 else '')
+
+
+def restart_db(db):
+    rc, out = _sh('/usr/local/sbin/configctl zenarmor service %s restart' % db)
+    return rc == 0 and 'ERR:' not in (out or ''), out
+
+
+def check_db_ram(g):
+    """Restart the ZA reporting DB (mongod/elasticsearch) if it hogs RAM."""
+    if _txt(g, 'heal_db_enabled') != '1':
+        return
+    db = detect_db()
+    if not db:
+        log.info("  DB-RAM: keine Reporting-DB (mongod/elasticsearch) aktiv – übersprungen.")
+        return
+    threshold = _int(g, 'heal_db_threshold', 80)
+    pct = db_ram_percent(db)
+    if pct is None:
+        log.warning("  DB-RAM: Verbrauch nicht ermittelbar (%s).", db)
+        return
+    log.info("  DB-RAM: %s bei %.1f%% (Schwelle %d%%).", db, pct, threshold)
+    if pct >= threshold:
+        log.warning("  DB-RAM über Schwelle – starte %s neu...", db)
+        ok, out = restart_db(db)
+        if ok:
+            log.info("  %s neugestartet (RAM war %.1f%%).", db, pct)
+            _notify("Self-Healing: Reporting-DB neugestartet (RAM)",
+                    "%s lag bei %.1f%% RAM (Schwelle %d%%) und wurde automatisch neugestartet."
+                    % (db, pct, threshold), 1)
+        else:
+            log.error("  %s-Neustart fehlgeschlagen: %s", db, (out or '')[:200])
+            _notify("Self-Healing FEHLER: Reporting-DB-Neustart",
+                    "%s bei %.1f%% RAM; automatischer Neustart fehlgeschlagen. Bitte prüfen." % (db, pct), 1)
 
 
 def check_ram(g):
@@ -270,7 +325,7 @@ def main():
         sys.exit(0)
 
     any_enabled = any(_txt(g, k) == '1' for k in
-                      ('heal_ram_enabled', 'heal_disk_enabled', 'heal_ifreset_enabled'))
+                      ('heal_ram_enabled', 'heal_db_enabled', 'heal_disk_enabled', 'heal_ifreset_enabled'))
     if not any_enabled:
         log.info("Self-Healing global nicht aktiviert (alle Aktionen aus) – Ende.")
         sys.exit(0)
@@ -284,7 +339,7 @@ def main():
         log.info("Zenarmor lokal nicht installiert – Ende.")
         sys.exit(0)
 
-    for fn in (check_ram, check_disk, check_packetloss):
+    for fn in (check_ram, check_db_ram, check_disk, check_packetloss):
         try:
             fn(g)
         except Exception as e:
