@@ -298,4 +298,90 @@ class SettingsController extends ApiMutableModelControllerBase
         }
         return $result;
     }
+
+    /**
+     * Get self-healing settings
+     */
+    public function getHealingAction()
+    {
+        $g = $this->getModel()->general;
+        return ['healing' => [
+            'check_interval'  => (string)$g->heal_check_interval,
+            'ram_enabled'     => (string)$g->heal_ram_enabled,
+            'ram_threshold'   => (string)$g->heal_ram_threshold,
+            'disk_enabled'    => (string)$g->heal_disk_enabled,
+            'disk_threshold'  => (string)$g->heal_disk_threshold,
+            'ifreset_enabled' => (string)$g->heal_ifreset_enabled,
+            'ifreset_target'  => (string)$g->heal_ifreset_target,
+        ]];
+    }
+
+    /**
+     * Save self-healing settings
+     */
+    public function setHealingAction()
+    {
+        $result = ['result' => 'failed'];
+        if (!$this->request->isPost()) {
+            $result['message'] = 'POST required';
+            return $result;
+        }
+        $data = $this->request->getPost('healing');
+        if (!is_array($data)) {
+            $result['message'] = 'Keine Daten übermittelt';
+            return $result;
+        }
+        $g = $this->getModel()->general;
+        $map = [
+            'check_interval'  => 'heal_check_interval',
+            'ram_enabled'     => 'heal_ram_enabled',
+            'ram_threshold'   => 'heal_ram_threshold',
+            'disk_enabled'    => 'heal_disk_enabled',
+            'disk_threshold'  => 'heal_disk_threshold',
+            'ifreset_enabled' => 'heal_ifreset_enabled',
+            'ifreset_target'  => 'heal_ifreset_target',
+        ];
+        foreach ($map as $key => $field) {
+            if ($g->$field !== null && isset($data[$key])) {
+                $g->$field->setValue($data[$key]);
+            }
+        }
+        $validation = $this->getModel()->performValidation();
+        if ($validation->count() === 0) {
+            $this->getModel()->serializeToConfig();
+            Config::getInstance()->save();
+            Logger::info('selfheal', 'Self-Healing-Einstellungen gespeichert.');
+            $result['result'] = 'saved';
+        } else {
+            $result['validations'] = [];
+            foreach ($validation as $msg) {
+                $result['validations'][$msg->getField()] = $msg->getMessage();
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Run the self-healing checks now (manual trigger).
+     */
+    public function runHealingAction()
+    {
+        $result = ['result' => 'failed', 'message' => ''];
+        if (!$this->request->isPost()) {
+            $result['message'] = 'POST required';
+            return $result;
+        }
+        try {
+            $backend = new Backend();
+            $out = trim($backend->configdRun('automatisierung self-healing'));
+            Logger::info('selfheal', 'Self-Healing manuell ausgelöst.');
+            $result['result']  = 'ok';
+            $result['message'] = 'Self-Healing-Lauf ausgelöst. Details im Log-Tab (Quelle: Self-Healing).';
+            $result['output']  = $out;
+        } catch (\Exception $e) {
+            $result['message'] = 'Lauf fehlgeschlagen: ' . $e->getMessage();
+            Logger::error('selfheal', $result['message']);
+        }
+        return $result;
+    }
 }

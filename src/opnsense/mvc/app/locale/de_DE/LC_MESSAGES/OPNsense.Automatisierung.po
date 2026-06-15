@@ -581,3 +581,40 @@ msgstr "Letztes Backup"
 
 msgid "No backup yet"
 msgstr "Noch kein Backup"
+
+# --- Self-Healing ---
+msgid "Self-Healing"
+msgstr "Self-Healing"
+
+msgid "Local automatic recovery for the Zenarmor engine. Every action is OFF by default — enable only what you need. A notification is always sent when an action runs."
+msgstr "Lokale automatische Wiederherstellung für die Zenarmor-Engine. Jede Aktion ist standardmässig AUS — aktiviere nur, was du brauchst. Bei jeder Aktion wird eine Benachrichtigung gesendet."
+
+msgid "Check interval"
+msgstr "Prüfintervall"
+
+msgid "RAM rebooter"
+msgstr "RAM-Neustart"
+
+msgid "Gently restart the engine when its RAM usage exceeds"
+msgstr "Engine sanft neu starten, wenn ihr RAM-Verbrauch übersteigt"
+
+msgid "Disk protection"
+msgstr "Disk-Schutz"
+
+msgid "Run cleanup (ZA logs/datastore, trim large logs) when / exceeds"
+msgstr "Aufräumen (ZA-Logs/Datastore, grosse Logs kürzen), wenn / übersteigt"
+
+msgid "Interface reset on packet loss"
+msgstr "Interface-Reset bei Paketverlust"
+
+msgid "Restart the engine on 100% packet loss to the probe target (netmap/inline)"
+msgstr "Engine neu starten bei 100% Paketverlust zum Probe-Ziel (netmap/inline)"
+
+msgid "Probe target (IP behind the firewall)"
+msgstr "Probe-Ziel (IP hinter der Firewall)"
+
+msgid "Run check now"
+msgstr "Jetzt prüfen"
+
+msgid "Run failed."
+msgstr "Lauf fehlgeschlagen."

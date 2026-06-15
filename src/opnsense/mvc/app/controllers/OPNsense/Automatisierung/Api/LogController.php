@@ -45,6 +45,8 @@ class LogController extends ApiControllerBase
         return [
             'watchdog' => ['Zenarmor Watchdog', '/var/log/automatisierung_watchdog.log'],
             'backup'   => ['Backup',            '/var/log/automatisierung_backup.log'],
+            'selfheal' => ['Self-Healing',      '/var/log/automatisierung_selfheal.log'],
+            'notify'   => ['Notifications',     '/var/log/automatisierung_notify.log'],
             'update'   => ['Auto-Update',       '/var/log/automatisierung_update.log'],
             'ui'       => ['UI / API',          Logger::LOG_FILE],
         ];

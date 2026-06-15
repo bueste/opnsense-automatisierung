@@ -1,0 +1,10 @@
+# OPNsense Automatisierung Plugin — scheduled jobs
+# Cron drop-in loaded automatically (see /var/cron/tabs/root header). Each line
+# calls a configd action; the Python scripts gate themselves to the interval
+# configured in the plugin, so these fixed cron intervals only set the polling
+# granularity.
+#
+# minute hour mday month wday user command
+*/5 * * * * root /usr/local/bin/flock -n -E 0 -o /tmp/za_watchdog.lock /usr/local/sbin/configctl automatisierung watchdog >> /var/log/automatisierung_watchdog.log 2>&1
+0 * * * * root /usr/local/bin/flock -n -E 0 -o /tmp/automatisierung_backup.lock /usr/local/sbin/configctl automatisierung backup >> /var/log/automatisierung_backup.log 2>&1
+*/5 * * * * root /usr/local/bin/flock -n -E 0 -o /tmp/automatisierung_selfheal.lock /usr/local/sbin/configctl automatisierung self-healing >> /var/log/automatisierung_selfheal.log 2>&1

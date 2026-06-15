@@ -137,6 +137,35 @@
                 <mask>/^[^\s]{0,128}$/</mask>
                 <ValidationMessage>Ungültige Matrix Room-ID (z.B. !abc:server.tld).</ValidationMessage>
             </notify_matrix_room>
+            <!-- Self-Healing (separate cron; every action OFF by default, opt-in) -->
+            <heal_check_interval type="TextField">
+                <Default>15</Default>
+                <mask>/^(5|10|15|30|60)$/</mask>
+                <ValidationMessage>Ungültiges Intervall. Erlaubt: 5, 10, 15, 30, 60.</ValidationMessage>
+            </heal_check_interval>
+            <heal_ram_enabled type="BooleanField">
+                <Default>0</Default>
+            </heal_ram_enabled>
+            <heal_ram_threshold type="IntegerField">
+                <Default>85</Default>
+                <MinimumValue>50</MinimumValue>
+                <MaximumValue>99</MaximumValue>
+            </heal_ram_threshold>
+            <heal_disk_enabled type="BooleanField">
+                <Default>0</Default>
+            </heal_disk_enabled>
+            <heal_disk_threshold type="IntegerField">
+                <Default>90</Default>
+                <MinimumValue>50</MinimumValue>
+                <MaximumValue>99</MaximumValue>
+            </heal_disk_threshold>
+            <heal_ifreset_enabled type="BooleanField">
+                <Default>0</Default>
+            </heal_ifreset_enabled>
+            <heal_ifreset_target type="TextField">
+                <mask>/^[\w\.\-:]{0,128}$/</mask>
+                <ValidationMessage>Ungültiges Probe-Ziel (IP oder Hostname).</ValidationMessage>
+            </heal_ifreset_target>
         </general>
     </items>
 </model>

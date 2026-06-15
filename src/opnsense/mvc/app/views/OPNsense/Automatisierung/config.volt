@@ -189,6 +189,76 @@
         <div id="notify_save_result" class="alert" style="display:none;"></div>
     </div>
 
+    <!-- ====== Self-Healing ====== -->
+    <div class="col-xs-12" style="margin-top:2em;">
+        <h2>{{ lang._('Self-Healing') }}</h2>
+        <p class="text-muted">{{ lang._('Local automatic recovery for the Zenarmor engine. Every action is OFF by default — enable only what you need. A notification is always sent when an action runs.') }}</p>
+    </div>
+
+    <div class="col-xs-12">
+        <form id="frm_healing">
+            <div class="table-responsive">
+                <table class="table table-striped table-condensed">
+                    <tbody>
+                    <tr>
+                        <td style="width:30%"><strong>{{ lang._('Check interval') }}</strong></td>
+                        <td>
+                            <div id="heal_interval_radios">
+                                <label style="margin-right:12px;font-weight:normal"><input type="radio" name="heal_iv" value="5"> {{ lang._('5 Min') }}</label>
+                                <label style="margin-right:12px;font-weight:normal"><input type="radio" name="heal_iv" value="10"> {{ lang._('10 Min') }}</label>
+                                <label style="margin-right:12px;font-weight:normal"><input type="radio" name="heal_iv" value="15"> {{ lang._('15 Min') }}</label>
+                                <label style="margin-right:12px;font-weight:normal"><input type="radio" name="heal_iv" value="30"> {{ lang._('30 Min') }}</label>
+                                <label style="font-weight:normal"><input type="radio" name="heal_iv" value="60"> {{ lang._('60 Min') }}</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong><i class="fa fa-microchip"></i> {{ lang._('RAM rebooter') }}</strong></td>
+                        <td>
+                            <label style="font-weight:normal;">
+                                <input type="checkbox" id="heal_ram_enabled" value="1"/>
+                                {{ lang._('Gently restart the engine when its RAM usage exceeds') }}
+                            </label>
+                            <input type="number" class="form-control input-sm" style="width:80px;display:inline-block;" id="heal_ram_threshold" min="50" max="99" value="85"/> %
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong><i class="fa fa-hdd-o"></i> {{ lang._('Disk protection') }}</strong></td>
+                        <td>
+                            <label style="font-weight:normal;">
+                                <input type="checkbox" id="heal_disk_enabled" value="1"/>
+                                {{ lang._('Run cleanup (ZA logs/datastore, trim large logs) when / exceeds') }}
+                            </label>
+                            <input type="number" class="form-control input-sm" style="width:80px;display:inline-block;" id="heal_disk_threshold" min="50" max="99" value="90"/> %
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong><i class="fa fa-plug"></i> {{ lang._('Interface reset on packet loss') }}</strong></td>
+                        <td>
+                            <label style="font-weight:normal;display:block;">
+                                <input type="checkbox" id="heal_ifreset_enabled" value="1"/>
+                                {{ lang._('Restart the engine on 100% packet loss to the probe target (netmap/inline)') }}
+                            </label>
+                            <input type="text" class="form-control input-sm" style="max-width:280px;margin-top:4px;" id="heal_ifreset_target" placeholder="{{ lang._('Probe target (IP behind the firewall)') }}"/>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button id="btn_save_healing" class="btn btn-primary" type="button">
+                <span class="fa fa-save"></span> {{ lang._('Save settings') }}
+            </button>
+            <button id="btn_run_healing" class="btn btn-default" type="button">
+                <span class="fa fa-heartbeat"></span> {{ lang._('Run check now') }}
+            </button>
+            <span id="heal_run_spinner" style="display:none;margin-left:8px;"><i class="fa fa-spinner fa-spin"></i></span>
+        </form>
+    </div>
+
+    <div class="col-xs-12" style="margin-top:1em;">
+        <div id="healing_save_result" class="alert" style="display:none;"></div>
+    </div>
+
 </div>
 
 <!-- ====== Host Edit Dialog ====== -->
@@ -498,9 +568,72 @@
         });
     });
 
+    // ====== Self-Healing laden ======
+    function loadHealing() {
+        $.ajax('/api/automatisierung/settings/getHealing', {success: function(data) {
+            if (!data.healing) return;
+            var h = data.healing;
+            $('input[name="heal_iv"][value="' + (h.check_interval || '15') + '"]').prop('checked', true);
+            $('#heal_ram_enabled').prop('checked', h.ram_enabled == '1');
+            $('#heal_ram_threshold').val(h.ram_threshold || 85);
+            $('#heal_disk_enabled').prop('checked', h.disk_enabled == '1');
+            $('#heal_disk_threshold').val(h.disk_threshold || 90);
+            $('#heal_ifreset_enabled').prop('checked', h.ifreset_enabled == '1');
+            $('#heal_ifreset_target').val(h.ifreset_target || '');
+        }});
+    }
+
+    function healingPayload() {
+        return {healing: {
+            check_interval:  $('input[name="heal_iv"]:checked').val() || '15',
+            ram_enabled:     $('#heal_ram_enabled').is(':checked') ? '1' : '0',
+            ram_threshold:   $('#heal_ram_threshold').val() || '85',
+            disk_enabled:    $('#heal_disk_enabled').is(':checked') ? '1' : '0',
+            disk_threshold:  $('#heal_disk_threshold').val() || '90',
+            ifreset_enabled: $('#heal_ifreset_enabled').is(':checked') ? '1' : '0',
+            ifreset_target:  $('#heal_ifreset_target').val(),
+        }};
+    }
+
+    function showHealResult(type, html) {
+        $('#healing_save_result').removeClass('alert-danger alert-success alert-warning alert-info')
+            .addClass('alert-' + type).html(html).show();
+        setTimeout(function() { $('#healing_save_result').fadeOut(); }, 6000);
+    }
+
+    $('#btn_save_healing').on('click', function() {
+        var $btn = $(this).prop('disabled', true);
+        $.ajax({
+            url: '/api/automatisierung/settings/setHealing', method: 'POST',
+            data: healingPayload(),
+            success: function(resp) {
+                var ok = resp.result === 'saved';
+                showHealResult(ok ? 'success' : 'danger',
+                    '<i class="fa fa-' + (ok ? 'check' : 'times') + '-circle"></i> ' +
+                    (ok ? '{{ lang._("Saved.") }}' : JSON.stringify(resp.validations || resp)));
+            },
+            complete: function() { $btn.prop('disabled', false); }
+        });
+    });
+
+    $('#btn_run_healing').on('click', function() {
+        var $btn = $(this).prop('disabled', true);
+        $('#heal_run_spinner').show();
+        $.ajax({
+            url: '/api/automatisierung/settings/runHealing', method: 'POST',
+            success: function(resp) {
+                showHealResult(resp.result === 'ok' ? 'info' : 'danger',
+                    '<i class="fa fa-heartbeat"></i> ' + (resp.message || ''));
+            },
+            error: function() { showHealResult('danger', '{{ lang._("Run failed.") }}'); },
+            complete: function() { $btn.prop('disabled', false); $('#heal_run_spinner').hide(); }
+        });
+    });
+
     $(document).ready(function() {
         loadGeneralSettings();
         loadNotifications();
+        loadHealing();
     });
 
 //]]>
