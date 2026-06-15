@@ -323,3 +323,165 @@ msgstr ""
 
 msgid "Monitors whether Zenarmor is running and restarts the engine if necessary"
 msgstr ""
+
+msgid "Automation – Log"
+msgstr "Automatizace – Log"
+
+msgid "Source"
+msgstr "Zdroj"
+
+msgid "All sources"
+msgstr "Všechny zdroje"
+
+msgid "Level"
+msgstr "Úroveň"
+
+msgid "All"
+msgstr "Vše"
+
+msgid "Lines"
+msgstr "Řádky"
+
+msgid "Search"
+msgstr "Hledat"
+
+msgid "Filter messages..."
+msgstr "Filtrovat zprávy..."
+
+msgid "Refresh"
+msgstr "Obnovit"
+
+msgid "Auto-refresh (10s)"
+msgstr "Automatické obnovení (10s)"
+
+msgid "Clear"
+msgstr "Vymazat"
+
+msgid "Time"
+msgstr "Čas"
+
+msgid "Message"
+msgstr "Zpráva"
+
+msgid "No entries."
+msgstr "Žádné záznamy."
+
+msgid "entries"
+msgstr "záznamů"
+
+msgid "Failed to load log."
+msgstr "Načtení logu se nezdařilo."
+
+msgid "Please pick a single source to clear."
+msgstr "Vyberte jeden zdroj k vymazání."
+
+msgid "Really clear this log?"
+msgstr "Opravdu vymazat tento log?"
+
+msgid "Clear failed."
+msgstr "Vymazání se nezdařilo."
+
+msgid "Notifications"
+msgstr "Oznámení"
+
+msgid "Get a push message when the Zenarmor watchdog restarts the engine or a backup fails. Save first, then send a test."
+msgstr "Získejte push zprávu, když watchdog Zenarmoru restartuje engine nebo selhá záloha. Nejprve uložte, pak odešlete test."
+
+msgid "Enable notifications"
+msgstr "Zapnout oznámení"
+
+msgid "Master switch for all channels"
+msgstr "Hlavní vypínač pro všechny kanály"
+
+msgid "Enable Telegram"
+msgstr "Zapnout Telegram"
+
+msgid "Bot token (123456:ABC-DEF...)"
+msgstr "Token bota (123456:ABC-DEF...)"
+
+msgid "Chat ID (e.g. 123456789)"
+msgstr "ID chatu (např. 123456789)"
+
+msgid "Enable Pushover"
+msgstr "Zapnout Pushover"
+
+msgid "Application API token"
+msgstr "API token aplikace"
+
+msgid "User key"
+msgstr "Uživatelský klíč"
+
+msgid "Enable Matrix"
+msgstr "Zapnout Matrix"
+
+msgid "Homeserver URL (https://matrix.org)"
+msgstr "URL homeserveru (https://matrix.org)"
+
+msgid "Access token"
+msgstr "Přístupový token"
+
+msgid "Room ID (!abc:server.tld)"
+msgstr "ID místnosti (!abc:server.tld)"
+
+msgid "Send test notification"
+msgstr "Odeslat testovací oznámení"
+
+msgid "Test failed."
+msgstr "Test selhal."
+
+msgid "Nodes online"
+msgstr "Uzly online"
+
+msgid "Zenarmor running"
+msgstr "Zenarmor běží"
+
+msgid "Updates available"
+msgstr "Dostupné aktualizace"
+
+msgid "Last backup"
+msgstr "Poslední záloha"
+
+msgid "No backup yet"
+msgstr "Zatím žádná záloha"
+
+msgid "Self-Healing"
+msgstr "Samoobnova"
+
+msgid "Local automatic recovery for the Zenarmor engine. Every action is OFF by default — enable only what you need. A notification is always sent when an action runs."
+msgstr "Místní automatické zotavení enginu Zenarmor. Každá akce je ve výchozím stavu VYPNUTA — zapněte jen to, co potřebujete. Při každé akci se vždy odešle oznámení."
+
+msgid "Check interval"
+msgstr "Interval kontroly"
+
+msgid "RAM rebooter"
+msgstr "Restart při RAM"
+
+msgid "Reporting database (mongod/elasticsearch)"
+msgstr "Databáze reportů (mongod/elasticsearch)"
+
+msgid "Restart the reporting DB when its RAM usage exceeds"
+msgstr "Restartovat report DB, když její RAM překročí"
+
+msgid "Gently restart the engine when its RAM usage exceeds"
+msgstr "Šetrně restartovat engine, když jeho RAM překročí"
+
+msgid "Disk protection"
+msgstr "Ochrana disku"
+
+msgid "Run cleanup (ZA logs/datastore, trim large logs) when / exceeds"
+msgstr "Spustit úklid (logy/datastore ZA, zkrátit velké logy), když / překročí"
+
+msgid "Interface reset on packet loss"
+msgstr "Reset rozhraní při ztrátě paketů"
+
+msgid "Restart the engine on 100% packet loss to the probe target (netmap/inline)"
+msgstr "Restartovat engine při 100% ztrátě paketů k cíli sondy (netmap/inline)"
+
+msgid "Probe target (IP behind the firewall)"
+msgstr "Cíl sondy (IP za firewallem)"
+
+msgid "Run check now"
+msgstr "Spustit kontrolu nyní"
+
+msgid "Run failed."
+msgstr "Spuštění selhalo."

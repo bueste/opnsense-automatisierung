@@ -323,3 +323,165 @@ msgstr ""
 
 msgid "Monitors whether Zenarmor is running and restarts the engine if necessary"
 msgstr ""
+
+msgid "Automation – Log"
+msgstr "Automatización – Registro"
+
+msgid "Source"
+msgstr "Fuente"
+
+msgid "All sources"
+msgstr "Todas las fuentes"
+
+msgid "Level"
+msgstr "Nivel"
+
+msgid "All"
+msgstr "Todos"
+
+msgid "Lines"
+msgstr "Líneas"
+
+msgid "Search"
+msgstr "Buscar"
+
+msgid "Filter messages..."
+msgstr "Filtrar mensajes..."
+
+msgid "Refresh"
+msgstr "Actualizar"
+
+msgid "Auto-refresh (10s)"
+msgstr "Auto-actualizar (10s)"
+
+msgid "Clear"
+msgstr "Vaciar"
+
+msgid "Time"
+msgstr "Hora"
+
+msgid "Message"
+msgstr "Mensaje"
+
+msgid "No entries."
+msgstr "Sin entradas."
+
+msgid "entries"
+msgstr "entradas"
+
+msgid "Failed to load log."
+msgstr "Error al cargar el registro."
+
+msgid "Please pick a single source to clear."
+msgstr "Seleccione una sola fuente para vaciar."
+
+msgid "Really clear this log?"
+msgstr "¿Vaciar realmente este registro?"
+
+msgid "Clear failed."
+msgstr "Error al vaciar."
+
+msgid "Notifications"
+msgstr "Notificaciones"
+
+msgid "Get a push message when the Zenarmor watchdog restarts the engine or a backup fails. Save first, then send a test."
+msgstr "Reciba un mensaje push cuando el watchdog de Zenarmor reinicie el motor o falle una copia de seguridad. Guarde primero, luego envíe una prueba."
+
+msgid "Enable notifications"
+msgstr "Activar notificaciones"
+
+msgid "Master switch for all channels"
+msgstr "Interruptor principal para todos los canales"
+
+msgid "Enable Telegram"
+msgstr "Activar Telegram"
+
+msgid "Bot token (123456:ABC-DEF...)"
+msgstr "Token del bot (123456:ABC-DEF...)"
+
+msgid "Chat ID (e.g. 123456789)"
+msgstr "ID de chat (p.ej. 123456789)"
+
+msgid "Enable Pushover"
+msgstr "Activar Pushover"
+
+msgid "Application API token"
+msgstr "Token API de la aplicación"
+
+msgid "User key"
+msgstr "Clave de usuario"
+
+msgid "Enable Matrix"
+msgstr "Activar Matrix"
+
+msgid "Homeserver URL (https://matrix.org)"
+msgstr "URL del homeserver (https://matrix.org)"
+
+msgid "Access token"
+msgstr "Token de acceso"
+
+msgid "Room ID (!abc:server.tld)"
+msgstr "ID de sala (!abc:server.tld)"
+
+msgid "Send test notification"
+msgstr "Enviar notificación de prueba"
+
+msgid "Test failed."
+msgstr "La prueba falló."
+
+msgid "Nodes online"
+msgstr "Nodos en línea"
+
+msgid "Zenarmor running"
+msgstr "Zenarmor en ejecución"
+
+msgid "Updates available"
+msgstr "Actualizaciones disponibles"
+
+msgid "Last backup"
+msgstr "Última copia"
+
+msgid "No backup yet"
+msgstr "Aún sin copia"
+
+msgid "Self-Healing"
+msgstr "Auto-recuperación"
+
+msgid "Local automatic recovery for the Zenarmor engine. Every action is OFF by default — enable only what you need. A notification is always sent when an action runs."
+msgstr "Recuperación automática local del motor Zenarmor. Cada acción está DESACTIVADA por defecto: active solo lo necesario. Siempre se envía una notificación al ejecutar una acción."
+
+msgid "Check interval"
+msgstr "Intervalo de comprobación"
+
+msgid "RAM rebooter"
+msgstr "Reinicio por RAM"
+
+msgid "Reporting database (mongod/elasticsearch)"
+msgstr "Base de datos de informes (mongod/elasticsearch)"
+
+msgid "Restart the reporting DB when its RAM usage exceeds"
+msgstr "Reiniciar la BD de informes cuando su uso de RAM supere"
+
+msgid "Gently restart the engine when its RAM usage exceeds"
+msgstr "Reiniciar suavemente el motor cuando su uso de RAM supere"
+
+msgid "Disk protection"
+msgstr "Protección de disco"
+
+msgid "Run cleanup (ZA logs/datastore, trim large logs) when / exceeds"
+msgstr "Ejecutar limpieza (logs/datastore de ZA, recortar logs grandes) cuando / supere"
+
+msgid "Interface reset on packet loss"
+msgstr "Reinicio de interfaz por pérdida de paquetes"
+
+msgid "Restart the engine on 100% packet loss to the probe target (netmap/inline)"
+msgstr "Reiniciar el motor con 100% de pérdida de paquetes al destino de sonda (netmap/inline)"
+
+msgid "Probe target (IP behind the firewall)"
+msgstr "Destino de sonda (IP detrás del firewall)"
+
+msgid "Run check now"
+msgstr "Ejecutar comprobación ahora"
+
+msgid "Run failed."
+msgstr "La ejecución falló."

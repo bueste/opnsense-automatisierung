@@ -323,3 +323,165 @@ msgstr ""
 
 msgid "Monitors whether Zenarmor is running and restarts the engine if necessary"
 msgstr ""
+
+msgid "Automation – Log"
+msgstr "자동화 – 로그"
+
+msgid "Source"
+msgstr "소스"
+
+msgid "All sources"
+msgstr "모든 소스"
+
+msgid "Level"
+msgstr "레벨"
+
+msgid "All"
+msgstr "전체"
+
+msgid "Lines"
+msgstr "줄 수"
+
+msgid "Search"
+msgstr "검색"
+
+msgid "Filter messages..."
+msgstr "메시지 필터..."
+
+msgid "Refresh"
+msgstr "새로고침"
+
+msgid "Auto-refresh (10s)"
+msgstr "자동 새로고침 (10초)"
+
+msgid "Clear"
+msgstr "지우기"
+
+msgid "Time"
+msgstr "시간"
+
+msgid "Message"
+msgstr "메시지"
+
+msgid "No entries."
+msgstr "항목 없음."
+
+msgid "entries"
+msgstr "개"
+
+msgid "Failed to load log."
+msgstr "로그를 불러오지 못했습니다."
+
+msgid "Please pick a single source to clear."
+msgstr "지울 소스를 하나 선택하세요."
+
+msgid "Really clear this log?"
+msgstr "이 로그를 정말 지울까요?"
+
+msgid "Clear failed."
+msgstr "지우기 실패."
+
+msgid "Notifications"
+msgstr "알림"
+
+msgid "Get a push message when the Zenarmor watchdog restarts the engine or a backup fails. Save first, then send a test."
+msgstr "Zenarmor 워치독이 엔진을 재시작하거나 백업이 실패하면 푸시 메시지를 받습니다. 먼저 저장한 후 테스트를 보내세요."
+
+msgid "Enable notifications"
+msgstr "알림 사용"
+
+msgid "Master switch for all channels"
+msgstr "모든 채널의 마스터 스위치"
+
+msgid "Enable Telegram"
+msgstr "Telegram 사용"
+
+msgid "Bot token (123456:ABC-DEF...)"
+msgstr "봇 토큰 (123456:ABC-DEF...)"
+
+msgid "Chat ID (e.g. 123456789)"
+msgstr "채팅 ID (예: 123456789)"
+
+msgid "Enable Pushover"
+msgstr "Pushover 사용"
+
+msgid "Application API token"
+msgstr "애플리케이션 API 토큰"
+
+msgid "User key"
+msgstr "사용자 키"
+
+msgid "Enable Matrix"
+msgstr "Matrix 사용"
+
+msgid "Homeserver URL (https://matrix.org)"
+msgstr "홈서버 URL (https://matrix.org)"
+
+msgid "Access token"
+msgstr "액세스 토큰"
+
+msgid "Room ID (!abc:server.tld)"
+msgstr "방 ID (!abc:server.tld)"
+
+msgid "Send test notification"
+msgstr "테스트 알림 보내기"
+
+msgid "Test failed."
+msgstr "테스트 실패."
+
+msgid "Nodes online"
+msgstr "온라인 노드"
+
+msgid "Zenarmor running"
+msgstr "Zenarmor 실행 중"
+
+msgid "Updates available"
+msgstr "업데이트 있음"
+
+msgid "Last backup"
+msgstr "마지막 백업"
+
+msgid "No backup yet"
+msgstr "백업 없음"
+
+msgid "Self-Healing"
+msgstr "자가 복구"
+
+msgid "Local automatic recovery for the Zenarmor engine. Every action is OFF by default — enable only what you need. A notification is always sent when an action runs."
+msgstr "Zenarmor 엔진의 로컬 자동 복구. 모든 작업은 기본적으로 꺼져 있습니다 — 필요한 것만 켜세요. 작업이 실행되면 항상 알림이 전송됩니다."
+
+msgid "Check interval"
+msgstr "검사 간격"
+
+msgid "RAM rebooter"
+msgstr "RAM 재시작"
+
+msgid "Reporting database (mongod/elasticsearch)"
+msgstr "리포팅 데이터베이스 (mongod/elasticsearch)"
+
+msgid "Restart the reporting DB when its RAM usage exceeds"
+msgstr "리포팅 DB의 RAM 사용률이 초과하면 재시작"
+
+msgid "Gently restart the engine when its RAM usage exceeds"
+msgstr "엔진의 RAM 사용률이 초과하면 부드럽게 재시작"
+
+msgid "Disk protection"
+msgstr "디스크 보호"
+
+msgid "Run cleanup (ZA logs/datastore, trim large logs) when / exceeds"
+msgstr "/ 가 초과하면 정리 실행 (ZA 로그/datastore, 큰 로그 자르기)"
+
+msgid "Interface reset on packet loss"
+msgstr "패킷 손실 시 인터페이스 재설정"
+
+msgid "Restart the engine on 100% packet loss to the probe target (netmap/inline)"
+msgstr "프로브 대상으로 100% 패킷 손실 시 엔진 재시작 (netmap/inline)"
+
+msgid "Probe target (IP behind the firewall)"
+msgstr "프로브 대상 (방화벽 뒤의 IP)"
+
+msgid "Run check now"
+msgstr "지금 검사 실행"
+
+msgid "Run failed."
+msgstr "실행 실패."
